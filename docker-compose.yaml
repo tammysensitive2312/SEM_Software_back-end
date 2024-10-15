@@ -8,10 +8,12 @@ services:
       - .:/workspace:cached
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - MYSQL_HOST=db
+      - MYSQL_URL=jdbc:mysql://db:3306/sem_db
       - MYSQL_USER=root
       - MYSQL_PASSWORD=sem_service
-      - MYSQL_DB=sem_db
+      - FLYWAY_URL=jdbc:mysql://db:3306/sem_db
+      - FLYWAY_USER=root
+      - FLYWAY_PASSWORD=sem_service
     depends_on:
       - db
   db:
