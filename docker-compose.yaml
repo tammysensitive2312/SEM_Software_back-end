@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   devcontainer:
+    container_name: sembackend-devcontainer-1
     build:
       context: .
       dockerfile: ./Dockerfile
