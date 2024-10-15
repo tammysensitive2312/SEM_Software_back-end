@@ -3,9 +3,10 @@ services:
   devcontainer:
     build:
       context: .
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - .:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - MYSQL_HOST=db
       - MYSQL_USER=root

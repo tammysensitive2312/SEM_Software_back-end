@@ -1,11 +1,7 @@
 FROM openjdk:21-bullseye
 
 # Install Maven
-RUN apt-get update && apt-get install -y maven
-
-# Install MySQL client
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends mysql-client
+RUN apt-get update && apt-get install -y maven make
 
 # Clean up
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
