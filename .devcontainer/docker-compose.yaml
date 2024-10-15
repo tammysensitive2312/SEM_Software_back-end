@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - .:/workspace:cached
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=sem_service
+      - MYSQL_DB=sem_db
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=sem_service
+      - MYSQL_DATABASE=sem_db
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql-data:
