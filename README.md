@@ -7,7 +7,7 @@
 Chạy lệnh sau để khởi động môi trường phát triển:
 
 ```sh
-make run-dev-env
+make setup-dev-env
 ```
 
 ## Bước 2: Truy cập vào container phát triển
