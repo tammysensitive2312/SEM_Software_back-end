@@ -1,0 +1,1 @@
+Insert Into users (username, password) Values ('admin', 'truong')
