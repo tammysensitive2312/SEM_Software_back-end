@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Display Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Equipment Details by Room</h1>
+    <div id="equipment-list" class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Room Number</th>
+                <th>Room Type</th>
+                <th>Equipment Category</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Current Status</th>
+                <th>Operating Hours</th>
+            </tr>
+            </thead>
+            <tbody id="equipment-data">
+            <!-- Dynamic content will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        axios.get('http://localhost:8080/api/v1/equipment/sorted-by-room?page=0&size=20')
+            .then(function (response) {
+                // Lấy dữ liệu từ JSON trả về
+                const equipmentList = response.data.content;
+
+                // Tham chiếu đến tbody để thêm dữ liệu
+                const equipmentDataContainer = document.getElementById('equipment-data');
+
+                // Duyệt qua danh sách thiết bị và tạo các hàng mới trong bảng
+                equipmentList.forEach(item => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                            <td>${item.roomNumber}</td>
+                            <td>${item.roomType}</td>
+                            <td>${item.equipmentCategory}</td>
+                            <td>${item.code}</td>
+                            <td>${item.description}</td>
+                            <td>${item.currentStatus}</td>
+                            <td>${item.operatingHours}</td>
+                        `;
+
+                    // Thêm hàng mới vào tbody
+                    equipmentDataContainer.appendChild(row);
+                });
+            })
+            .catch(function (error) {
+                console.error('Error fetching data:', error);
+            });
+    });
+</script>
+</body>
+</html>
