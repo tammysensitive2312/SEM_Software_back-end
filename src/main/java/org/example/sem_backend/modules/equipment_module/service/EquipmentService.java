@@ -17,14 +17,21 @@ public class EquipmentService implements IEquipmentService {
     private final EquipmentDetailRepository equipmentDetailRepository;
     private final EquipmentMapper equipmentMapper;
 
-    @Override
-    public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(Pageable pageable) {
-        Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllByOrderByRoomNumberAsc(pageable);
+    /**
+ * Retrieves a paginated list of equipment details sorted by room number in ascending order.
+ *
+ * @param pageable The pagination and sorting parameters.
+ * @return A paginated list of {@link GetEquipmentResponseDto} objects representing the equipment details.
+ * @throws ResourceNotFoundException If no equipment details are found.
+ */
+@Override
+public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(Pageable pageable) {
+    Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllByOrderByRoomNumberAsc(pageable);
 
-        if (equipmentDetails.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy thiết bị nào.");
-        }
-
-        return equipmentDetails.map(equipmentMapper::toDto);
+    if (equipmentDetails.isEmpty()) {
+        throw new ResourceNotFoundException("Không tìm thấy thiết bị nào.");
     }
+
+    return equipmentDetails.map(equipmentMapper::toDto);
+}
 }

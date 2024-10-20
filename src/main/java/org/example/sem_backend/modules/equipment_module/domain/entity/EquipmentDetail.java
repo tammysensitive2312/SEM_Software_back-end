@@ -1,11 +1,6 @@
 package org.example.sem_backend.modules.equipment_module.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +20,6 @@ public class EquipmentDetail extends BaseEntity {
     private String purchaseDate;
     private String description;
     private String code;
-    private String location;  // Room ID
     private String currentStatus;
     private int operatingHours;
 
@@ -33,7 +27,7 @@ public class EquipmentDetail extends BaseEntity {
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "room_id")
     private Room room;
 

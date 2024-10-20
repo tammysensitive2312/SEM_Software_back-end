@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * This interface represents a repository for managing {@link EquipmentDetail} entities.
+ * It extends Spring Data JPA's {@link JpaRepository} interface, providing basic CRUD operations
+ * and additional methods for querying and sorting equipment details.
+ */
 @Repository
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
   Page<EquipmentDetail> findAllByOrderByRoomNumberAsc(Pageable pageable);
