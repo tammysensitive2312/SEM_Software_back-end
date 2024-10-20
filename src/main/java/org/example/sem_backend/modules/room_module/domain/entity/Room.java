@@ -6,17 +6,25 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "room")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long uniqueId;
+
     private String number;
     private String type;
     private int capacity;
+    private String roomCondition;
+    private String availableFrom;
+    private String availableTo;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoomSchedule> roomSchedules;
 }
