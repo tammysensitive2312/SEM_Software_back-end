@@ -2,7 +2,7 @@
 
 ## Sơ đồ Kiến trúc
 
-![Kiến trúc Hệ thống](https://github.com/user-attachments/assets/8ceb4d5e-d0fd-415a-820f-9f1714e07209)
+![Kiến trúc Hệ thống](https://github.com/user-attachments/assets/55034748-4b54-4d9a-b0f6-7efa518fdb1e)
 
 
 ## Mô tả Kiến trúc
