@@ -52,8 +52,8 @@ public class RoutingController {
 
         if (path.startsWith("/api/v1/equipment")) {
             return "http://localhost:8080/equipment" + path.replace("/api/v1/equipment", "");
-        } else if (path.startsWith("/api/v1/user")) {
-            return "http://localhost:8080/user" + path.replace("/api/v1/user", "");
+        } else if (path.startsWith("/api/v1/room")) {
+            return "http://localhost:8080/room" + path.replace("/api/v1/room", "");
         }
 
         throw new IllegalArgumentException("Unknown route for: " + path);
