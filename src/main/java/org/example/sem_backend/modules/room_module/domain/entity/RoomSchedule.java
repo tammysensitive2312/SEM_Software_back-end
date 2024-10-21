@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "room_schedules")
@@ -21,7 +22,7 @@ public class RoomSchedule {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    private String startTime;
-    private String endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private String user;
 }

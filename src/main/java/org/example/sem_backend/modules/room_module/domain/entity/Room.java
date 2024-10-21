@@ -22,8 +22,6 @@ public class Room {
     private String type;
     private int capacity;
     private String roomCondition;
-    private String availableFrom;
-    private String availableTo;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoomSchedule> roomSchedules;

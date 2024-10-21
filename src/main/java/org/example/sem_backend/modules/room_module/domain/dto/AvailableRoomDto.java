@@ -12,6 +12,4 @@ public class AvailableRoomDto {
     private String type;
     private int capacity;
     private String roomCondition;
-    private String availableFrom;
-    private String availableTo;
 }
