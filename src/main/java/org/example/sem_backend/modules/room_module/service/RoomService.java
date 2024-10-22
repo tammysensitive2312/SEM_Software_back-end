@@ -1,6 +1,7 @@
 package org.example.sem_backend.modules.room_module.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
@@ -31,6 +32,10 @@ public class RoomService implements IRoomService{
 
         // Lấy danh sách phòng trống từ repository
         List<Room> rooms = roomRepository.findAvailableRooms(type, startTime, endTime);
+
+        if (rooms.isEmpty()) {
+            throw new ResourceConflictException("Không có phòng nào khả dụng trong thời gian yêu cầu", "ROOM_MODULE");
+        }
 
         // Map kết quả sang DTO
         return rooms.stream()
@@ -66,10 +71,16 @@ public class RoomService implements IRoomService{
         Specification<Room> spec = Specification.where(RoomSpecification.hasCapacity(capacity, comparisonOperator))
                 .and(RoomSpecification.hasRoomCondition(roomCondition));
 
-        return roomRepository.findAll(spec)
+        List<RoomDto> rooms = roomRepository.findAll(spec)
                 .stream()
                 .map(roomMapper::toDto)
                 .toList();
+
+        if (rooms.isEmpty()) {
+            throw new ResourceConflictException("Không có phòng nào đáp ứng yêu cầu", "ROOM_MODULE");
+        }
+
+        return rooms;
     }
 
 }

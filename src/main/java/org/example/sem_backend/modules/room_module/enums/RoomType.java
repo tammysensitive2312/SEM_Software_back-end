@@ -9,7 +9,8 @@ public enum RoomType {
     Classroom("phòng học"),
     Laboratory("phòng thí nghiệm"),
     Conference("phòng hội thảo"),
-    Warehouse("phòng kho thiết bị");
+    Warehouse("phòng kho thiết bị"),
+    Office("văn phòng cán bộ");
 
     private final String description;
 }
