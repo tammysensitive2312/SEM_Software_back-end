@@ -1,6 +1,6 @@
 package org.example.sem_backend.modules.room_module.enums;
 
-public enum RoomStatus {
+public enum RoomCondition {
     UNDER_MAINTENANCE,
     BROKEN,
     AVAILABLE,

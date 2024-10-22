@@ -1,10 +1,12 @@
 package org.example.sem_backend.modules.room_module.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.sem_backend.modules.room_module.domain.dto.AvailableRoomDto;
+import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
+import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +18,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoomService {
+public class RoomService implements IRoomService{
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
 
     @Transactional(readOnly = true)
-    public List<AvailableRoomDto> findAvailableRooms(String type, LocalDate date, String period) {
+    public List<RoomDto> findAvailableRooms(String type, LocalDate date, String period) {
         // Chuyển đổi thứ thành khung giờ bắt đầu và kết thúc
         LocalDateTime startTime = convertPeriodToStartTime(date, period);
         LocalDateTime endTime = convertPeriodToEndTime(date, period);
@@ -57,6 +59,17 @@ public class RoomService {
             case "tiết 5" -> date.atTime(11, 30);
             default -> throw new IllegalArgumentException("tham số tiết học không hợp lệ");
         };
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomDto> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
+        Specification<Room> spec = Specification.where(RoomSpecification.hasCapacity(capacity, comparisonOperator))
+                .and(RoomSpecification.hasRoomCondition(roomCondition));
+
+        return roomRepository.findAll(spec)
+                .stream()
+                .map(roomMapper::toDto)
+                .toList();
     }
 
 }
