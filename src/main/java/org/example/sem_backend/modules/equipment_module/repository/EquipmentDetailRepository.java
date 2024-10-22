@@ -15,5 +15,4 @@ import java.util.List;
  */
 @Repository
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
-  Page<EquipmentDetail> findAllByOrderByRoomNumberAsc(Pageable pageable);
 }

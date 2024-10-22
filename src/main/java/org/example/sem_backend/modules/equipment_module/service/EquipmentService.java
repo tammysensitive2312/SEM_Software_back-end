@@ -24,14 +24,5 @@ public class EquipmentService implements IEquipmentService {
  * @return A paginated list of {@link GetEquipmentResponseDto} objects representing the equipment details.
  * @throws ResourceNotFoundException If no equipment details are found.
  */
-@Override
-public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(Pageable pageable) {
-    Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllByOrderByRoomNumberAsc(pageable);
 
-    if (equipmentDetails.isEmpty()) {
-        throw new ResourceNotFoundException("Không tìm thấy thiết bị nào.");
-    }
-
-    return equipmentDetails.map(equipmentMapper::toDto);
-}
 }

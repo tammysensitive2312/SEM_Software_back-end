@@ -22,6 +22,7 @@ public class Equipment extends BaseEntity {
     private int totalQuantity;
     private int usableQuantity;
     private int brokenQuantity;
+
     @Enumerated(EnumType.STRING)
     private Category category;
 
