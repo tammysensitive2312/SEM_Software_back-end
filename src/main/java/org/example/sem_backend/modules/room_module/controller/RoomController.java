@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
-import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.service.RoomService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -42,19 +41,15 @@ public class RoomController {
             @RequestParam String type,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam String period) {
-        try {
-            List<RoomDto> availableRooms = roomService.findAvailableRooms(type, date, period);
-            return ResponseEntity.ok(availableRooms);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        List<RoomDto> availableRooms = roomService.findAvailableRooms(type, date, period);
+        return ResponseEntity.ok(availableRooms);
     }
 
     @Operation(summary = "Search rooms based on capacity and room condition",
             description = "Fetch rooms based on capacity, comparison operator, and room condition.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved rooms",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Room.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = RoomDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "Invalid input parameters", content = @Content)
     })
