@@ -5,10 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -19,7 +15,7 @@ import java.util.Set;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long uniqueId;
 
     private String roomName;
 

@@ -44,6 +44,9 @@ public class RoomService implements IRoomService{
         String statusStr = status != null ? status.name() : null;
 
         Page<Room> roomPage = roomRepository.findByTypeAndStatus(typeStr, statusStr, pageable);
+        if (roomPage == null) {
+            throw new ResourceNotFoundException("không có phòng nào thỏa mãn yêu cầu");
+        }
         return roomPage.map(roomMapper::toResponse);
     }
 

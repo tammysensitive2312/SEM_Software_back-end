@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RoomType {
-    CLASSROOM("Phòng học"),
+    Classroom("Phòng học"),
     EQUIPMENT_ROOM("Phòng thiết bị"),
-    MEETING_ROOM("Phòng họp"),
-    LABORATORY("Phòng thí nghiệm"),
-    OFFICE("Văn phòng");
+    Conference("Phòng họp"),
+    Laboratory("Phòng thí nghiệm"),
+    Office("Văn phòng");
 
     private final String value;
 }
