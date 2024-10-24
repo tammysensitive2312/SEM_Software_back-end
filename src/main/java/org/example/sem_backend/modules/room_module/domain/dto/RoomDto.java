@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AvailableRoomDto {
+public class RoomDto {
     private String number;
     private String type;
     private int capacity;
