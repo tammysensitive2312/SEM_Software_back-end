@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoomService implements IRoomService{
+public class RoomService implements IRoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
@@ -86,6 +86,7 @@ public class RoomService implements IRoomService{
             default -> throw new IllegalArgumentException("tham số tiết học không hợp lệ");
         };
     }
+
     @Override
     public Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomCondition status, Pageable pageable) {
         String typeStr = type != null ? type.name() : null;
