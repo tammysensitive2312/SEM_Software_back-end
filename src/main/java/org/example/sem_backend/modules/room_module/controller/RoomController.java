@@ -1,5 +1,6 @@
 package org.example.sem_backend.modules.room_module.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
 import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
@@ -19,13 +20,13 @@ public class RoomController {
     private final IRoomService roomService;
 
     @PostMapping
-    public ResponseEntity<String> addRoom(@RequestBody RoomRequest roomRequest) {
+    public ResponseEntity<String> addRoom(@Valid @RequestBody RoomRequest roomRequest) {
         roomService.addRoom(roomRequest);
         return ResponseEntity.ok("Room added successfully");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateRoom(@RequestBody RoomRequest roomRequest, @PathVariable Long id) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateRoom(@Valid @RequestBody RoomRequest roomRequest, @PathVariable Integer id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }
@@ -41,7 +42,7 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRoom(@PathVariable Long id) {
+    public ResponseEntity<String> deleteRoom(@PathVariable Integer id) {
         roomService.deleteRoom(id);
         return ResponseEntity.ok("Room deleted successfully");
     }

@@ -1,6 +1,8 @@
 package org.example.sem_backend.modules.equipment_module.repository;
 
+import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
+import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +17,10 @@ import java.util.List;
  */
 @Repository
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
+
+    boolean existsByCode(String code);
+
+    Page<EquipmentDetail> findByEquipmentId(Long equipmentId, Pageable pageable);
+
+    Page<EquipmentDetail> findByRoomId(Integer roomId, Pageable pageable);
 }

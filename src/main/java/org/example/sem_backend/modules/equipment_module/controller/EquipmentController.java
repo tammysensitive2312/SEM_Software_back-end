@@ -1,18 +1,17 @@
 package org.example.sem_backend.modules.equipment_module.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.sem_backend.modules.equipment_module.domain.dto.GetEquipmentResponseDto;
+import org.example.sem_backend.modules.equipment_module.domain.dto.EquipmentRequest;
+import org.example.sem_backend.modules.equipment_module.domain.dto.EquipmentResponse;
+import org.example.sem_backend.modules.equipment_module.domain.dto.UpdateEquipmentRequest;
+import org.example.sem_backend.modules.equipment_module.domain.entity.Category;
 import org.example.sem_backend.modules.equipment_module.service.EquipmentService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/equipment")
@@ -21,16 +20,27 @@ public class EquipmentController {
 
     private final EquipmentService equipmentService;
 
-//    @Operation(summary = "Retrieve all equipment sorted by room number",
-//            description = "Fetch a paginated list of equipment sorted by the room in which they are located.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "api thực hiện thành công", content = @Content(mediaType = "application/json")),
-//            @ApiResponse(responseCode = "400", description = "sai tham số", content = @Content),
-//            @ApiResponse(responseCode = "500", description = "có lỗi khi server xử lý", content = @Content)
-//    })
-//    @GetMapping("/sorted-by-room")
-//    public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(
-//            @Parameter(description = "Pagination information such as page number and size") Pageable pageable) {
-//        return equipmentService.getAllEquipmentSortedByRoom(pageable);
-//    }
+    @PostMapping
+    public ResponseEntity<String> addEquipment(@Valid @RequestBody EquipmentRequest equipmentRequest) {
+        equipmentService.addEquipment(equipmentRequest);
+        return ResponseEntity.ok("Equipment added successfully");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateEquipment(@Valid @RequestBody UpdateEquipmentRequest request, @PathVariable Long id) {
+        equipmentService.updateEquipment(id, request);
+        return ResponseEntity.ok("Equipment updated successfully");
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<EquipmentResponse>> getEquipmentsByCategory(
+            @RequestParam(required = false) Category category,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EquipmentResponse> equipments = equipmentService.getEquipmentsByCategory(category, pageable);
+        return ResponseEntity.ok(equipments);
+    }
+
 }

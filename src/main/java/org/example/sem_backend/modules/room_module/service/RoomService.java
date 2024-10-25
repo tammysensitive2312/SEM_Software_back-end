@@ -1,8 +1,8 @@
 package org.example.sem_backend.modules.room_module.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.modules.room_module.domain.dto.request.RoomFilterRequest;
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
 import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
@@ -23,17 +23,21 @@ public class RoomService implements IRoomService{
 
     @Override
     public void addRoom(RoomRequest request) {
+        if (roomRepository.existsRoomByRoomName(request.getRoomName())) {
+            throw new ResourceConflictException("Room name already exists");
+        }
+
         Room room = roomMapper.toEntity(request);
+        room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
     }
 
     @Override
-    public void updateRoom(RoomRequest request, Long id) {
+    public void updateRoom(RoomRequest request, Integer id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
         room.setRoomName(request.getRoomName());
         room.setType(request.getType());
-        room.setStatus(request.getStatus());
         room.setCapacity(request.getCapacity());
         roomRepository.save(room);
     }
@@ -48,7 +52,7 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public void deleteRoom(Long id) {
+    public void deleteRoom(Integer id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
         roomRepository.delete(room);

@@ -10,9 +10,9 @@ import org.springframework.data.domain.Pageable;
 public interface IRoomService {
     void addRoom(RoomRequest request);
 
-    void updateRoom(RoomRequest request, Long id);
+    void updateRoom(RoomRequest request, Integer id);
 
     Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
 
-    void deleteRoom(Long id);
+    void deleteRoom(Integer id);
 }

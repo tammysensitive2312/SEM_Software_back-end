@@ -10,6 +10,5 @@ import org.example.sem_backend.modules.room_module.domain.entity.RoomType;
 public class RoomRequest {
     private String roomName;
     private RoomType type;
-    private RoomStatus status;
     private Integer capacity;
 }

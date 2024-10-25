@@ -9,5 +9,5 @@ public class RoomResponse {
     private String roomName;
     private String type;
     private String status;
-    private Integer capacity;
+    private int capacity;
 }
