@@ -21,13 +21,13 @@ public class EquipmentDetail extends BaseEntity {
     private String description;
     private String code;
     private String currentStatus;
-    private int operatingHours;
+    private int operatingHours = 0;
 
     @ManyToOne
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL    )
     @JoinColumn(name = "room_id")
     private Room room;
 

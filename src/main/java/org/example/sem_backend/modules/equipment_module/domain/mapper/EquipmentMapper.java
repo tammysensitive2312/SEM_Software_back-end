@@ -8,12 +8,4 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EquipmentMapper {
 
-    @Mapping(source = "room.number", target = "roomNumber")
-    @Mapping(source = "room.type", target = "roomType")
-    @Mapping(source = "equipment.category.description", target = "equipmentCategory")
-    @Mapping(source = "code", target = "code")
-    @Mapping(source = "description", target = "description")
-    @Mapping(source = "currentStatus", target = "currentStatus")
-    @Mapping(source = "operatingHours", target = "operatingHours")
-    GetEquipmentResponseDto toDto(EquipmentDetail equipmentDetail);
 }

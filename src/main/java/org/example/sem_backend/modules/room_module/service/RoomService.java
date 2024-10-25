@@ -2,11 +2,16 @@ package org.example.sem_backend.modules.room_module.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
+import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
+import org.example.sem_backend.modules.room_module.enums.RoomCondition;
+import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +41,27 @@ public class RoomService implements IRoomService{
         if (rooms.isEmpty()) {
             throw new ResourceConflictException("Không có phòng nào khả dụng trong thời gian yêu cầu", "ROOM_MODULE");
         }
-
         // Map kết quả sang DTO
         return rooms.stream()
                 .map(roomMapper::toDto)
                 .collect(Collectors.toList());
+        }
+
+
+    @Override
+    public void addRoom(RoomDto request) {
+        Room room = roomMapper.toEntity(request);
+        roomRepository.save(room);
+    }
+    @Override
+    public void updateRoom(RoomDto request, Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
+        room.setDescription(request.getNumber());
+        room.setType(request.getType());
+        room.setRoomCondition(request.getRoomCondition());
+        room.setCapacity(request.getCapacity());
+        roomRepository.save(room);
     }
 
     private LocalDateTime convertPeriodToStartTime(LocalDate date, String period) {
@@ -65,6 +86,18 @@ public class RoomService implements IRoomService{
             default -> throw new IllegalArgumentException("tham số tiết học không hợp lệ");
         };
     }
+    @Override
+    public Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomCondition status, Pageable pageable) {
+        String typeStr = type != null ? type.name() : null;
+        String statusStr = status != null ? status.name() : null;
+
+        Page<Room> roomPage = roomRepository.findByTypeAndStatus(typeStr, statusStr, pageable);
+        if (roomPage == null) {
+            throw new ResourceNotFoundException("không có phòng nào thỏa mãn yêu cầu", "ROOM-MODULE");
+        }
+        return roomPage.map(roomMapper::toDto);
+        }
+
 
     @Transactional(readOnly = true)
     public List<RoomDto> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
@@ -79,8 +112,12 @@ public class RoomService implements IRoomService{
         if (rooms.isEmpty()) {
             throw new ResourceConflictException("Không có phòng nào đáp ứng yêu cầu", "ROOM_MODULE");
         }
-
-        return rooms;
     }
 
+//    @Override
+//    public void deleteRoom(Long id) {
+//        Room room = roomRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+//        roomRepository.delete(room);
+//    }
 }

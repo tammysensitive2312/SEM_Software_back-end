@@ -1,5 +1,8 @@
 package org.example.sem_backend.modules.equipment_module.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Category {
     TEACHING_EQUIPMENT("Thiết bị giảng dạy"),
     LABORATORY_EQUIPMENT("Thiết bị phòng thí nghiệm"),
@@ -10,9 +13,5 @@ public enum Category {
 
     Category(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

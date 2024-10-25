@@ -15,12 +15,13 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "room")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long uniqueId;
 
-    private String number;
+    private String description;
     @Enumerated(EnumType.STRING)
     private RoomType type;
     private int capacity;

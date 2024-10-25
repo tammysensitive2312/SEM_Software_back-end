@@ -6,7 +6,6 @@ import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RoomMapper {
-    Room toEntity(RoomDto roomDto);
 
     @Mapping(target = "type", expression = "java(room.getType() != null ? room.getType().getDescription() : null)")
     @Mapping(target = "roomCondition", expression = "java(room.getRoomCondition() != null ? room.getRoomCondition().name() : null)")

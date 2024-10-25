@@ -63,6 +63,21 @@ public class RoomController {
             @RequestParam(required = false) String roomCondition) {
 
         List<RoomDto> rooms = roomService.findRooms(capacity, comparisonOperator, roomCondition);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateRoom(@RequestBody RoomRequest roomRequest, @PathVariable Long id) {
+        roomService.updateRoom(roomRequest, id);
+        return ResponseEntity.ok("Room updated successfully");
+    }
+    @GetMapping("/filter")
+    public ResponseEntity<Page<RoomResponse>> filterRooms(
+            @RequestParam(required = false) RoomType type,
+            @RequestParam(required = false) RoomStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RoomResponse> rooms = roomService.filterRoomsByTypeAndStatus(type, status, pageable);
         return ResponseEntity.ok(rooms);
     }
-}
+
