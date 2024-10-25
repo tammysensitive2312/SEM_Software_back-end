@@ -11,6 +11,10 @@ public interface RoomMapper {
     @Mapping(target = "roomCondition", expression = "java(room.getRoomCondition() != null ? room.getRoomCondition().name() : null)")
     RoomDto toDto(Room room);
 
+    @Mapping(target = "type", expression = "java(roomDto.getType() != null ? RoomType.valueOf(roomDto.getType().toUpperCase()) : null)")
+    @Mapping(target = "roomCondition", expression = "java(roomDto.getRoomCondition() != null ? RoomCondition.valueOf(roomDto.getRoomCondition().toUpperCase()) : null)")
+    Room toEntity(RoomDto roomDto);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Room partialUpdate(RoomDto roomDto, @MappingTarget Room room);
 }

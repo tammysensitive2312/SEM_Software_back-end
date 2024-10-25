@@ -6,8 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
  * This interface represents a repository for managing {@link EquipmentDetail} entities.
  * It extends Spring Data JPA's {@link JpaRepository} interface, providing basic CRUD operations
@@ -15,4 +13,5 @@ import java.util.List;
  */
 @Repository
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
+    Page<EquipmentDetail> findAllByOrderByRoomAsc(Pageable pageable);
 }

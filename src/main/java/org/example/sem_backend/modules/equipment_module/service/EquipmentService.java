@@ -26,12 +26,10 @@ public class EquipmentService implements IEquipmentService {
  */
 @Override
 public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(Pageable pageable) {
-    Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllByOrderByRoomNumberAsc(pageable);
-
+    Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllByOrderByRoomAsc(pageable);
     if (equipmentDetails.isEmpty()) {
         throw new ResourceNotFoundException("Không tìm thấy thiết bị nào.", "EQUIPMENT_MODULE");
     }
-
     return equipmentDetails.map(equipmentMapper::toDto);
 }
 }

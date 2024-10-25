@@ -8,8 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
-import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
+import org.example.sem_backend.modules.room_module.enums.RoomCondition;
+import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.service.RoomService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,21 +65,23 @@ public class RoomController {
             @RequestParam(required = false) String roomCondition) {
 
         List<RoomDto> rooms = roomService.findRooms(capacity, comparisonOperator, roomCondition);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateRoom(@RequestBody RoomRequest roomRequest, @PathVariable Long id) {
-        roomService.updateRoom(roomRequest, id);
-        return ResponseEntity.ok("Room updated successfully");
-    }
-    @GetMapping("/filter")
-    public ResponseEntity<Page<RoomResponse>> filterRooms(
-            @RequestParam(required = false) RoomType type,
-            @RequestParam(required = false) RoomStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<RoomResponse> rooms = roomService.filterRoomsByTypeAndStatus(type, status, pageable);
         return ResponseEntity.ok(rooms);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateRoom(@RequestBody RoomDto roomRequest, @PathVariable Long id) {
+        roomService.updateRoom(roomRequest, id);
+        return ResponseEntity.ok("Room updated successfully");
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<RoomDto>> filterRooms(
+            @RequestParam(required = false) RoomType type,
+            @RequestParam(required = false) RoomCondition status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RoomDto> rooms = roomService.filterRoomsByTypeAndStatus(type, status, pageable);
+        return ResponseEntity.ok(rooms);
+    }
+}

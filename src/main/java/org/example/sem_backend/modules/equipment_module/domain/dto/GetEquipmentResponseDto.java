@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetEquipmentResponseDto {
-    private String roomName;
+    private String roomDescription;
     private String roomType;
     private String equipmentCategory;
     private String code;

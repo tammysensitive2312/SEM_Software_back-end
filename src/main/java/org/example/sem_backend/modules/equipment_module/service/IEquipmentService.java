@@ -6,4 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface IEquipmentService {
+    Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(Pageable pageable);
 }

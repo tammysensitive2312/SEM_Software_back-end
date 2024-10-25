@@ -19,5 +19,5 @@ public interface IRoomService {
 
     Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomCondition status, Pageable pageable);
 
-    void deleteRoom(Long id);
+    //void deleteRoom(Long id);
 }

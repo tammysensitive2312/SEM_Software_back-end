@@ -57,11 +57,15 @@ public class RoomService implements IRoomService {
     public void updateRoom(RoomDto request, Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
-        room.setDescription(request.getNumber());
-        room.setType(request.getType());
-        room.setRoomCondition(request.getRoomCondition());
-        room.setCapacity(request.getCapacity());
-        roomRepository.save(room);
+        try {
+            room.setDescription(request.getDescription());
+            room.setType(RoomType.valueOf(request.getType()));
+            room.setRoomCondition(RoomCondition.valueOf(request.getRoomCondition()));
+            room.setCapacity(request.getCapacity());
+            roomRepository.save(room);
+        } catch (Exception e) {
+            throw new RuntimeException("Error from ROOM-MODULE" + e);
+        }
     }
 
     private LocalDateTime convertPeriodToStartTime(LocalDate date, String period) {
@@ -113,6 +117,7 @@ public class RoomService implements IRoomService {
         if (rooms.isEmpty()) {
             throw new ResourceConflictException("Không có phòng nào đáp ứng yêu cầu", "ROOM_MODULE");
         }
+        return rooms;
     }
 
 //    @Override
