@@ -1,6 +1,7 @@
 package org.example.sem_backend.modules.equipment_module.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.example.sem_backend.common_module.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,17 +18,26 @@ public class EquipmentDetail extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "ngày mua không được để trống")
     private String purchaseDate;
+
     private String description;
+
+    @NotBlank(message = "mã thiết bị không được để trống")
+    @Column(unique = true)
     private String code;
-    private String currentStatus;
-    private int operatingHours = 0;
+
+    @Enumerated(EnumType.STRING)
+    private EquipmentDetailStatus status;
+
+    private int operatingHours;
 
     @ManyToOne
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @ManyToOne(cascade = CascadeType.ALL    )
+    @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
 

@@ -1,70 +1,103 @@
 package org.example.sem_backend.main_service.middleware.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import java.util.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
-
     // Xử lý các ngoại lệ chung không dự đoán trước
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        logger.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = ErrorResponse.create(ex, HttpStatusCode.valueOf(500), "Đã xảy ra lỗi trên server. Vui lòng thử lại sau.");
-        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(500));
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Xử lý lỗi không tìm thấy tài nguyên toàn cục
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        logger.warn("Resource not found: {}", ex.getMessage());
-        ErrorResponse errorResponse = ErrorResponse.create(ex, HttpStatusCode.valueOf(404), "Tài nguyên không được tìm thấy.");
-        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(404));
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     // Xử lý lỗi xung đột tài nguyên (toàn cục)
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ErrorResponse> handleResourceConflictException(ResourceConflictException ex, WebRequest request) {
-        // Log lỗi cùng với thông tin module để dễ dàng xác định nguồn gốc
-        logger.warn("Conflict error in module [{}]: {}", ex.getModule(), ex.getMessage());
-
-        // Tạo message lỗi dựa trên metadata của ngoại lệ
-        String errorMessage = "Xung đột dữ liệu trong module " + ex.getModule() + ": " + ex.getMessage();
-
-        ErrorResponse errorResponse = ErrorResponse.create(ex, HttpStatusCode.valueOf(409), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(409));
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    // Xử lý lỗi yêu cầu không hợp lệ - Method Argument Not Valid (toàn cục)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
-        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                .findFirst()
-                .orElse("Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin.");
-
-        logger.warn("Validation error: {}", errorMessage);
-        ErrorResponse errorResponse = ErrorResponse.create(ex, HttpStatusCode.valueOf(400), errorMessage);
-        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(400));
-    }
-
-    // Xử lý lỗi không đọc được HTTP Message (Invalid JSON hoặc yêu cầu không đúng định dạng)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
-        logger.warn("Malformed request: {}", ex.getMessage());
-        ErrorResponse errorResponse = ErrorResponse.create(ex, HttpStatusCode.valueOf(400), "Yêu cầu không hợp lệ hoặc định dạng dữ liệu không đúng.");
-        return new ResponseEntity<>(errorResponse, HttpStatusCode.valueOf(400));
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                "Dữ liệu nhập không hợp lệ",
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Date());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+
+        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+        for (ConstraintViolation<?> violation : violations) {
+            response.put(violation.getPropertyPath().toString(), violation.getMessage());
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                Objects.requireNonNull(ex.getRootCause()).getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(JpaSystemException.class)
+    public ResponseEntity<ErrorResponse> handleJpaSystemException(JpaSystemException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                Objects.requireNonNull(ex.getRootCause()).getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
