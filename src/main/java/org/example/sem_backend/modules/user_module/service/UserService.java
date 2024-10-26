@@ -28,19 +28,10 @@ public class UserService implements IUserService{
      */
     @Override
     public UserDto getUserById(Long userId){
-//        Optional<User> userEntity = userRepository.findById(userId);
-//        logger.info("UserName retrieved: {}", userEntity.get().getUsername());
-//        UserDto userDto = userMapper.toDto(
-//                userEntity.orElseThrow(() -> new ResourceNotFoundException(
-//                        "không tìm thấy user với id:" + userId, "USER-MODULE"
-//                )));
-//
-//        return userDto;
-
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException
                         ("không tìm thấy user với id:" + userId, "USER-MODULE"));
-        logger.info("Username retrieved: {}" + user.getUsername());
+        //logger.info("Username retrieved: {}" + user.getUsername());
         return userMapper.toDto(user);
     }
 

@@ -6,98 +6,75 @@ import org.example.sem_backend.common_module.exception.ResourceConflictException
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.*;
+import java.net.URI;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Xử lý các ngoại lệ chung không dự đoán trước
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                new Date(),
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ProblemDetail handleGlobalException(Exception ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
     }
 
-    // Xử lý lỗi không tìm thấy tài nguyên toàn cục
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                new Date(),
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.NOT_FOUND, "Resource Not Found", ex.getMessage(), request);
     }
 
-    // Xử lý lỗi xung đột tài nguyên (toàn cục)
     @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<ErrorResponse> handleResourceConflictException(ResourceConflictException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                new Date(),
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ProblemDetail handleResourceConflictException(ResourceConflictException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.CONFLICT, "Resource Conflict", ex.getMessage(), request);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                "Dữ liệu nhập không hợp lệ",
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Bad Request", "Dữ liệu nhập không hợp lệ", request);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", new Date());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Constraint Violation", "Validation failure", request);
 
-        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-        for (ConstraintViolation<?> violation : violations) {
-            response.put(violation.getPropertyPath().toString(), violation.getMessage());
+        Map<String, String> violations = new HashMap<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            violations.put(violation.getPropertyPath().toString(), violation.getMessage());
         }
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        problemDetail.setProperty("violations", violations);
+        return problemDetail;
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                Objects.requireNonNull(ex.getRootCause()).getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Data Integrity Violation", ex.getRootCause().getMessage(), request);
     }
 
     @ExceptionHandler(JpaSystemException.class)
-    public ResponseEntity<ErrorResponse> handleJpaSystemException(JpaSystemException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                Objects.requireNonNull(ex.getRootCause()).getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleJpaSystemException(JpaSystemException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "JPA System Error", ex.getRootCause().getMessage(), request);
+    }
+
+    // Tạo ProblemDetail với các trường tùy chỉnh, không có `path`, chỉ có `instance`
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setTitle(title);
+        problemDetail.setProperty("timestamp", new Date());
+        problemDetail.setInstance(URI.create(request.getDescription(false).replace("uri=", ""))); // Thiết lập `instance`
+
+        // Thêm headers vào nếu cần thiết
+        Map<String, String> headers = new HashMap<>();
+        request.getHeaderNames().forEachRemaining(headerName -> headers.put(headerName, request.getHeader(headerName)));
+        //problemDetail.setProperty("headers", headers);
+
+        return problemDetail;
     }
 }
