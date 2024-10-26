@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.example.sem_backend.modules.equipment_module.enums.EquipmentDetailStatus;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 
 @Getter

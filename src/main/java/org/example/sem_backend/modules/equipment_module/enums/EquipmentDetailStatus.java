@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.equipment_module.domain.entity;
+package org.example.sem_backend.modules.equipment_module.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

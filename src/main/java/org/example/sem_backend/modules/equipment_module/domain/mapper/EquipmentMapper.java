@@ -13,7 +13,7 @@ public interface EquipmentMapper {
     @Mapping(source = "equipment.category.description", target = "equipmentCategory")
     @Mapping(source = "code", target = "code")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "currentStatus", target = "currentStatus")
+    @Mapping(source = "status.value", target = "currentStatus")
     @Mapping(source = "operatingHours", target = "operatingHours")
     GetEquipmentResponseDto toDto(EquipmentDetail equipmentDetail);
 }

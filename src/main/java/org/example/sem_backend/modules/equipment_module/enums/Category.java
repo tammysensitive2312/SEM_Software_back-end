@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.equipment_module.domain.entity;
+package org.example.sem_backend.modules.equipment_module.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,5 +12,5 @@ public enum Category {
     INFORMATION_TECHNOLOGY_EQUIPMENT("Thiết bị công nghệ thông tin"),
     ELECTRIC_EQUIPMENT("Thiết bị điện"),;
 
-    private final String value;
+    private final String description;
 }
