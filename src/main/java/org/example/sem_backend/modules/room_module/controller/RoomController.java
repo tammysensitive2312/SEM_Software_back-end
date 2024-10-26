@@ -78,7 +78,7 @@ public class RoomController {
     })
     public ResponseEntity<String> updateRoom(
             @RequestBody RoomDto roomRequest,
-            @Parameter(description = "ID of the room to update", required = true) @PathVariable Long id) {
+            @Parameter(description = "ID of the room to update", required = true) @PathVariable int id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }

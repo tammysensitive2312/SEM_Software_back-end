@@ -1,6 +1,7 @@
 package org.example.sem_backend.modules.room_module.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -19,8 +20,10 @@ import java.util.Set;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long uniqueId;
+    private int uniqueId;
 
+    @NotBlank(message = "Tên phòng không được để trống")
+    @Column(unique = true)
     private String description;
     @Enumerated(EnumType.STRING)
     private RoomType type;

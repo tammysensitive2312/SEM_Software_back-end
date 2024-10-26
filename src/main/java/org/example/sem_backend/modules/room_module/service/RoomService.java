@@ -50,15 +50,15 @@ public class RoomService implements IRoomService {
 
     @Override
     public void addRoom(RoomDto request) {
-        try {
-            Room room = roomMapper.toEntity(request);
-            roomRepository.save(room);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (roomRepository.existsByDescription(request.getDescription())) {
+            throw new ResourceConflictException("Room name already exists", "ROOM-MODULE");
         }
+        Room room = roomMapper.toEntity(request);
+        room.setStatus(RoomStatus.AVAILABLE);
+        roomRepository.save(room);
     }
     @Override
-    public void updateRoom(RoomDto request, Long id) {
+    public void updateRoom(RoomDto request, int id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {

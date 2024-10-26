@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificationExecutor<Room> {
+public interface RoomRepository extends JpaRepository<Room, Integer>, JpaSpecificationExecutor<Room> {
 
     // Tìm các phòng theo loại và trạng thái có thể sử dụng, thời gian,sử dụng native query để tối ưu hiệu suất
     @Query(value = "SELECT r.* " +
@@ -30,4 +30,6 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
 
     @Query(value = "SELECT * FROM room WHERE (:type IS NULL OR type = :type) AND (:status IS NULL OR status = :status)", nativeQuery = true)
     Page<Room> findByTypeAndStatus(@Param("type") String type, @Param("status") String status, Pageable pageable);
+
+    boolean existsByDescription(@Param("description") String description);
 }
