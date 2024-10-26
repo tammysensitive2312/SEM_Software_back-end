@@ -5,7 +5,7 @@ import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.example.sem_backend.modules.room_module.enums.RoomCondition;
+import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +17,7 @@ public interface IRoomService {
 
     void updateRoom(RoomDto request, Long id);
 
-    Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomCondition status, Pageable pageable);
+    Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
 
     //void deleteRoom(Long id);
 }

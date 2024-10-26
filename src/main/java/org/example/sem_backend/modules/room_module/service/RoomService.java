@@ -6,7 +6,7 @@ import org.example.sem_backend.common_module.exception.ResourceNotFoundException
 import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
-import org.example.sem_backend.modules.room_module.enums.RoomCondition;
+import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
@@ -50,18 +50,19 @@ public class RoomService implements IRoomService {
 
     @Override
     public void addRoom(RoomDto request) {
-        Room room = roomMapper.toEntity(request);
-        roomRepository.save(room);
+        try {
+            Room room = roomMapper.toEntity(request);
+            roomRepository.save(room);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     @Override
     public void updateRoom(RoomDto request, Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {
-            room.setDescription(request.getDescription());
-            room.setType(RoomType.valueOf(request.getType()));
-            room.setRoomCondition(RoomCondition.valueOf(request.getRoomCondition()));
-            room.setCapacity(request.getCapacity());
+            roomMapper.partialUpdate(request, room);
             roomRepository.save(room);
         } catch (Exception e) {
             throw new RuntimeException("Error from ROOM-MODULE" + e);
@@ -92,7 +93,7 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomCondition status, Pageable pageable) {
+    public Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable) {
         String typeStr = type != null ? type.name() : null;
         String statusStr = status != null ? status.name() : null;
 

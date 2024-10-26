@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.example.sem_backend.modules.room_module.enums.RoomCondition;
+import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.enums.RoomType;
 
 import java.util.Set;
@@ -26,7 +26,7 @@ public class Room {
     private RoomType type;
     private int capacity;
     @Enumerated(EnumType.STRING)
-    private RoomCondition roomCondition;
+    private RoomStatus status;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoomSchedule> roomSchedules;

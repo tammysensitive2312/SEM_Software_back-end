@@ -19,7 +19,7 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
     @Query(value = "SELECT r.* " +
             "FROM room r " +
             "WHERE r.type = :type " +
-            "  AND r.room_condition = 'available' " +
+            "  AND r.status = 'available' " +
             "  AND NOT EXISTS ( " +
             "    SELECT 1 " +
             "    FROM room_schedules rs " +
