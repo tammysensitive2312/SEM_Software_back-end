@@ -58,7 +58,7 @@ public class RoomService implements IRoomService {
         roomRepository.save(room);
     }
     @Override
-    public void updateRoom(RoomDto request, int id) {
+    public void updateRoom(RoomDto request, Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {

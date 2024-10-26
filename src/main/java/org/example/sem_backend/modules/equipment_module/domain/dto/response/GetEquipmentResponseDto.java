@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.equipment_module.domain.dto;
+package org.example.sem_backend.modules.equipment_module.domain.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,8 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetEquipmentResponseDto {
+    private String equipmentName;
+    private String purchaseDate;
     private String roomDescription;
-    private String roomType;
     private String equipmentCategory;
     private String code;
     private String description;

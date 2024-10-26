@@ -20,7 +20,7 @@ import java.util.Set;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int uniqueId;
+    private Long uniqueId;
 
     @NotBlank(message = "Tên phòng không được để trống")
     @Column(unique = true)

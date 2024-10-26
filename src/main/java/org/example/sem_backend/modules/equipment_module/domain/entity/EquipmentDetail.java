@@ -2,11 +2,8 @@ package org.example.sem_backend.modules.equipment_module.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import org.example.sem_backend.modules.equipment_module.enums.EquipmentDetailStatus;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 
@@ -15,6 +12,7 @@ import org.example.sem_backend.modules.room_module.domain.entity.Room;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class EquipmentDetail extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

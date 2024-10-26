@@ -15,7 +15,7 @@ public interface IRoomService {
     List<RoomDto> findRooms(Integer capacity, String comparisonOperator, String roomCondition);
     void addRoom(RoomDto request);
 
-    void updateRoom(RoomDto request, int id);
+    void updateRoom(RoomDto request, Long id);
 
     Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
 

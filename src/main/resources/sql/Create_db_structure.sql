@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS sem_db.equipment (
                          'TEACHING_EQUIPMENT'),
     total_quantity  INT NOT NULL,
     usable_quantity INT NOT NULL,
+    name            VARCHAR(255) NOT NULL,
     CHECK (category IN ('INFORMATION_TECHNOLOGY_EQUIPMENT',
                         'LABORATORY_EQUIPMENT',
                         'SPORTS_EQUIPMENT',

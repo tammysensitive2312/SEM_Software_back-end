@@ -78,7 +78,7 @@ public class RoomController {
     })
     public ResponseEntity<String> updateRoom(
             @RequestBody RoomDto roomRequest,
-            @Parameter(description = "ID of the room to update", required = true) @PathVariable int id) {
+            @Parameter(description = "ID of the room to update", required = true) @PathVariable Long id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }
@@ -102,8 +102,8 @@ public class RoomController {
             @ApiResponse(responseCode = "400", description = "Invalid filter parameters", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<Page<RoomDto>> filterRooms(
-            @Parameter(description = "Type of room to filter", required = false) @RequestParam(required = false) RoomType type,
-            @Parameter(description = "Status of room to filter", required = false) @RequestParam(required = false) RoomStatus status,
+            @Parameter(description = "Type of room to filter") @RequestParam(required = false) RoomType type,
+            @Parameter(description = "Status of room to filter") @RequestParam(required = false) RoomStatus status,
             @Parameter(description = "Page number for pagination", example = "0") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size for pagination", example = "12") @RequestParam(defaultValue = "12") int size) {
         Pageable pageable = PageRequest.of(page, size);
