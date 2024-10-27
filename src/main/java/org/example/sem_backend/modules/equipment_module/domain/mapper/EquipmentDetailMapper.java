@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface EquipmentDetailMapper {
     @Mapping(source = "equipment.name", target = "equipmentName")
     @Mapping(source = "equipment.category", target = "equipmentCategory")
-    @Mapping(source = "room.description", target = "roomDescription")
+    @Mapping(source = "room.roomName", target = "roomDescription")
     @Mapping(source = "status", target = "currentStatus")
     GetEquipmentResponseDto toResponse(EquipmentDetail equipmentDetail);
 }

@@ -14,7 +14,7 @@ public class RoomDto {
     // một dto handle cho cả request và response
     @NotBlank(message = "Tên phòng không được để trống")
     @Column(unique = true)
-    private String description;
+    private String roomName;
     private String type;
     private int capacity;
     private RoomStatus status;
