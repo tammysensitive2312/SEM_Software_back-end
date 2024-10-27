@@ -23,9 +23,11 @@ import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -53,45 +55,48 @@ public class EquipmentService implements IEquipmentService {
         return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
     @Override
+    @Async
     @Transactional
-    public void addEquipment(CreateEquipmentRequest request) {
-    // update code
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-MODULE"));
+    public CompletableFuture<Void> addEquipment(CreateEquipmentRequest request) {
+        return CompletableFuture.runAsync(() -> {
+            Room room = roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-MODULE"));
 
-        // Sử dụng Optional để tìm Equipment nếu tồn tại, hoặc tạo mới nếu không tìm thấy
-        Equipment existingEquipment = Optional.ofNullable(equipmentRepository.findEquipmentByName(request.getEquipmentName()))
-                .orElseGet(() -> equipmentRepository.save(
-                        Equipment.builder()
-                                .name(request.getEquipmentName())
-                                .category(request.getCategory())
-                                .build()
-                ));
+            // Sử dụng Optional để tìm Equipment nếu tồn tại, hoặc tạo mới nếu không tìm thấy
+            Equipment existingEquipment = Optional.ofNullable(equipmentRepository.findEquipmentByName(request.getEquipmentName()))
+                    .orElseGet(() -> equipmentRepository.save(
+                            Equipment.builder()
+                                    .name(request.getEquipmentName())
+                                    .category(request.getCategory())
+                                    .build()
+                    ));
 
-        // Kiểm tra mã thiết bị trong EquipmentDetail
-        if (equipmentDetailRepository.existsByCode(request.getCode())) {
-            throw new ResourceConflictException("Equipment code already exists", "EQUIPMENT.e-MODULE");
-        }
+            // Kiểm tra mã thiết bị trong EquipmentDetail
+            if (equipmentDetailRepository.existsByCode(request.getCode())) {
+                throw new ResourceConflictException("Equipment code already exists", "EQUIPMENT-MODULE");
+            }
 
-        // Sử dụng Builder Pattern để xây dựng EquipmentDetail
-        EquipmentDetail equipmentDetail = EquipmentDetail.builder()
-                .equipment(existingEquipment)
-                .code(request.getCode())
-                .description(request.getDescription())
-                .purchaseDate(request.getPurchaseDate())
-                .status(EquipmentDetailStatus.USABLE)
-                .room(room)
-                .operatingHours(0)
-                .build();
+            // Sử dụng Builder Pattern để xây dựng EquipmentDetail
+            EquipmentDetail equipmentDetail = EquipmentDetail.builder()
+                    .equipment(existingEquipment)
+                    .code(request.getCode())
+                    .description(request.getDescription())
+                    .purchaseDate(request.getPurchaseDate())
+                    .status(EquipmentDetailStatus.USABLE)
+                    .room(room)
+                    .operatingHours(0)
+                    .build();
 
-        // Lưu EquipmentDetail vào repository
-        equipmentDetailRepository.save(equipmentDetail);
+            // Lưu EquipmentDetail vào repository
+            equipmentDetailRepository.save(equipmentDetail);
 
-        // Cập nhật số lượng của Equipment
-        existingEquipment.setTotalQuantity(existingEquipment.getTotalQuantity() + 1);
-        existingEquipment.setUsableQuantity(existingEquipment.getUsableQuantity() + 1);
-        equipmentRepository.save(existingEquipment);
+            // Cập nhật số lượng của Equipment
+            existingEquipment.setTotalQuantity(existingEquipment.getTotalQuantity() + 1);
+            existingEquipment.setUsableQuantity(existingEquipment.getUsableQuantity() + 1);
+            equipmentRepository.save(existingEquipment);
+        });
     }
+
 
 
     @Override
