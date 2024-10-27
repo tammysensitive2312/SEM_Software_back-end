@@ -1,26 +1,28 @@
 FROM openjdk:21-bullseye
 
-# Install Maven
 RUN apt-get update && apt-get install -y maven make entr
 
-# Clean up
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-# Set the default shell to bash
 ENV SHELL /bin/bash
 
-# Create a non-root user
 RUN useradd -ms /bin/bash developer
 
-# Set working directory
+RUN mkdir -p /workspace && \
+    chown -R developer:developer /workspace
+
+RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
+
 WORKDIR /workspace
 
-# Copy the database setup script
-COPY ../script.sh /workspace/script.sh
-RUN chmod +x /workspace/script.sh
+COPY script.sh /workspace/script.sh
 
-# Switch to non-root user
+# Cấp quyền đúng cho script
+RUN chown developer:developer /workspace/script.sh && \
+    chmod +x /workspace/script.sh
+
+# Chuyển sang user không phải root
 USER developer
 
-# Set entry point to run the setup script
-ENTRYPOINT ["/workspace/script.sh"]
+# Đặt entry point
+ENTRYPOINT ["/bin/bash", "/workspace/script.sh"]

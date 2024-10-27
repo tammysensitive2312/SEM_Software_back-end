@@ -1,0 +1,36 @@
+//checked
+GET http://localhost:8080/api/v1/equipment/sorted-by-room
+
+###
+
+GET http://localhost:8080/api/v1/room/available?type=laboratory&date=2024-10-21&period=tiết%203
+
+###
+
+GET http://localhost:8080/api/v1/room/search?capacity=30&comparisonOperator=%3E&status=in_use
+
+###
+
+GET http://localhost:8080/api/v1/user/5
+
+###
+
+POST http://localhost:8080/api/v1/user/new
+Content-Type: application/json
+
+{
+"username": "sbm-user"
+}
+
+###
+
+PATCH http://localhost:8080/api/v1/user/update/4
+Content-Type: application/json
+
+{
+  "password": "Azure-user*2312"
+}
+
+###
+
+GET http://localhost:8080/api/v1/room/filter
