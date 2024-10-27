@@ -50,7 +50,7 @@ public class RoomService implements IRoomService {
 
     @Override
     public void addRoom(RoomDto request) {
-        if (roomRepository.existsByDescription(request.getDescription())) {
+        if (roomRepository.existsByRoomName(request.getRoomName())) {
             throw new ResourceConflictException("Room name already exists", "ROOM-MODULE");
         }
         Room room = roomMapper.toEntity(request);
