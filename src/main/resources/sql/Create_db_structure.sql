@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS sem_db.equipment_detail (
     equipment_id    BIGINT NULL,
     room_id         BIGINT NULL,
     status          ENUM ('BROKEN', 'OCCUPIED', 'USABLE') NULL,
-    CONSTRAINT FKlinkToEquipment FOREIGN KEY (equipment_id) REFERENCES sem_db.equipment (id),
-    CONSTRAINT FKlinkToRoom FOREIGN KEY (room_id) REFERENCES sem_db.room (unique_id)
+    CONSTRAINT FKlinkToEquipment FOREIGN KEY (equipment_id) REFERENCES sem_db.equipments (id),
+    CONSTRAINT FKlinkToRoom FOREIGN KEY (room_id) REFERENCES sem_db.rooms (unique_id)
 );
 
 -- 5. Tạo bảng room_schedules (phụ thuộc vào room)
@@ -62,5 +62,5 @@ CREATE TABLE IF NOT EXISTS sem_db.room_schedules (
     start_time DATETIME(6) NULL,
     user       VARCHAR(255) NULL,
     room_id    BIGINT NOT NULL,
-    CONSTRAINT FKroomScheduleTime FOREIGN KEY (room_id) REFERENCES sem_db.room (unique_id)
+    CONSTRAINT FKroomScheduleTime FOREIGN KEY (room_id) REFERENCES sem_db.rooms (unique_id)
 );
