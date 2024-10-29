@@ -47,28 +47,6 @@ public class RoomService implements IRoomService {
                 .collect(Collectors.toList());
         }
 
-
-    @Override
-    public void addRoom(RoomDto request) {
-        if (roomRepository.existsByRoomName(request.getRoomName())) {
-            throw new ResourceConflictException("Room name already exists", "ROOM-MODULE");
-        }
-        Room room = roomMapper.toEntity(request);
-        room.setStatus(RoomStatus.AVAILABLE);
-        roomRepository.save(room);
-    }
-    @Override
-    public void updateRoom(RoomDto request, Long id) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
-        try {
-            roomMapper.partialUpdate(request, room);
-            roomRepository.save(room);
-        } catch (Exception e) {
-            throw new RuntimeException("Error from ROOM-MODULE" + e);
-        }
-    }
-
     private LocalDateTime convertPeriodToStartTime(LocalDate date, String period) {
         // Giả sử thời gian của các tiết học được quy định
         return switch (period) {
@@ -90,6 +68,28 @@ public class RoomService implements IRoomService {
             case "tiết 5" -> date.atTime(11, 30);
             default -> throw new IllegalArgumentException("tham số tiết học không hợp lệ");
         };
+    }
+
+
+    @Override
+    public void addRoom(RoomDto request) {
+        if (roomRepository.existsByRoomName(request.getRoomName())) {
+            throw new ResourceConflictException("Room name already exists", "ROOM-MODULE");
+        }
+        Room room = roomMapper.toEntity(request);
+        room.setStatus(RoomStatus.AVAILABLE);
+        roomRepository.save(room);
+    }
+    @Override
+    public void updateRoom(RoomDto request, Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
+        try {
+            roomMapper.partialUpdate(request, room);
+            roomRepository.save(room);
+        } catch (Exception e) {
+            throw new RuntimeException("Error from ROOM-MODULE" + e);
+        }
     }
 
     @Override
