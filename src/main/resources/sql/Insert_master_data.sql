@@ -74,12 +74,13 @@ values  (1, 'admin', 'truong', '2024-10-17 16:02:44', '2024-10-17 16:02:44', nul
         (4, 'sbm', 'hihi', '2024-10-24 14:28:59', '2024-10-24 15:01:23', null);
 
 -- 2. Insert room vì equipment_detail và room_schedules phụ thuộc vào room
-insert into sem_db.room (room_name)
-values  ('101'),
-        ('102'),
-        ('201'),
-        ('202'),
-        ('203');
+INSERT INTO room (capacity, room_name, type, status)
+VALUES
+    (30, '101', 'CLASSROOM', 'AVAILABLE'),
+    (20, '102', 'LABORATORY', 'AVAILABLE'),
+    (50, '201', 'MEETING_ROOM', 'IN_USE'),
+    (15, '202', 'CLASSROOM', 'BROKEN'),
+    (25, '203', 'LABORATORY', 'BROKEN');
 
 -- 3. Insert equipment vì equipment_detail phụ thuộc vào equipment
 insert into sem_db.equipment (id, create_at, updated_at, broken_quantity, category, total_quantity, usable_quantity, name)

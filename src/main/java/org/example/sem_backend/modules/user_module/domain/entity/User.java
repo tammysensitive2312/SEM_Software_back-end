@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.sem_backend.common_module.entity.BaseEntity;
 import org.example.sem_backend.common_module.service.ValidPassword;
 
 @Entity(name = "users")
@@ -18,7 +19,7 @@ import org.example.sem_backend.common_module.service.ValidPassword;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
