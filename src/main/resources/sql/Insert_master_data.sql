@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS sem_db.equipment_detail (
                                                        equipment_id    BIGINT NULL,
                                                        room_id         BIGINT NULL,
                                                        status          ENUM ('BROKEN', 'OCCUPIED', 'USABLE') NULL,
-                                                       CONSTRAINT FKlinkToEquipment FOREIGN KEY (equipment_id) REFERENCES sem_db.equipments (id),
-                                                       CONSTRAINT FKlinkToRoom FOREIGN KEY (room_id) REFERENCES sem_db.rooms (unique_id)
+                                                       CONSTRAINT FKlinkToEquipment FOREIGN KEY (equipment_id) REFERENCES sem_db.equipment (id),
+                                                       CONSTRAINT FKlinkToRoom FOREIGN KEY (room_id) REFERENCES sem_db.room (unique_id)
 );
 
 -- 5. Tạo bảng room_schedules (phụ thuộc vào room)
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS sem_db.room_schedules (
                                                      start_time DATETIME(6) NULL,
                                                      user       VARCHAR(255) NULL,
                                                      room_id    BIGINT NOT NULL,
-                                                     CONSTRAINT FKroomScheduleTime FOREIGN KEY (room_id) REFERENCES sem_db.rooms (unique_id)
+                                                     CONSTRAINT FKroomScheduleTime FOREIGN KEY (room_id) REFERENCES sem_db.room (unique_id)
 );
 
 
@@ -74,22 +74,23 @@ values  (1, 'admin', 'truong', '2024-10-17 16:02:44', '2024-10-17 16:02:44', nul
         (4, 'sbm', 'hihi', '2024-10-24 14:28:59', '2024-10-24 15:01:23', null);
 
 -- 2. Insert room vì equipment_detail và room_schedules phụ thuộc vào room
-insert into sem_db.rooms (room_name)
-values  ('101'),
-        ('102'),
-        ('201'),
-        ('202'),
-        ('203');
+INSERT INTO room (capacity, room_name, type, status)
+VALUES
+    (30, '101', 'CLASSROOM', 'AVAILABLE'),
+    (20, '102', 'LABORATORY', 'AVAILABLE'),
+    (50, '201', 'MEETING_ROOM', 'IN_USE'),
+    (15, '202', 'CLASSROOM', 'BROKEN'),
+    (25, '203', 'LABORATORY', 'BROKEN');
 
 -- 3. Insert equipment vì equipment_detail phụ thuộc vào equipment
-insert into sem_db.equipments (id, create_at, updated_at, broken_quantity, category, total_quantity, usable_quantity, name)
+insert into sem_db.equipment (id, create_at, updated_at, broken_quantity, category, total_quantity, usable_quantity, name)
 values  (1, '2024-10-19 15:02:08.000000', '2024-10-19 15:02:08.000000', 1, 'TEACHING_EQUIPMENT', 10, 9, 'máy chiếu'),
         (2, '2024-10-19 15:02:08.000000', '2024-10-19 15:02:08.000000', 0, 'LABORATORY_EQUIPMENT', 5, 5, 'kính hiển vi'),
         (3, '2024-10-19 15:02:08.000000', '2024-10-19 15:02:08.000000', 2, 'INFORMATION_TECHNOLOGY_EQUIPMENT', 8, 6, 'laptop');
 
 
 -- 4. Insert equipment_detail sau khi đã có room và equipment
-insert into sem_db.equipment_details (id, create_at, updated_at, code, description, operating_hours, purchase_date, equipment_id, room_id, status)
+insert into sem_db.equipment_detail (id, create_at, updated_at, code, description, operating_hours, purchase_date, equipment_id, room_id, status)
 values  (1, '2024-10-20 16:31:27.000000', '2024-10-20 16:31:27.000000', 'PRJ001', 'Projector for teaching', 1200, '2023-01-01', 1, 1, 'USABLE'),
         (2, '2024-10-20 16:31:27.000000', '2024-10-20 16:31:27.000000', 'LPT001', 'Dell Laptop', 800, '2023-03-15', 3, 1, 'USABLE'),
         (3, '2024-10-20 16:31:27.000000', '2024-10-20 16:31:27.000000', 'MIC001', 'Microscope', 500, '2023-05-20', 2, 2, 'BROKEN'),

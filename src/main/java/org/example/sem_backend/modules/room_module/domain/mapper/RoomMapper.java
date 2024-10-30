@@ -9,6 +9,7 @@ public interface RoomMapper {
 
     @Mapping(target = "type", expression = "java(room.getType() != null ? room.getType().getDescription() : null)")
     @Mapping(target = "status")
+    @Mapping(source = "uniqueId", target = "id")
     RoomDto toDto(Room room);
 
     @Mapping(target = "type", expression = "java(roomDto.getType() != null ? RoomType.valueOf(roomDto.getType().toUpperCase()) : null)")

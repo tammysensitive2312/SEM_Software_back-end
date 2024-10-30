@@ -12,6 +12,7 @@ public interface EquipmentMapper {
     Equipment toEquipment(CreateEquipmentRequest request);
 
     @Mapping(target = "category", source = "category.description")
+    @Mapping(target = "equipmentName", source = "name")
     EquipmentResponse toEquipmentResponse(Equipment equipment);
 
     EquipmentDetail toEquipmentDetail(CreateEquipmentRequest equipmentRequest);
