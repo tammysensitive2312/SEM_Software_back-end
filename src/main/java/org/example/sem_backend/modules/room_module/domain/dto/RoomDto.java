@@ -11,6 +11,7 @@ import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomDto {
+    private int id;
     // một dto handle cho cả request và response
     @NotBlank(message = "Tên phòng không được để trống")
     @Column(unique = true)
