@@ -6,7 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class EquipmentResponse {
-    private int id;
+    private long id;
     private String equipmentName;
     private String category;
     private int totalQuantity;
