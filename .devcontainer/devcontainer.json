@@ -38,7 +38,7 @@
 	"forwardPorts": [8080, 3306],
 	"postCreateCommand": "mvn dependency:go-offline",
 	"postStartCommand": "/workspace/script.sh",
-	"remoteUser": "vscode"
+	//"remoteUser": "vscode"
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"remoteUser": "root"
 }

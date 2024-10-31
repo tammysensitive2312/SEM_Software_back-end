@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "equipments")
 @Builder
 public class Equipment extends BaseEntity {
     @Id

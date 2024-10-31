@@ -11,7 +11,7 @@ import org.example.sem_backend.modules.room_module.domain.entity.Room;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "equipment_details")
 @Builder
 public class EquipmentDetail extends BaseEntity {
     @Id

@@ -20,7 +20,7 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
 
     Page<EquipmentDetail> findByEquipmentId(Long equipmentId, Pageable pageable);
 
-    @Query("SELECT ed FROM EquipmentDetail ed " +
+    @Query("SELECT ed FROM equipment_details ed " +
             "JOIN FETCH ed.equipment eq " +
             "JOIN FETCH ed.room r " +
             "WHERE r.uniqueId = :roomId")

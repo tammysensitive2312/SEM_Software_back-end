@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS sem_db.users (
 );
 
 -- 2. Tạo bảng room (không có phụ thuộc)
-CREATE TABLE IF NOT EXISTS sem_db.room (
+CREATE TABLE IF NOT EXISTS sem_db.rooms (
     unique_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     capacity    INT NOT NULL,
     status      VARCHAR(255) NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS sem_db.room (
 );
 
 -- 3. Tạo bảng equipment (không có phụ thuộc)
-CREATE TABLE IF NOT EXISTS sem_db.equipment (
+CREATE TABLE IF NOT EXISTS sem_db.equipments (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     create_at       DATETIME(6),
     updated_at      DATETIME(6),
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS sem_db.equipment (
 );
 
 -- 4. Tạo bảng equipment_detail (phụ thuộc vào equipment và room)
-CREATE TABLE IF NOT EXISTS sem_db.equipment_detail (
+CREATE TABLE IF NOT EXISTS sem_db.equipment_details (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     create_at       DATETIME(6) NULL,
     updated_at      DATETIME(6) NULL,
