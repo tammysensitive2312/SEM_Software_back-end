@@ -1,9 +1,11 @@
 package org.example.sem_backend.common_module.entity;
 
+
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import org.example.sem_backend.common_module.common.AuditEntityListener;
+import org.springframework.modulith.ApplicationModuleInitializer;
 
 import java.time.LocalDateTime;
 
