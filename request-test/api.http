@@ -34,3 +34,16 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/v1/room/filter
+
+###
+
+POST http://localhost:8080/api/v1/borrow/room
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "roomId": 3,
+  "startTime": "2024-11-12T09:00:00",
+  "endTime": "2024-11-12T11:00:00",
+  "comment": "Họp team review sprint"
+}

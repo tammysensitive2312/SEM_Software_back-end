@@ -3,6 +3,7 @@ package org.example.sem_backend.modules.borrowing_module.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.base.CommonRequest;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 
 import java.time.LocalDate;
@@ -15,14 +16,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class EquipmentBorrowRequest extends BaseEntity {
-
+public class EquipmentBorrowRequest extends CommonRequest {
     public enum Status {
         NOT_BORROWED, BORROWED, RETURNED, PARTIALLY_RETURNED
     }
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long uniqueId;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -31,6 +28,4 @@ public class EquipmentBorrowRequest extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "ENUM('Not Borrowed', 'Borrowed', 'Returned', 'Partially Returned') DEFAULT 'Not Borrowed'")
     private Status status = Status.NOT_BORROWED;
-    @Column(columnDefinition = "TEXT")
-    private String comment;
 }

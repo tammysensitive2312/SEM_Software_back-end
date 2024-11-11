@@ -110,12 +110,6 @@ public class EquipmentService implements IEquipmentService {
         equipmentRepository.save(equipment);
     }
 
-    /**
-     * @param category
-     * @param pageable
-     * @return
-     */
-
     @Override
     public Page<EquipmentResponse> getEquipmentsByCategory(Category category, Pageable pageable) {
         String categoryStr = category != null ? category.name() : null;
