@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
 
 
-    Equipment findByEquipmentName(String equipmentName);
+    Equipment findEquipmentByName(String equipmentName);
 
     @Query(value = "SELECT * FROM equipment e WHERE (:category IS NULL OR e.category = :category)",
             nativeQuery = true)

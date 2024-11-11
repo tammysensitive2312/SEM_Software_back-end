@@ -1,7 +1,7 @@
 package org.example.sem_backend.modules.equipment_module.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.sem_backend.modules.equipment_module.domain.dto.EquipmentDetailResponse;
+import org.example.sem_backend.modules.equipment_module.domain.dto.response.GetEquipmentResponseDto;
 import org.example.sem_backend.modules.equipment_module.service.EquipmentDetailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EquipmentDetailController {
     private final EquipmentDetailService equipmentDetailService;
     @GetMapping("/equipment")
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@RequestParam Long equipmentId,
+    public Page<GetEquipmentResponseDto> getEquipmentDetailsByEquipmentId(@RequestParam Long equipmentId,
                                                                           @RequestParam int page,
                                                                           @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -25,7 +25,7 @@ public class EquipmentDetailController {
     }
 
     @GetMapping("/room")
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(@RequestParam Integer roomId,
+    public Page<GetEquipmentResponseDto> getEquipmentDetailsByRoomId(@RequestParam Long roomId,
                                                                      @RequestParam int page,
                                                                      @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
