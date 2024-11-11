@@ -36,7 +36,4 @@ public class TransactionsLog extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "equipment_request_id")
     private EquipmentBorrowRequest equipmentRequest;
-
-    @Column(name = "transaction_date")
-    private LocalDateTime transactionDate;
 }

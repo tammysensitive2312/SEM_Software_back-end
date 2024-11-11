@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.RoomBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/borrow")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Borrow Requests", description = "APIs for handling room borrow requests")
-public class BorrowRequestController {
+@Tag(name = "Borrow Requests Controller", description = "APIs for handling borrow requests")
+public class
+BorrowRequestController {
 
     private final RoomBorrowRequestService service;
 
@@ -41,5 +43,23 @@ public class BorrowRequestController {
         service.processRequest(requestDto);
         return ResponseEntity.accepted().build();
     }
+
+    @PatchMapping("/room/partialUpdate")
+    @Operation(
+            summary = "Partially update a room booking request",
+            description = "Update specific fields of an existing room booking request if it was created within the last 24 hours."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated the booking request"),
+            @ApiResponse(responseCode = "404", description = "Request not found"),
+            @ApiResponse(responseCode = "409", description = "Update not allowed - overdue correction time")
+    })
+    public ResponseEntity<RoomBorrowRequest> updateBookingRequest(
+            @RequestBody @Valid RoomBorrowRequestDTO requestDto
+    ) {
+        RoomBorrowRequest updatedRequest = service.updateRequest(requestDto);
+        return ResponseEntity.ok().body(updatedRequest);
+    }
+
 }
 

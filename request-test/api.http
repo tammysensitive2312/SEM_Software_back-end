@@ -42,8 +42,20 @@ Content-Type: application/json
 
 {
   "userId": 2,
-  "roomId": 3,
+  "roomId": 2,
   "startTime": "2024-11-12T09:00:00",
   "endTime": "2024-11-12T11:00:00",
-  "comment": "Họp team review sprint"
+  "comment": "lớp thí nghiệm lý"
+}
+
+###
+
+PATCH http://localhost:8080/api/v1/borrow/room/partialUpdate
+Content-Type: application/json
+
+{
+  "uniqueId": 1,
+  "userId": 1,
+  "startTime": "2024-11-15T10:00:00",
+  "endTime": "2024-11-15T12:00:00"
 }
