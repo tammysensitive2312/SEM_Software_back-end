@@ -32,12 +32,12 @@ public class EquipmentDetail extends BaseEntity {
 
     private int operatingHours;
 
-    @ManyToOne
-    @JoinColumn(name = "equipment_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = true)
     private Room room;
 
 }

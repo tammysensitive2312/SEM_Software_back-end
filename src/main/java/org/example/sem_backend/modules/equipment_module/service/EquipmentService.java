@@ -1,6 +1,5 @@
 package org.example.sem_backend.modules.equipment_module.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
@@ -25,8 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -63,7 +62,7 @@ public class EquipmentService implements IEquipmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-MODULE"));
 
             // Sử dụng Optional để tìm Equipment nếu tồn tại, hoặc tạo mới nếu không tìm thấy
-            Equipment existingEquipment = Optional.ofNullable(equipmentRepository.findEquipmentByName(request.getEquipmentName()))
+            Equipment existingEquipment = equipmentRepository.findEquipmentByName(request.getEquipmentName())
                     .orElseGet(() -> equipmentRepository.save(
                             Equipment.builder()
                                     .name(request.getEquipmentName())

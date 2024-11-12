@@ -1,11 +1,10 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.RoomBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.TransactionsLog;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.RoomBorrowRequestMapper;
@@ -20,6 +19,7 @@ import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -169,6 +169,14 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         mapper.partialUpdate(requestDto, existingRequest);
         RoomBorrowRequest savedRequest = roomBorrowRequestRepository.save(existingRequest);
         return savedRequest;
+    }
+
+    /**
+     * no use
+     */
+    @Override
+    public void approveRequest(Long requestId) {
+
     }
 
 }

@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.borrowing_module.domain.dto;
+package org.example.sem_backend.modules.borrowing_module.domain.dto.room;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;

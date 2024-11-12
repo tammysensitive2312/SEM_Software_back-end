@@ -2,8 +2,7 @@ package org.example.sem_backend.modules.borrowing_module.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.sem_backend.common_module.entity.BaseEntity;
-import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
+import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 
 @Entity
 @Table(name = "return_request_details")
@@ -12,7 +11,7 @@ import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentD
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class ReturnRequestDetail extends BaseEntity {
+public class ReturnRequestDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +23,14 @@ public class ReturnRequestDetail extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
-    private EquipmentDetail equipment;
+    private Equipment equipment;
 
     @Column(name = "quantity_returned", nullable = false)
     private int quantityReturned;
 
     @Column(name = "condition_after_return", length = 50)
     private String conditionAfterReturn;
+
+    @Column(name = "borrow_request_detail_id")
+    private Long borrowRequestDetailId;
 }

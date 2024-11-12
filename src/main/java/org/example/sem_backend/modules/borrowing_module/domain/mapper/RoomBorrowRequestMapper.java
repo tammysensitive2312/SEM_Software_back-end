@@ -1,6 +1,6 @@
 package org.example.sem_backend.modules.borrowing_module.domain.mapper;
 
-import org.example.sem_backend.modules.borrowing_module.domain.dto.RoomBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.mapstruct.*;
 

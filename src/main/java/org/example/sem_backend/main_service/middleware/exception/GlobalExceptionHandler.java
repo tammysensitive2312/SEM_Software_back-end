@@ -1,8 +1,8 @@
 package org.example.sem_backend.main_service.middleware.exception;
 
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -102,5 +102,15 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Validation Error");
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ProblemDetail handleOptimisticLockException(OptimisticLockException ex, WebRequest request) {
+        return createProblemDetail(
+                HttpStatus.CONFLICT,
+                "Optimistic Locking Failure",
+                "Thiết bị đã được mượn bởi người dùng khác",
+                request
+        );
     }
 }

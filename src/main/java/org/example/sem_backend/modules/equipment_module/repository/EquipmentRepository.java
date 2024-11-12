@@ -8,11 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
-    Equipment findEquipmentByName(String equipmentName);
+    Optional<Equipment> findEquipmentByName(String equipmentName);
 
     @Query(value = "SELECT * FROM equipments e WHERE (:category IS NULL OR e.category = :category)",
             nativeQuery = true)
     Page<Equipment> findByCategory(@Param("category") String category, Pageable pageable);
+
+
 }

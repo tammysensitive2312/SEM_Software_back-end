@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.RoomBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService;
 import org.springframework.http.HttpStatus;
@@ -16,12 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/borrow")
+@RequestMapping("/api/v1/borrow/room")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Borrow Requests Controller", description = "APIs for handling borrow requests")
-public class
-BorrowRequestController {
+@Tag(name = "Room Borrow Requests Controller", description = "APIs for handling borrow requests")
+public class RoomBorrowRequestController {
 
     private final RoomBorrowRequestService service;
 
@@ -35,7 +34,7 @@ BorrowRequestController {
             @ApiResponse(responseCode = "409", description = "Conflict - Room is already booked or booking window exceeded", content = @Content),
             @ApiResponse(responseCode = "404", description = "Room or User not found", content = @Content)
     })
-    @PostMapping("/room")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> createBookingRequest(
             @RequestBody @Valid RoomBorrowRequestDTO requestDto
@@ -44,7 +43,7 @@ BorrowRequestController {
         return ResponseEntity.accepted().build();
     }
 
-    @PatchMapping("/room/partialUpdate")
+    @PatchMapping("/partialUpdate")
     @Operation(
             summary = "Partially update a room booking request",
             description = "Update specific fields of an existing room booking request if it was created within the last 24 hours."
