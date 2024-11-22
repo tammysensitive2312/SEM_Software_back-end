@@ -10,10 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetEquipmentResponseDto {
-    private int id;
+    private long id;
     private String equipmentName;
     private String purchaseDate;
-    private String roomDescription;
+    private String roomName;
     private String equipmentCategory;
     private String code;
     private String description;

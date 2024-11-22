@@ -17,6 +17,4 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     @Query(value = "SELECT * FROM equipments e WHERE (:category IS NULL OR e.category = :category)",
             nativeQuery = true)
     Page<Equipment> findByCategory(@Param("category") String category, Pageable pageable);
-
-
 }
