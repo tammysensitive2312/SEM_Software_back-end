@@ -10,7 +10,8 @@ public enum Category {
     LABORATORY_EQUIPMENT("Thiết bị phòng thí nghiệm"),
     SPORTS_EQUIPMENT("Thiết bị thể thao"),
     INFORMATION_TECHNOLOGY_EQUIPMENT("Thiết bị công nghệ thông tin"),
-    ELECTRIC_EQUIPMENT("Thiết bị điện"),;
+    ELECTRIC_EQUIPMENT("Thiết bị điện"),
+    OFFICE_EQUIPMENT("Thiết bị văn phòng");
 
     private final String description;
 }

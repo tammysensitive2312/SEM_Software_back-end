@@ -12,4 +12,5 @@ public class EquipmentResponse {
     private int totalQuantity;
     private int usableQuantity;
     private int brokenQuantity;
+    private int inUseQuantity;
 }

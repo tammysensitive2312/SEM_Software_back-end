@@ -13,6 +13,7 @@ import org.example.sem_backend.modules.room_module.domain.entity.Room;
 @AllArgsConstructor
 @Entity
 @Builder
+@Table(name = "equipment_details")
 public class EquipmentDetail extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
