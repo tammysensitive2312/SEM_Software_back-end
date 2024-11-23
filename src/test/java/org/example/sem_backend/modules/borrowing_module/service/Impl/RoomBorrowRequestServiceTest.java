@@ -5,6 +5,7 @@ import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowReq
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -19,7 +20,7 @@ class RoomBorrowRequestServiceTest {
     @Mock
     private RoomBorrowRequestRepository roomBorrowRequestRepository;
 
-    @Mock
+    @InjectMocks
     private RoomBorrowRequestService roomBorrowRequestService;
 
     @Mock
