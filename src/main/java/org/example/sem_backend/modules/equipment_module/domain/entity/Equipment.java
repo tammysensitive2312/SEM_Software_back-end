@@ -1,18 +1,18 @@
 package org.example.sem_backend.modules.equipment_module.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
 import org.example.sem_backend.modules.equipment_module.enums.Category;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "equipments")
 @Builder
 @Table(name = "equipments")
 public class Equipment extends BaseEntity {
@@ -25,9 +25,12 @@ public class Equipment extends BaseEntity {
     private int brokenQuantity;
     private int inUseQuantity;
 
+    @Version
+    private Long version;
+
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    @OneToMany(mappedBy = "equipment")
-    private List<EquipmentDetail> equipmentDetails;
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EquipmentDetail> equipmentDetails = new ArrayList<>();
 }
