@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +81,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
 
         // Tạo mới đơn mượn
         EquipmentBorrowRequest request = new EquipmentBorrowRequest();
-        request.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
         requestMapper.toEntity(requestDto);
 
         // Xử lý từng loại thiết bị trong yêu cầu
@@ -163,9 +163,47 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      * @return
      */
     @Override
-    public EquipmentBorrowRequest updateRequest(EquipmentBorrowRequestDTO requestDto) {
-        return null;
+    public void updateRequest(EquipmentBorrowRequestDTO requestDto) {
+        EquipmentBorrowRequest borrowRequest = requestRepository.findById(requestDto.getUniqueID())
+                .orElseThrow(() -> new ResourceConflictException("Equipment Borrow Request not found", ""));
+
+        // Kiểm tra trạng thái
+        if (borrowRequest.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
+            throw new IllegalStateException("Borrow request cannot be updated in its current state.");
+        }
+
+        // Kiểm tra thời gian hết hạn
+        LocalDate now = LocalDate.now();
+        if (now.isAfter(borrowRequest.getCreateAt().toLocalDate().plusDays(1))) {
+            throw new IllegalStateException("Borrow request is overdue to update.");
+        }
+
+        borrowRequest.setExpectedReturnDate(requestDto.getExpectedReturnDate());
+        borrowRequest.setComment(requestDto.getComment());
+        // Tìm kiếm và cập nhật các chi tiết mượn
+        List<EquipmentBorrowRequestDetail> newDetails = requestDto.getEquipmentItems().stream()
+                .map(item -> {
+                    // Tìm thiết bị trong cơ sở dữ liệu
+                    Equipment equipment = equipmentRepository.findEquipmentByName(item.getEquipmentName())
+                            .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + item.getEquipmentName(), ""));
+
+                    // Ánh xạ DTO sang chi tiết
+                    EquipmentBorrowRequestDetail detail = detailMapper.toEntity(item);
+                    detail.setEquipment(equipment); // Đảm bảo thiết bị được tham chiếu từ DB
+                    detail.setBorrowRequest(borrowRequest);
+                    return detail;
+                })
+                .collect(Collectors.toList());
+
+        // Xóa và thêm mới chi tiết
+        borrowRequest.getBorrowRequestDetails().clear();
+        borrowRequest.getBorrowRequestDetails().addAll(newDetails);
+
+        // Lưu đơn mượn
+        requestRepository.save(borrowRequest);
     }
+
+
 
     /**
      * Approves a borrow request by assigning specific equipment details to the request and
@@ -218,6 +256,40 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
 
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
+
+    @Override
+    @Transactional
+    public void deleteRequestsByIds(List<Long> requestIds) {
+        if (requestIds == null || requestIds.isEmpty()) {
+            throw new IllegalArgumentException("Request IDs cannot be null or empty");
+        }
+
+        // Tìm các đơn mượn cần xóa
+        List<EquipmentBorrowRequest> requestsToDelete = requestRepository.findAllById(requestIds);
+
+        if (requestsToDelete.isEmpty()) {
+            throw new ResourceNotFoundException("No Equipment Borrow Requests found for the given IDs", "BORROWING_MODULE");
+        }
+
+        // Kiểm tra trạng thái của từng đơn mượn
+        for (EquipmentBorrowRequest request : requestsToDelete) {
+            if (request.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
+                throw new IllegalStateException(String.format(
+                        "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
+            }
+
+            // Clear details manually
+            for (EquipmentBorrowRequestDetail detail : request.getBorrowRequestDetails()) {
+                detail.getEquipmentDetails().clear();
+            }
+            request.getBorrowRequestDetails().clear();
+        }
+
+        logRepository.deleteByEquipmentRequestIds(requestIds);
+        // Xóa danh sách các đơn mượn
+        requestRepository.deleteAllInBatch(requestsToDelete);
+    }
+
 
     public Page<EquipmentBorrowRequestSummaryDTO> getAllRequests(String filter, Pageable pageable) {
         Page<EquipmentBorrowRequest> requests;

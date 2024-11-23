@@ -25,7 +25,7 @@ public class EquipmentBorrowRequest extends CommonRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "expected_return_date", nullable = false)
+    @Column(name = "expected_return_date")
     private LocalDate expectedReturnDate;
 
     @Enumerated(EnumType.STRING)

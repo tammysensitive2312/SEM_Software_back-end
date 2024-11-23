@@ -24,4 +24,6 @@ public interface EquipmentBorrowRequestRepository extends JpaRepository<Equipmen
     );
 
     Page<EquipmentBorrowRequest> findByUser_UsernameContainingIgnoreCase(String username, Pageable pageable);
+
+    void deleteAllInBatch(Iterable<EquipmentBorrowRequest> entities);
 }

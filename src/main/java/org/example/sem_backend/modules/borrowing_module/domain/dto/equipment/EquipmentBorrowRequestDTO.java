@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,5 +21,5 @@ public class EquipmentBorrowRequestDTO {
     @NotNull(message = "ExpectedReturnDate must not be null")
     private LocalDate expectedReturnDate;
 
-    private List<EquipmentBorrowItemDTO> equipmentItems;
+    private List<EquipmentBorrowItemDTO> equipmentItems = new ArrayList<>();
 }

@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/borrow/equipment")
 @RequiredArgsConstructor
@@ -140,5 +142,38 @@ public class EquipmentBorrowRequestController {
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(requestService.getRequestDetails(id));
+    }
+
+    @PutMapping("/edit")
+    @Operation(
+            summary = "update a equipment borrow request",
+            description = "Update an existing equipment borrow request if it was created within the last 24 hours."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated"),
+            @ApiResponse(responseCode = "404", description = "Request not found"),
+            @ApiResponse(responseCode = "409", description = "Update not allowed - overdue correction time")
+    })
+    public ResponseEntity<?> updateBookingRequest(
+            @RequestBody @Valid EquipmentBorrowRequestDTO requestDto
+    ) {
+        requestService.updateRequest(requestDto);
+        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+
+    @Operation(
+            summary = "Xóa danh sách các đơn mượn",
+            description = "API này cho phép xóa nhiều đơn mượn cùng lúc dựa trên danh sách ID được truyền vào. Chỉ các đơn mượn chưa được duyệt mới có thể bị xóa.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Xóa thành công"),
+                    @ApiResponse(responseCode = "400", description = "Danh sách ID không hợp lệ"),
+                    @ApiResponse(responseCode = "404", description = "Không tìm thấy đơn mượn cho các ID được truyền vào"),
+                    @ApiResponse(responseCode = "409", description = "Một hoặc nhiều đơn mượn đã được xử lý không thể xóa")
+            }
+    )
+    @DeleteMapping("/batch-delete")
+    public ResponseEntity<Void> deleteRequests(@RequestBody List<Long> requestIds) {
+        requestService.deleteRequestsByIds(requestIds);
+        return ResponseEntity.noContent().build();
     }
 }

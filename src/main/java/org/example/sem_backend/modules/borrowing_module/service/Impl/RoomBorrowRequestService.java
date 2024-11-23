@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.TransactionsLog;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.RoomBorrowRequestMapper;
@@ -147,7 +148,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
 
     @Override
     @Transactional
-    public RoomBorrowRequest updateRequest(RoomBorrowRequestDTO requestDto) {
+    public void updateRequest(RoomBorrowRequestDTO requestDto) {
         validateRequest(requestDto);
 
         RoomBorrowRequest existingRequest = roomBorrowRequestRepository
@@ -167,8 +168,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         }
 
         mapper.partialUpdate(requestDto, existingRequest);
-        RoomBorrowRequest savedRequest = roomBorrowRequestRepository.save(existingRequest);
-        return savedRequest;
+        roomBorrowRequestRepository.save(existingRequest);
     }
 
     /**
@@ -177,6 +177,26 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
     @Override
     public void approveRequest(Long requestId) {
 
+    }
+
+    /**
+     * careful to use this feature
+     * under development
+     */
+    @Override
+    @Transactional
+    public void deleteRequestsByIds(List<Long> requestIds) {
+        if (requestIds == null || requestIds.isEmpty()) {
+            throw new IllegalArgumentException("Request IDs cannot be null or empty");
+        }
+
+        List<RoomBorrowRequest> requestsToDelete = roomBorrowRequestRepository.findAllById(requestIds);
+        if (requestsToDelete.isEmpty()) {
+            throw new ResourceNotFoundException("No Room Borrow Requests found for the given IDs", "BORROWING_MODULE");
+        }
+
+        logRepository.deleteByRoomRequestIds(requestIds);
+        roomBorrowRequestRepository.deleteAllInBatch(requestsToDelete);
     }
 
 }

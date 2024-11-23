@@ -19,18 +19,18 @@ public class TransactionsLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "transaction_type", nullable = false, length = 20)
     private String transactionType;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "room_request_id")
     private RoomBorrowRequest roomRequest;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_request_id")
     private EquipmentBorrowRequest equipmentRequest;
 }

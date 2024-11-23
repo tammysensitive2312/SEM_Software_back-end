@@ -3,16 +3,17 @@ package org.example.sem_backend.modules.borrowing_module.domain.mapper;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestSummaryDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = EquipmentBorrowRequestDetailMapper.class)
+@Mapper(componentModel = "spring", uses = EquipmentBorrowRequestDetailMapper.class, builder = @Builder(disableBuilder = false))
 public interface EquipmentBorrowRequestMapper {
 
     @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "expectedReturnDate", target = "expectedReturnDate")
-    @Mapping(target = "status", constant = "NOT_BORROWED") // Set mặc định
-    @Mapping(source = "equipmentItems", target = "borrowRequestDetails")
+    @Mapping(target = "status", constant = "NOT_BORROWED")
+    @Mapping(source = "equipmentItems", target = "borrowRequestDetails", ignore = true)
     EquipmentBorrowRequest toEntity(EquipmentBorrowRequestDTO dto);
 
     @Mapping(source = "borrowRequest.user.id", target = "userId")
