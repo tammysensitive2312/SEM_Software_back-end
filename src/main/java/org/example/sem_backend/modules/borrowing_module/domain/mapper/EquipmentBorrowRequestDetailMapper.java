@@ -72,5 +72,16 @@ public interface EquipmentBorrowRequestDetailMapper {
     // Mapping từ EquipmentBorrowRequestDetail sang EquipmentBorrowRequestDetailDTO
     @Mapping(source = "uniqueId", target = "id")
     @Mapping(source = "equipment.name", target = "equipmentName")
+    @Mapping(source = "equipmentDetails", target = "borrowedEquipmentDetailCodes", qualifiedByName = "mapEquipmentDetailCodes")
     EquipmentBorrowRequestDetailDTO toDetailDto(EquipmentBorrowRequestDetail detail);
+
+    @Named("mapEquipmentDetailCodes")
+    default List<String> mapEquipmentDetailCodes(List<EquipmentDetail> equipmentDetails) {
+        if (equipmentDetails == null) {
+            return List.of();
+        }
+        return equipmentDetails.stream()
+                .map(EquipmentDetail::getCode)
+                .collect(Collectors.toList());
+    }
 }

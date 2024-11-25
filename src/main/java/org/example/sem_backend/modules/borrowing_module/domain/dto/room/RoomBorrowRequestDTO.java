@@ -12,10 +12,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class
-RoomBorrowRequestDTO {
-    @NotNull(message = "Unique ID cần cho cập nhật")
+public class RoomBorrowRequestDTO {
+//    @NotNull(message = "Unique ID cần cho cập nhật")
     private Long uniqueId;
 
     @NotNull(message = "User ID không được để trống")

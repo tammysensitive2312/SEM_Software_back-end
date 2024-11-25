@@ -8,13 +8,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -64,7 +69,7 @@ public class RoomBorrowRequestController {
 
     @Operation(
             summary = "Xóa danh sách các đơn mượn",
-            description = "API này cho phép xóa nhiều đơn mượn cùng lúc dựa trên danh sách ID được truyền vào.",
+            description = "API này đang được phát triển nhưng dự kiến không sử dụng",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Xóa thành công"),
                     @ApiResponse(responseCode = "400", description = "Danh sách ID không hợp lệ"),
@@ -76,6 +81,49 @@ public class RoomBorrowRequestController {
     public ResponseEntity<Void> deleteRequests(@RequestBody List<Long> requestIds) {
         service.deleteRequestsByIds(requestIds);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Get user-specific room borrow requests",
+            description = "Retrieve a paginated list of room borrow requests for a specific user. "
+                    + "Optional filters include start time and end time."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successful retrieval of user room borrow requests",
+            content = @Content(mediaType = "application/json")
+    )
+    @GetMapping("/user-request")
+    public ResponseEntity<Page<GetRoomRequestDTO>> getUserRequests(
+            @RequestParam Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            Pageable pageable
+    ) {
+        Page<GetRoomRequestDTO> requests = service.getUserRequests(userId, startTime, endTime, pageable);
+        return ResponseEntity.ok(requests);
+    }
+
+
+    @Operation(
+            summary = "Get room borrow requests for admin",
+            description = "Retrieve a paginated list of room borrow requests for administrative purposes. "
+                    + "Optional filters include username, start time, and end time."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successful retrieval of admin room borrow requests",
+            content = @Content(mediaType = "application/json")
+    )
+    @GetMapping("/admin-request")
+    public ResponseEntity<Page<GetRoomRequestDTO>> getAdminRequests(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            Pageable pageable
+    ) {
+        Page<GetRoomRequestDTO> requests = service.getAdminRequests(username, startTime, endTime, pageable);
+        return ResponseEntity.ok(requests);
     }
 }
 

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,4 +14,5 @@ public class EquipmentBorrowRequestDetailDTO {
     private String equipmentName;
     private int quantityBorrowed;
     private String conditionBeforeBorrow;
+    private List<String> borrowedEquipmentDetailCodes;
 }

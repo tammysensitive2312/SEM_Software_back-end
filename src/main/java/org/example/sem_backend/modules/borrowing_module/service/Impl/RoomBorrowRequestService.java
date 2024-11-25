@@ -1,11 +1,12 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.TransactionsLog;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.RoomBorrowRequestMapper;
@@ -18,6 +19,8 @@ import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,19 +77,29 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         RoomBorrowRequest request = mapper.toEntity(requestDto);
         request.setUser(user);
         request.setRoom(room);
+        request.setComment(requestDto.getComment());
 
         // Lưu yêu cầu mượn phòng vào cơ sở dữ liệu
         roomBorrowRequestRepository.save(request);
 
         // Tạo lịch đặt phòng mới
-        RoomSchedule schedule = new RoomSchedule();
-        schedule.setRoom(room);
-        schedule.setUser(user.getUsername());
-        schedule.setStartTime(requestDto.getStartTime());
-        schedule.setEndTime(requestDto.getEndTime());
+        try {
+            RoomSchedule schedule = new RoomSchedule();
+            schedule.setRoom(room);
+            schedule.setUser(user.getUsername());
+            schedule.setStartTime(requestDto.getStartTime());
+            schedule.setEndTime(requestDto.getEndTime());
 
-        // Lưu lịch đặt phòng vào cơ sở dữ liệu
-        scheduleRepository.save(schedule);
+            scheduleRepository.save(schedule);
+        } catch (OptimisticLockException e) {
+            throw new ResourceConflictException(
+                    String.format("Rejected booking - Room ID [%s] has already been booked for [%s] to [%s]",
+                            requestDto.getRoomId(),
+                            requestDto.getStartTime(),
+                            requestDto.getEndTime()),
+                    "BORROWING-MODULE"
+            );
+        }
 
         TransactionsLog transactionsLog = new TransactionsLog();
         transactionsLog.setRoomRequest(request);
@@ -199,4 +212,25 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         roomBorrowRequestRepository.deleteAllInBatch(requestsToDelete);
     }
 
+    /**
+     * Retrieves a paginated list of room borrow requests for a specific user.
+     * Filters the requests based on the provided start and end time.
+     *
+     * @return A paginated list of room borrow requests for the user.
+     */
+    public Page<GetRoomRequestDTO> getUserRequests(Long userId, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+        return roomBorrowRequestRepository.
+                findRequestsWithSchedules(userId, null, startTime, endTime, pageable);
+    }
+
+    /**
+     * Retrieves a paginated list of room borrow requests for administrative purposes.
+     * Filters the requests based on username and the provided start and end time.
+     *
+     * @return A paginated list of room borrow requests for administrative use.
+     */
+    public Page<GetRoomRequestDTO> getAdminRequests(String username, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+        return roomBorrowRequestRepository.
+                findRequestsWithSchedules(null, username, startTime, endTime, pageable);
+    }
 }

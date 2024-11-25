@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowItemDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailsDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestSummaryDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.*;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
@@ -307,7 +304,12 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         EquipmentBorrowRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Borrow request not found for ID: " + requestId));
 
-        return detailMapper.toDetailsDto(request);
+        List<EquipmentBorrowRequestDetailDTO> detailDTOs = request.getBorrowRequestDetails()
+                .stream()
+                .map(detailMapper::toDetailDto)
+                .collect(Collectors.toList());
+
+        return new EquipmentBorrowRequestDetailsDTO(request.getUniqueID(), detailDTOs);
     }
 
 }
