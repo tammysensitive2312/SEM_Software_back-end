@@ -11,7 +11,7 @@ import org.example.sem_backend.modules.room_module.domain.entity.Room;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "equipment_details")
 @Builder
 @Table(name = "equipment_details")
 public class EquipmentDetail extends BaseEntity {
@@ -33,12 +33,12 @@ public class EquipmentDetail extends BaseEntity {
 
     private int operatingHours;
 
-    @ManyToOne
-    @JoinColumn(name = "equipment_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = true)
     private Room room;
 
 }
