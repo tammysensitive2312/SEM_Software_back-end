@@ -33,6 +33,8 @@ public class EquipmentDetailController {
         return ResponseEntity.ok("Equipment detail location updated successfully");
     }
 
+    @Operation(summary = "Get equipment details by equipment ID",
+            description = "Get a list of equipment detail items by equipment ID.")
     @GetMapping("/equipment")
     public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@RequestParam Long equipmentId,
                                                                           @RequestParam(value = "page", defaultValue = "0") int page,
@@ -41,6 +43,8 @@ public class EquipmentDetailController {
         return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, pageable);
     }
 
+    @Operation(summary = "Get equipment details by room ID",
+            description = "Get a list of equipment detail items by room ID.")
     @GetMapping("/room")
     public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(@RequestParam Integer roomId,
                                                                      @RequestParam(value = "page", defaultValue = "0") int page,

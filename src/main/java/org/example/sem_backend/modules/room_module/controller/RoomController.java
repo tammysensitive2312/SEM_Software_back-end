@@ -28,17 +28,24 @@ import java.util.List;
 public class RoomController {
     private final IRoomService roomService;
 
+    @Operation(summary = "Create a new room",
+            description = "Create a new room with the given details")
     @PostMapping
     public ResponseEntity<String> addRoom(@Valid @RequestBody RoomRequest roomRequest) {
         roomService.addRoom(roomRequest);
         return ResponseEntity.ok("Room added successfully");
     }
 
+    @Operation(summary = "Update a room",
+            description = "Update an existing room with new details")
     @PatchMapping("/{id}")
     public ResponseEntity<String> updateRoom(@Valid @RequestBody RoomRequest roomRequest, @PathVariable Integer id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }
+
+    @Operation(summary = "Get rooms by type or status",
+            description = "Retrieve a list of rooms matching the given type or status")
     @GetMapping("/filter")
     public ResponseEntity<Page<RoomResponse>> filterRooms(
             @RequestParam(required = false) RoomType type,
@@ -61,4 +68,5 @@ public class RoomController {
         List<RoomResponse> rooms = roomService.searchRoom(keyword);
         return ResponseEntity.ok(rooms);
     }
+
 }

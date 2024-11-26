@@ -52,6 +52,8 @@ public class EquipmentController {
         return ResponseEntity.ok("Equipment updated successfully");
     }
 
+    @Operation(summary = "Get equipment by category",
+            description = "enter the category to get the equipment")
     @GetMapping("/filter")
     public ResponseEntity<Page<EquipmentResponse>> filterEquipment(
             @RequestParam(required = false) Category category,
@@ -63,6 +65,8 @@ public class EquipmentController {
         return ResponseEntity.ok(equipments);
     }
 
+    @Operation(summary = "Search equipment",
+            description = "Search for equipment items by keyword in name or code.")
     @GetMapping("/search")
     public ResponseEntity<List<EquipmentResponse>> searchEquipment(@RequestParam String keyword) {
         List<EquipmentResponse> equipments = equipmentService.searchEquipments(keyword);
