@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RoomResponse {
+    private Integer id;
     private String roomName;
     private String type;
     private String status;

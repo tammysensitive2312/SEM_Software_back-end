@@ -1,5 +1,11 @@
 package org.example.sem_backend.modules.room_module.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
@@ -11,7 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,9 +50,15 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRoom(@PathVariable Integer id) {
-        roomService.deleteRoom(id);
-        return ResponseEntity.ok("Room deleted successfully");
+    @GetMapping("/search")
+    @Operation(summary = "Search rooms by keyword", description = "Retrieve a list of rooms matching the given keyword")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of rooms"),
+            @ApiResponse(responseCode = "400", description = "Invalid search keyword", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<List<RoomResponse>> searchRoom(
+            @Parameter(description = "Keyword to search for") @RequestParam String keyword) {
+        List<RoomResponse> rooms = roomService.searchRoom(keyword);
+        return ResponseEntity.ok(rooms);
     }
 }
