@@ -3,9 +3,11 @@ package org.example.sem_backend.modules.equipment_module.service;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
+import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.example.sem_backend.modules.equipment_module.domain.mapper.EquipmentDetailMapper;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentDetailRepository;
+import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     private final EquipmentDetailRepository equipmentDetailRepository;
     private final EquipmentDetailMapper equipmentDetailMapper;
     private final RoomRepository roomRepository;
+    private final EquipmentRepository equipmentRepository;
 
     @Override
     public void updateEquipmentDetailLocation(Long equipmentDetailId, Integer roomId) {
@@ -61,6 +64,15 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     public void deleteEquipmentDetail(Long id) {
         EquipmentDetail equipmentDetail = equipmentDetailRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment detail with id " + id + " not found", "EQUIPMENT-DETAIL_MODULE"));
+        Equipment existingEquipment = equipmentDetail.getEquipment();
         equipmentDetailRepository.deleteById(equipmentDetail.getId());
+
+        // Cập nhật số lượng của Equipment
+        int totalQuantity = existingEquipment.getTotalQuantity();
+        int usableQuantity = existingEquipment.getUsableQuantity();
+        existingEquipment.setTotalQuantity(totalQuantity - 1);
+        existingEquipment.setUsableQuantity(usableQuantity - 1);
+        existingEquipment.setBrokenQuantity(totalQuantity - usableQuantity);
+        equipmentRepository.save(existingEquipment);
     }
 }

@@ -59,4 +59,10 @@ public class EquipmentDetailController {
     public ResponseEntity<List<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam String keyword) {
         return ResponseEntity.ok(equipmentDetailService.searchEquipmentDetail(keyword));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEquipmentDetail(@PathVariable Long id) {
+        equipmentDetailService.deleteEquipmentDetail(id);
+        return ResponseEntity.ok("Equipment detail deleted successfully");
+    }
 }
