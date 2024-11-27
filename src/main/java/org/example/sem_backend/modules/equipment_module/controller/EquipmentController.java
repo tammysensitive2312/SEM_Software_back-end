@@ -11,15 +11,16 @@ import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.CreateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
-import org.example.sem_backend.modules.equipment_module.domain.dto.response.GetEquipmentResponseDto;
 import org.example.sem_backend.modules.equipment_module.enums.Category;
 import org.example.sem_backend.modules.equipment_module.service.EquipmentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/equipment")
@@ -27,23 +28,6 @@ import org.springframework.web.bind.annotation.*;
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
-
-    @Operation(summary = "Retrieve all equipment sorted by room number",
-            description = "Fetch a paginated list of equipment sorted by the room in which they are located.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved equipment list sorted by room",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = GetEquipmentResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid parameters", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
-    })
-    @GetMapping("/sorted-by-room")
-    public Page<GetEquipmentResponseDto> getAllEquipmentSortedByRoom(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return equipmentService.getAllEquipmentSortedByRoom(pageable);
-    }
 
     @Operation(summary = "Add new equipment",
             description = "Add a new equipment item to the system with specified details.")
@@ -53,11 +37,11 @@ public class EquipmentController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<String> addEquipment(
-            @Valid @RequestBody CreateEquipmentRequest equipmentRequest) {
+    public ResponseEntity<String> addEquipment(@Valid @RequestBody CreateEquipmentRequest equipmentRequest) {
         equipmentService.addEquipment(equipmentRequest);
         return ResponseEntity.ok("Equipment added successfully");
     }
+
 
     @Operation(summary = "Update existing equipment",
             description = "Update details of an existing equipment item by its ID.")
@@ -75,23 +59,25 @@ public class EquipmentController {
         return ResponseEntity.ok("Equipment updated successfully");
     }
 
-    @Operation(summary = "Retrieve equipment by category",
-            description = "Fetch a paginated list of equipment based on category filter.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved equipment by category",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EquipmentResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid category or pagination parameters", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
-    })
-    @GetMapping
-    public ResponseEntity<Page<EquipmentResponse>> getEquipmentsByCategory(
-            @Parameter(description = "Category of equipment to filter by, optional") @RequestParam(required = false) Category category,
-            @Parameter(description = "Page number for pagination, default is 0") @RequestParam(value = "page", defaultValue = "0") int page,
-            @Parameter(description = "Size of each page, default is 15") @RequestParam(value = "size", defaultValue = "15") int size) {
+    @Operation(summary = "Get equipment by category",
+            description = "enter the category to get the equipment")
+    @GetMapping("/filter")
+    public ResponseEntity<Page<EquipmentResponse>> filterEquipment(
+            @RequestParam(required = false) Category category,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<EquipmentResponse> equipments = equipmentService.getEquipmentsByCategory(category, pageable);
+        Page<EquipmentResponse> equipments = equipmentService.filterEquipment(category, pageable);
         return ResponseEntity.ok(equipments);
     }
+
+    @Operation(summary = "Search equipment",
+            description = "Search for equipment items by keyword in name or code.")
+    @GetMapping("/search")
+    public ResponseEntity<List<EquipmentResponse>> searchEquipment(@RequestParam String keyword) {
+        List<EquipmentResponse> equipments = equipmentService.searchEquipments(keyword);
+        return ResponseEntity.ok(equipments);
+    }
+
 }

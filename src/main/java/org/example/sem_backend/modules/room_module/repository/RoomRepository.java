@@ -14,7 +14,6 @@ import java.util.List;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificationExecutor<Room> {
-
     // Tìm các phòng theo loại và trạng thái có thể sử dụng, thời gian,sử dụng native query để tối ưu hiệu suất
     @Query(value = "SELECT r.* " +
             "FROM rooms r " +
@@ -31,5 +30,8 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
     @Query(value = "SELECT * FROM rooms WHERE (:type IS NULL OR type = :type) AND (:status IS NULL OR status = :status)", nativeQuery = true)
     Page<Room> findByTypeAndStatus(@Param("type") String type, @Param("status") String status, Pageable pageable);
 
-    boolean existsByRoomName(@Param("description") String description);
+    boolean existsByRoomName(String roomName);
+
+    @Query(value = "SELECT * FROM room r WHERE LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')) LIMIT 5", nativeQuery = true)
+    List<Room> searchRoom(@Param("keyword") String keyword);
 }

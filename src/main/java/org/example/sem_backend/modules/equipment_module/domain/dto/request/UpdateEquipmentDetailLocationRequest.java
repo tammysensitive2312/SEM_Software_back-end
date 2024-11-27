@@ -5,9 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EquipmentDetailRequest {
-    private String code;
-    private String description;
-    private String purchaseDate;
+public class UpdateEquipmentDetailLocationRequest {
+    private Long equipmentDetailId;
     private Integer roomId;
 }

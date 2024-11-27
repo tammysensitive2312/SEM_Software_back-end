@@ -1,11 +1,20 @@
 package org.example.sem_backend.modules.equipment_module.service;
 
-import org.example.sem_backend.modules.equipment_module.domain.dto.response.GetEquipmentResponseDto;
+import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentDetailLocationRequest;
+import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface IEquipmentDetailService {
-    Page<GetEquipmentResponseDto> getEquipmentDetailsByEquipmentId(Long equipmentId, Pageable pageable);
+import java.util.List;
 
-    Page<GetEquipmentResponseDto> getEquipmentDetailsByRoomId(Long roomId, Pageable pageable);
+public interface IEquipmentDetailService {
+    void updateEquipmentDetailLocation(Long equipmentDetailId, Integer roomId);
+
+    Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, Pageable pageable);
+
+    Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable);
+
+    List<EquipmentDetailResponse> searchEquipmentDetail(String keyword);
+
+    void deleteEquipmentDetail(Long id);
 }

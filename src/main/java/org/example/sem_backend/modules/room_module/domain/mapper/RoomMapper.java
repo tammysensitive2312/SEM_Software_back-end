@@ -1,21 +1,19 @@
 package org.example.sem_backend.modules.room_module.domain.mapper;
 
-import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
+import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
+import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.mapstruct.*;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = "spring")
 public interface RoomMapper {
 
-    @Mapping(target = "type", expression = "java(room.getType() != null ? room.getType().getDescription() : null)")
-    @Mapping(target = "status")
-    @Mapping(source = "uniqueId", target = "id")
-    RoomDto toDto(Room room);
+    Room toEntity(RoomRequest roomRequest);
 
-    @Mapping(target = "type", expression = "java(roomDto.getType() != null ? RoomType.valueOf(roomDto.getType().toUpperCase()) : null)")
-    @Mapping(target = "status")
-    Room toEntity(RoomDto roomDto);
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "type", source = "type.description")
+    RoomResponse toResponse(Room room);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Room partialUpdate(RoomDto roomDto, @MappingTarget Room room);
+    Room partialUpdate(RoomRequest request, @MappingTarget Room room);
 }

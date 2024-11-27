@@ -8,6 +8,7 @@ import lombok.Setter;
 public class EquipmentResponse {
     private long id;
     private String equipmentName;
+    private String code;
     private String category;
     private int totalQuantity;
     private int usableQuantity;

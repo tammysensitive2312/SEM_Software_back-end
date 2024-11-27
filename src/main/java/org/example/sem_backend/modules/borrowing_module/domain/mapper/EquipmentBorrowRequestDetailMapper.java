@@ -24,7 +24,7 @@ public interface EquipmentBorrowRequestDetailMapper {
     @Mapping(source = "dto.equipmentName", target = "equipment.name")
     @Mapping(source = "dto.equipmentDetailCodes", target = "equipmentDetails", qualifiedByName = "mapToEquipmentDetails")
     @Mapping(target = "borrowRequest", ignore = true)
-    @Mapping(source = "equipmentName", target = "equipment", qualifiedByName = "mapToEquipment")
+    @Mapping(source = "equipmentName", target = "equipment.equipmentName", qualifiedByName = "mapToEquipment")
     EquipmentBorrowRequestDetail toEntity(EquipmentBorrowItemDTO dto);
 
     @Named("mapToEquipment")
@@ -34,21 +34,21 @@ public interface EquipmentBorrowRequestDetailMapper {
     }
 
     // Mapping từ Entity sang DTO
-    @Mapping(source = "equipment.name", target = "equipmentName")
+    @Mapping(source = "equipment.equipmentName", target = "equipmentName")
     @Mapping(source = "equipmentDetails", target = "equipmentDetailCodes", qualifiedByName = "mapToDetailCodes")
     EquipmentBorrowItemDTO toDto(EquipmentBorrowRequestDetail detail);
 
     // Custom mapping để chuyển từ List<String> sang List<EquipmentDetail>
     @Named("mapToEquipmentDetails")
-    default List<EquipmentDetail> mapToEquipmentDetails(List<String> detailCodes) {
-        if (detailCodes == null) {
+    default List<EquipmentDetail> mapToEquipmentDetails(List<String> serialNumbers) {
+        if (serialNumbers == null) {
             return new ArrayList<>(); // if null, return empty list
         }
         // This should be implemented based on context, or provide `availableDetails` from service logic
-        return detailCodes.stream().map(code -> {
+        return serialNumbers.stream().map(serialNumber -> {
 
             EquipmentDetail detail = new EquipmentDetail();
-            detail.setCode(code);
+            detail.setSerialNumber(serialNumber);
             return detail;
         }).collect(Collectors.toList());
     }
@@ -60,7 +60,7 @@ public interface EquipmentBorrowRequestDetailMapper {
             return null;
         }
         return equipmentDetails.stream()
-                .map(EquipmentDetail::getCode)
+                .map(EquipmentDetail::getSerialNumber)
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public interface EquipmentBorrowRequestDetailMapper {
 
     // Mapping từ EquipmentBorrowRequestDetail sang EquipmentBorrowRequestDetailDTO
     @Mapping(source = "uniqueId", target = "id")
-    @Mapping(source = "equipment.name", target = "equipmentName")
+    @Mapping(source = "equipment.equipmentName", target = "equipmentName")
     @Mapping(source = "equipmentDetails", target = "borrowedEquipmentDetailCodes", qualifiedByName = "mapEquipmentDetailCodes")
     EquipmentBorrowRequestDetailDTO toDetailDto(EquipmentBorrowRequestDetail detail);
 
@@ -81,7 +81,7 @@ public interface EquipmentBorrowRequestDetailMapper {
             return List.of();
         }
         return equipmentDetails.stream()
-                .map(EquipmentDetail::getCode)
+                .map(EquipmentDetail::getSerialNumber)
                 .collect(Collectors.toList());
     }
 }
