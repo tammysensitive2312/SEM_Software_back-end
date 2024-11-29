@@ -12,5 +12,5 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
         "org.example.sem_backend.modules.room_module"
 })
 public class MainServiceConfig {
-
+        
 }
