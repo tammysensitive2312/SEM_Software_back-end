@@ -29,15 +29,12 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
 
     long countByEquipment(Equipment existingEquipment);
 
-//    @Query("SELECT e FROM Room e WHERE LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')) LIMIT 5")
-//    List<Room> searchRoom(@Param("keyword") String keyword);
-
     @Query(value = "SELECT ed.* FROM equipment_detail ed " +
             "JOIN equipment e ON ed.equipment_id = e.id " +
-            "WHERE LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "ORDER BY ed.id ASC " +
+            "ORDER BY ed.id DESC " +
             "LIMIT 5", nativeQuery = true)
     List<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword);
 
+    boolean existsBySerialNumber(String serialNumber);
 }

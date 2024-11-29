@@ -29,6 +29,7 @@ public class EquipmentDetail extends BaseEntity {
     private String serialNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EquipmentDetailStatus status;
 
     @ManyToOne

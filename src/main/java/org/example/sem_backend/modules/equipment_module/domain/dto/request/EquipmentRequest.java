@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateEquipmentRequest {
+public class EquipmentRequest {
     @NotBlank(message = "Equipment name is required")
     private String equipmentName;
 
@@ -20,11 +20,4 @@ public class CreateEquipmentRequest {
 
     @NotBlank(message = "Code is required")
     private String code;
-
-    private String description;
-
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate purchaseDate;
-
-    private Integer roomId;
 }

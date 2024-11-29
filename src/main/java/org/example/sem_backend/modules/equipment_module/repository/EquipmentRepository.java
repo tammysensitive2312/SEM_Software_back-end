@@ -12,8 +12,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
-    Equipment findByEquipmentName(String equipmentName);
-
     @Query(value = "SELECT * FROM equipment e WHERE (:category IS NULL OR e.category = :category)",
             nativeQuery = true)
     Page<Equipment> findByCategory(@Param("category") String category, Pageable pageable);
@@ -24,4 +22,5 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
             "LIMIT 5", nativeQuery = true)
     List<Equipment> searchEquipment(@Param("keyword") String keyword);
 
+    boolean existsByCode(String code);
 }

@@ -1,10 +1,8 @@
 package org.example.sem_backend.modules.equipment_module.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
-import org.springframework.data.annotation.Persistent;
 
 import java.util.List;
 
@@ -19,7 +17,7 @@ public class Equipment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String equipmentName;
 
     @Column(unique = true, nullable = false)
@@ -34,4 +32,9 @@ public class Equipment extends BaseEntity {
 
     @OneToMany(mappedBy = "equipment")
     private List<EquipmentDetail> equipmentDetails;
+
+    public void incrementQuantity() {
+        this.totalQuantity++;
+        this.usableQuantity++;
+    }
 }

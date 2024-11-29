@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.sem_backend.modules.equipment_module.domain.dto.request.CreateEquipmentRequest;
+import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Category;
@@ -34,7 +34,7 @@ public class EquipmentController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<String> addEquipment(@Valid @RequestBody CreateEquipmentRequest equipmentRequest) {
+    public ResponseEntity<String> addEquipment(@Valid @RequestBody EquipmentRequest equipmentRequest) {
         equipmentService.addEquipment(equipmentRequest);
         return ResponseEntity.ok("Equipment added successfully");
     }
