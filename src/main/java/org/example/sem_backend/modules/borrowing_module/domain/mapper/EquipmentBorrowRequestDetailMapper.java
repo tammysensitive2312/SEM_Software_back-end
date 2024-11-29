@@ -24,14 +24,14 @@ public interface EquipmentBorrowRequestDetailMapper {
     @Mapping(source = "dto.equipmentName", target = "equipment.name")
     @Mapping(source = "dto.equipmentDetailCodes", target = "equipmentDetails", qualifiedByName = "mapToEquipmentDetails")
     @Mapping(target = "borrowRequest", ignore = true)
-    @Mapping(source = "equipmentName", target = "equipment", qualifiedByName = "mapToEquipment")
+    @Mapping(source = "equipmentName", target = "equipment")
     EquipmentBorrowRequestDetail toEntity(EquipmentBorrowItemDTO dto);
 
-    @Named("mapToEquipment")
-    default Equipment mapToEquipment(String equipmentName, EquipmentRepository equipmentRepository) {
-        return equipmentRepository.findEquipmentByName(equipmentName)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + equipmentName, "BORROWING_MODULE"));
-    }
+//    @Named("mapToEquipment")
+//    default Equipment mapToEquipment(String equipmentName, EquipmentRepository equipmentRepository) {
+//        return equipmentRepository.findEquipmentByName(equipmentName)
+//                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + equipmentName, "BORROWING_MODULE"));
+//    }
 
     // Mapping từ Entity sang DTO
     @Mapping(source = "equipment.name", target = "equipmentName")
