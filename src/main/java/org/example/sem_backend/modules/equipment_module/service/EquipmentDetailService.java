@@ -3,12 +3,14 @@ package org.example.sem_backend.modules.equipment_module.service;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
+import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.example.sem_backend.modules.equipment_module.domain.mapper.EquipmentDetailMapper;
+import org.example.sem_backend.modules.equipment_module.enums.EquipmentDetailStatus;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentDetailRepository;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
@@ -35,7 +37,7 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     @Override
     @Transactional
     public void addEquipmentDetail(EquipmentDetailRequest request) {
-        Room room = roomRepository.findById(request.getRoomId())
+        Room room = roomRepository.findById(request.getRoomId().longValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-DETAIL-MODULE"));
         Equipment existingEquipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));

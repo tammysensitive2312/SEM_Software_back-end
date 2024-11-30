@@ -7,20 +7,14 @@ import org.example.sem_backend.modules.equipment_module.domain.dto.request.Equip
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
-import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.example.sem_backend.modules.equipment_module.domain.mapper.EquipmentMapper;
 import org.example.sem_backend.modules.equipment_module.enums.Category;
-import org.example.sem_backend.modules.equipment_module.enums.EquipmentDetailStatus;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentDetailRepository;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
-import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.CompletableFuture;
 
 import java.util.List;
 import java.util.stream.Collectors;
