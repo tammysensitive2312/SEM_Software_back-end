@@ -20,7 +20,7 @@ public class Utils {
 
     public static Equipment createEquipment(String equipmentName, int usableQuantity) {
         Equipment equipment = new Equipment();
-        equipment.setName(equipmentName);
+        equipment.setEquipmentName(equipmentName);
         equipment.setUsableQuantity(usableQuantity);
         return equipment;
     }

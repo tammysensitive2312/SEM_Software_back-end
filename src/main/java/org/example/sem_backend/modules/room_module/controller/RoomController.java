@@ -58,7 +58,7 @@ public class RoomController {
             ),
             @ApiResponse(responseCode = "400", description = "Invalid input parameters", content = @Content)
     })
-    @GetMapping("/search")
+    @GetMapping("/searchByCondition")
     public ResponseEntity<List<RoomResponse>> searchRooms(
             @Parameter(description = "Capacity of the room")
             @RequestParam(required = false) Integer capacity,

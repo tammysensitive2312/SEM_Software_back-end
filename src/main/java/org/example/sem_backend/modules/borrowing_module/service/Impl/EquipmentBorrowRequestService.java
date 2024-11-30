@@ -84,7 +84,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         for (EquipmentBorrowItemDTO item : requestDto.getEquipmentItems()) {
 
             // Tìm kiếm loại thiết bị
-            Equipment equipment = equipmentRepository.findEquipmentByName(item.getEquipmentName())
+            Equipment equipment = equipmentRepository.findByEquipmentName(item.getEquipmentName())
                     .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + item.getEquipmentName(), ""));
 
             // Tạo chi tiết đơn mượn (chưa gán EquipmentDetail)
@@ -141,7 +141,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
 
     public void validateEquipmentAvailability(EquipmentBorrowRequestDTO requestDto) {
         for (EquipmentBorrowItemDTO item : requestDto.getEquipmentItems()) {
-            Equipment equipment = equipmentRepository.findEquipmentByName(
+            Equipment equipment = equipmentRepository.findByEquipmentName(
                     item.getEquipmentName())
                     .orElseThrow(() -> new ResourceConflictException(
                             "Equipment not found: " + item.getEquipmentName(), "BORROWING_MODULE"));
@@ -181,7 +181,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         List<EquipmentBorrowRequestDetail> newDetails = requestDto.getEquipmentItems().stream()
                 .map(item -> {
                     // Tìm thiết bị trong cơ sở dữ liệu
-                    Equipment equipment = equipmentRepository.findEquipmentByName(item.getEquipmentName())
+                    Equipment equipment = equipmentRepository.findByEquipmentName(item.getEquipmentName())
                             .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + item.getEquipmentName(), ""));
 
                     // Ánh xạ DTO sang chi tiết
@@ -241,7 +241,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                     detail.getEquipment().getId(), pageable);
 
             if (availableDetails.size() < detail.getQuantityBorrowed()) {
-                throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getName(), "");
+                throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getEquipmentName(), "");
             }
 
             // Gán các thiết bị cụ thể

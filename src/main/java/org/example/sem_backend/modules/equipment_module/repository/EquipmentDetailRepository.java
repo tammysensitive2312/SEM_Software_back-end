@@ -42,7 +42,7 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
 
     @Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
             "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
-            "WHERE LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "WHERE LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "ORDER BY ed.id " +
             "LIMIT 5", nativeQuery = true)

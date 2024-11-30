@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "equipments")
 public class Equipment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +28,7 @@ public class Equipment extends BaseEntity {
     private int totalQuantity;
     private int usableQuantity;
     private int brokenQuantity;
+    private int inUseQuantity;
 
     @Enumerated(EnumType.STRING)
     private Category category;

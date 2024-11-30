@@ -43,7 +43,7 @@ public class EquipmentService implements IEquipmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-MODULE"));
 
             // Sử dụng Optional để tìm Equipment nếu tồn tại, hoặc tạo mới nếu không tìm thấy
-            Equipment existingEquipment = equipmentRepository.findEquipmentByName(request.getEquipmentName())
+            Equipment existingEquipment = equipmentRepository.findByEquipmentName(request.getEquipmentName())
                     .orElseGet(() -> equipmentRepository.save(
                             Equipment.builder()
                                     .equipmentName(request.getEquipmentName())

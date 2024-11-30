@@ -21,21 +21,20 @@ import java.util.stream.Collectors;
 public interface EquipmentBorrowRequestDetailMapper {
 
     // Mapping từ DTO sang Entity
-    @Mapping(source = "dto.equipmentName", target = "equipment.name")
     @Mapping(source = "dto.equipmentDetailCodes", target = "equipmentDetails", qualifiedByName = "mapToEquipmentDetails")
     @Mapping(target = "borrowRequest", ignore = true)
-    @Mapping(source = "equipmentName", target = "equipment.equipmentName", qualifiedByName = "mapToEquipment")
+    @Mapping(source = "equipmentName", target = "equipment.equipmentName")
     EquipmentBorrowRequestDetail toEntity(EquipmentBorrowItemDTO dto);
 
-    @Named("mapToEquipment")
-    default Equipment mapToEquipment(String equipmentName, EquipmentRepository equipmentRepository) {
-        return equipmentRepository.findEquipmentByName(equipmentName)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + equipmentName, "BORROWING_MODULE"));
-    }
+//    @Named("mapToEquipment")
+//    default Equipment mapToEquipment(String equipmentName, EquipmentRepository equipmentRepository) {
+//        return equipmentRepository.findByEquipmentName(equipmentName)
+//                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + equipmentName, "BORROWING_MODULE"));
+//    }
 
     // Mapping từ Entity sang DTO
     @Mapping(source = "equipment.equipmentName", target = "equipmentName")
-    @Mapping(source = "equipmentDetails", target = "equipmentDetailCodes", qualifiedByName = "mapToDetailCodes")
+    @Mapping(source = "equipmentDetails", target = "equipmentDetailCodes", qualifiedByName = "mapEquipmentDetailSerialNumber")
     EquipmentBorrowItemDTO toDto(EquipmentBorrowRequestDetail detail);
 
     // Custom mapping để chuyển từ List<String> sang List<EquipmentDetail>
@@ -53,17 +52,6 @@ public interface EquipmentBorrowRequestDetailMapper {
         }).collect(Collectors.toList());
     }
 
-    // Custom mapping để chuyển từ List<EquipmentDetail> sang List<String>
-    @Named("mapToDetailCodes")
-    default List<String> mapToDetailCodes(List<EquipmentDetail> equipmentDetails) {
-        if (equipmentDetails == null) {
-            return null;
-        }
-        return equipmentDetails.stream()
-                .map(EquipmentDetail::getSerialNumber)
-                .collect(Collectors.toList());
-    }
-
     // Mapping từ EquipmentBorrowRequest sang EquipmentBorrowRequestDetailsDTO
     @Mapping(source = "uniqueID", target = "requestId")
     @Mapping(source = "borrowRequestDetails", target = "details")
@@ -72,11 +60,11 @@ public interface EquipmentBorrowRequestDetailMapper {
     // Mapping từ EquipmentBorrowRequestDetail sang EquipmentBorrowRequestDetailDTO
     @Mapping(source = "uniqueId", target = "id")
     @Mapping(source = "equipment.equipmentName", target = "equipmentName")
-    @Mapping(source = "equipmentDetails", target = "borrowedEquipmentDetailCodes", qualifiedByName = "mapEquipmentDetailCodes")
+    @Mapping(source = "equipmentDetails", target = "borrowedEquipmentDetailCodes", qualifiedByName = "mapEquipmentDetailSerialNumber")
     EquipmentBorrowRequestDetailDTO toDetailDto(EquipmentBorrowRequestDetail detail);
 
-    @Named("mapEquipmentDetailCodes")
-    default List<String> mapEquipmentDetailCodes(List<EquipmentDetail> equipmentDetails) {
+    @Named("mapEquipmentDetailSerialNumber")
+    default List<String> mapEquipmentDetailSerialNumber(List<EquipmentDetail> equipmentDetails) {
         if (equipmentDetails == null) {
             return List.of();
         }
