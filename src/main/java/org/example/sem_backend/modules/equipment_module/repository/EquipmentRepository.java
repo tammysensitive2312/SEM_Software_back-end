@@ -25,4 +25,5 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
             "LIMIT 5", nativeQuery = true)
     List<Equipment> searchEquipment(@Param("keyword") String keyword);
 
+    boolean existsByCode(String code);
 }

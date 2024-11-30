@@ -3,7 +3,7 @@ package org.example.sem_backend.modules.equipment_module.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.modules.equipment_module.domain.dto.request.CreateEquipmentRequest;
+import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
@@ -35,44 +35,13 @@ public class EquipmentService implements IEquipmentService {
     private final EquipmentMapper equipmentMapper;
 
     @Override
-    @Async
     @Transactional
-    public CompletableFuture<Void> addEquipment(CreateEquipmentRequest request) {
-        return CompletableFuture.runAsync(() -> {
-            Room room = roomRepository.findById(request.getRoomId().longValue())
-                    .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-MODULE"));
-
-            // Sử dụng Optional để tìm Equipment nếu tồn tại, hoặc tạo mới nếu không tìm thấy
-            Equipment existingEquipment = equipmentRepository.findByEquipmentName(request.getEquipmentName())
-                    .orElseGet(() -> equipmentRepository.save(
-                            Equipment.builder()
-                                    .equipmentName(request.getEquipmentName())
-                                    .category(request.getCategory())
-                                    .build()
-                    ));
-        long count = equipmentDetailRepository.countByEquipment(existingEquipment);
-
-        // Sinh số sê-ri: mã code nối với số thứ tự
-        String serialNumber = request.getCode() + "-" + (count + 1);
-
-        // Sử dụng Builder Pattern để xây dựng EquipmentDetail
-        EquipmentDetail equipmentDetail = EquipmentDetail.builder()
-                .equipment(existingEquipment)
-                .serialNumber(serialNumber)
-                .description(request.getDescription())
-                .purchaseDate(request.getPurchaseDate())
-                .status(EquipmentDetailStatus.USABLE)
-                .room(room)
-                .build();
-
-        // Lưu EquipmentDetail vào repository
-        equipmentDetailRepository.save(equipmentDetail);
-
-        // Cập nhật số lượng của Equipment
-        existingEquipment.setTotalQuantity(existingEquipment.getTotalQuantity() + 1);
-        existingEquipment.setUsableQuantity(existingEquipment.getUsableQuantity() + 1);
-        equipmentRepository.save(existingEquipment);
-        });
+    public void addEquipment(EquipmentRequest request) {
+        if (equipmentRepository.existsByCode(request.getCode())) {
+            throw new ResourceNotFoundException("Equipment with code " + request.getCode() + " already exists", "EQUIPMENT-MODULE");
+        }
+        Equipment equipment = equipmentMapper.toEquipment(request);
+        equipmentRepository.save(equipment);
     }
 
     @Override

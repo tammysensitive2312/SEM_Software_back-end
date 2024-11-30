@@ -38,4 +38,9 @@ public class Equipment extends BaseEntity {
 
     @Version
     private int version;
+
+    public void incrementQuantity() {
+        this.totalQuantity++;
+        this.usableQuantity++;
+    }
 }
