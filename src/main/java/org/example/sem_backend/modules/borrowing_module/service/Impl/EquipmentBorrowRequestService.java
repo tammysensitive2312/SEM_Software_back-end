@@ -1,6 +1,7 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EquipmentBorrowRequestService implements InterfaceRequestService<EquipmentBorrowRequest, EquipmentBorrowRequestDTO> {
@@ -66,7 +68,8 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     @Override
     @Transactional
     public void processRequest(EquipmentBorrowRequestDTO requestDto) {
-        // Kiểm tra danh sách thiết bị có null hay không
+        System.out.println("Input dto : " + requestDto.toString());
+
         if (requestDto.getEquipmentItems() == null || requestDto.getEquipmentItems().isEmpty()) {
             throw new IllegalArgumentException("Equipment items cannot be null or empty");
         }
@@ -77,14 +80,15 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 .orElseThrow(() -> new ResourceConflictException("User not found", "BORROWING-MODULE"));
 
         // Tạo mới đơn mượn
-        EquipmentBorrowRequest request = new EquipmentBorrowRequest();
-        requestMapper.toEntity(requestDto);
+        EquipmentBorrowRequest request;
+        request = requestMapper.toEntity(requestDto);
+        request.setUser(user);
 
         // Xử lý từng loại thiết bị trong yêu cầu
         for (EquipmentBorrowItemDTO item : requestDto.getEquipmentItems()) {
 
             // Tìm kiếm loại thiết bị
-            Equipment equipment = equipmentRepository.findEquipmentByName(item.getEquipmentName())
+            Equipment equipment = equipmentRepository.findByEquipmentName(item.getEquipmentName())
                     .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + item.getEquipmentName(), ""));
 
             // Tạo chi tiết đơn mượn (chưa gán EquipmentDetail)
@@ -141,7 +145,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
 
     public void validateEquipmentAvailability(EquipmentBorrowRequestDTO requestDto) {
         for (EquipmentBorrowItemDTO item : requestDto.getEquipmentItems()) {
-            Equipment equipment = equipmentRepository.findEquipmentByName(
+            Equipment equipment = equipmentRepository.findByEquipmentName(
                     item.getEquipmentName())
                     .orElseThrow(() -> new ResourceConflictException(
                             "Equipment not found: " + item.getEquipmentName(), "BORROWING_MODULE"));
@@ -181,7 +185,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         List<EquipmentBorrowRequestDetail> newDetails = requestDto.getEquipmentItems().stream()
                 .map(item -> {
                     // Tìm thiết bị trong cơ sở dữ liệu
-                    Equipment equipment = equipmentRepository.findEquipmentByName(item.getEquipmentName())
+                    Equipment equipment = equipmentRepository.findByEquipmentName(item.getEquipmentName())
                             .orElseThrow(() -> new ResourceNotFoundException("Equipment not found: " + item.getEquipmentName(), ""));
 
                     // Ánh xạ DTO sang chi tiết
@@ -241,7 +245,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                     detail.getEquipment().getId(), pageable);
 
             if (availableDetails.size() < detail.getQuantityBorrowed()) {
-                throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getName(), "");
+                throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getEquipmentName(), "");
             }
 
             // Gán các thiết bị cụ thể

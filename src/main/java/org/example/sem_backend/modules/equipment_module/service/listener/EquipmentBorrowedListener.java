@@ -2,8 +2,8 @@ package org.example.sem_backend.modules.equipment_module.service.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
-import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
@@ -13,6 +13,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -29,27 +32,37 @@ public class EquipmentBorrowedListener {
 
     @EventListener
     @Transactional
-    @Async// Đảm bảo xử lý trong một transaction
+    @Async
     public void onEquipmentBorrowed(EquipmentBorrowedEvent event) {
-        log.info("Equipment borrowed - Request ID: {}, User ID: {}",
-                event.getRequestId(),
-                event.getUserId());
+        try {
+            log.debug("Processing equipment borrowed event - Request ID: {}", event.getRequestId());
 
-        // 1. Truy xuất thông tin từ EquipmentBorrowRequest
-        EquipmentBorrowRequest request = borrowRequestRepository.findById(event.getRequestId())
-                .orElseThrow(() -> new IllegalStateException("Borrow request not found"));
+            EquipmentBorrowRequest request = borrowRequestRepository.findById(event.getRequestId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "not found request with id : " + event.getRequestId(), "Equipment-Module")
+                    );
 
-        // 2. Xử lý từng chi tiết đơn mượn
-        for (EquipmentBorrowRequestDetail detail : request.getBorrowRequestDetails()) {
-            detail.getEquipment().setInUseQuantity(detail.getQuantityBorrowed());
+            processEquipmentBorrowRequest(request);
 
-            for (EquipmentDetail equipmentDetail : detail.getEquipmentDetails()) {
-                // 3. Cập nhật trạng thái của từng EquipmentDetail
-                equipmentDetail.setStatus(EquipmentDetailStatus.OCCUPIED);
-                equipmentDetailRepository.save(equipmentDetail); // Lưu trạng thái mới
-            }
+            log.info("Successfully processed equipment borrow request - Request ID: {}", event.getRequestId());
+        } catch (ResourceNotFoundException ex) {
+            log.error("Equipment borrow request not found - Request ID: {}", event.getRequestId(), ex);
+        } catch (Exception ex) {
+            log.error("Error processing equipment borrow event - Request ID: {}", event.getRequestId(), ex);
         }
+    }
 
-        log.info("All EquipmentDetails for Request ID: {} updated successfully", event.getRequestId());
+    private void processEquipmentBorrowRequest(EquipmentBorrowRequest request) {
+        List<EquipmentDetail> updatedEquipmentDetails = request.getBorrowRequestDetails().stream()
+                .flatMap(detail -> {
+                    Equipment equipment = detail.getEquipment();
+                    equipment.setInUseQuantity(equipment.getInUseQuantity() + detail.getQuantityBorrowed());
+
+                    return detail.getEquipmentDetails().stream()
+                            .peek(equipmentDetail -> equipmentDetail.setStatus(EquipmentDetailStatus.OCCUPIED));
+                })
+                .collect(Collectors.toList());
+
+        equipmentDetailRepository.saveAll(updatedEquipmentDetails);
     }
 }
