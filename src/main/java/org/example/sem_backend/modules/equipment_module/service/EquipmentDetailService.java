@@ -62,14 +62,22 @@ public class EquipmentDetailService implements IEquipmentDetailService {
 
 
     @Override
-    public void updateEquipmentDetailLocation(Long equipmentDetailId, Integer roomId) {
-        EquipmentDetail equipmentDetail = equipmentDetailRepository.findById(equipmentDetailId)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment detail with equipment id " + equipmentDetailId, "EQUIPMENT-DETAIL_MODULE"));
+    public void updateEquipmentDetailLocation(List<Long> equipmentDetailIds, Integer roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room with id " + roomId, "ROOM_MODULE"));
+        List<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findAllById(equipmentDetailIds);
 
-        equipmentDetail.setRoom(room);
-        equipmentDetailRepository.save(equipmentDetail);
+        if (equipmentDetails.isEmpty()) {
+            throw new ResourceNotFoundException("No equipment details found for the provided IDs", "EQUIPMENT-DETAIL_MODULE");
+        }
+
+        // Update room for each equipment detail
+        for (EquipmentDetail equipmentDetail : equipmentDetails) {
+            equipmentDetail.setRoom(room);
+        }
+
+        // Save all changes
+        equipmentDetailRepository.saveAll(equipmentDetails);
     }
 
     @Override
@@ -130,6 +138,23 @@ public class EquipmentDetailService implements IEquipmentDetailService {
 
         // Lưu cập nhật vào thiết bị
         equipmentRepository.save(equipment);
+    }
+
+    @Override
+    public void updateEquipmentDetail(Long id, EquipmentDetailRequest request) {
+        EquipmentDetail equipmentDetail = equipmentDetailRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("EquipmentDetail not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-DETAIL-MODULE"));
+        Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
+
+        equipmentDetail.setDescription(request.getDescription());
+        equipmentDetail.setPurchaseDate(request.getPurchaseDate());
+        equipmentDetail.setRoom(room);
+        equipmentDetail.setEquipment(equipment);
+
+        equipmentDetailRepository.save(equipmentDetail);
     }
 
 }

@@ -8,19 +8,13 @@ import org.example.sem_backend.modules.equipment_module.domain.dto.request.Updat
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Category;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
-import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
-import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetailStatus;
 import org.example.sem_backend.modules.equipment_module.domain.mapper.EquipmentMapper;
-import org.example.sem_backend.modules.equipment_module.repository.EquipmentDetailRepository;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
-import org.example.sem_backend.modules.room_module.domain.entity.Room;
-import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,8 +22,6 @@ import java.util.stream.Collectors;
 public class EquipmentService implements IEquipmentService {
 
     private final EquipmentRepository equipmentRepository;
-    private final EquipmentDetailRepository equipmentDetailRepository;
-    private final RoomRepository roomRepository;
     private final EquipmentMapper equipmentMapper;
 
     @Override

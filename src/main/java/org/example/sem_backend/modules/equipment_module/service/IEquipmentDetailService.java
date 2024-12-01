@@ -11,7 +11,7 @@ import java.util.List;
 public interface IEquipmentDetailService {
     void addEquipmentDetail(EquipmentDetailRequest request);
 
-    void updateEquipmentDetailLocation(Long equipmentDetailId, Integer roomId);
+    void updateEquipmentDetailLocation(List<Long> equipmentDetailId, Integer roomId);
 
     Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
 
@@ -20,4 +20,6 @@ public interface IEquipmentDetailService {
     List<EquipmentDetailResponse> searchEquipmentDetail(String keyword);
 
     void deleteEquipmentDetail(Long id);
+
+    void updateEquipmentDetail(Long id, EquipmentDetailRequest request);
 }
