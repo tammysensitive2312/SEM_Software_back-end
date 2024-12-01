@@ -1,5 +1,6 @@
 package org.example.sem_backend.modules.equipment_module.repository;
 
+import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This interface represents a repository for managing {@link EquipmentDetail} entities.
@@ -20,12 +20,8 @@ import java.util.Optional;
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
     Page<EquipmentDetail> findAllByOrderByRoomAsc(Pageable pageable);
 
-    boolean existsByCode(String code);
-
-    Optional<EquipmentDetail> findByCode(String code);
-
-    @Query("SELECT ed FROM equipment_details ed WHERE ed.code IN :codes")
-    List<EquipmentDetail> findByCodes(@Param("codes") List<String> codes);
+    @Query("SELECT ed FROM equipment_details ed WHERE ed.serialNumber IN :serialNumbers")
+    List<EquipmentDetail> findBySerialNumber(@Param("serialNumbers") List<String> serialNumbers);
 
     @Query("SELECT ed FROM equipment_details ed WHERE ed.equipment.id = :equipmentId AND ed.status = 'USABLE'")
     List<EquipmentDetail> findAvailableByEquipmentId(@Param("equipmentId") Long equipmentId, Pageable pageable);
@@ -36,5 +32,18 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
             "JOIN FETCH ed.equipment eq " +
             "JOIN FETCH ed.room r " +
             "WHERE r.uniqueId = :roomId")
-    Page<EquipmentDetail> findByRoom_UniqueId(Long roomId, Pageable pageable);
+    Page<EquipmentDetail> findByRoomId(Integer roomId, Pageable pageable);
+
+    long countByEquipment(Equipment existingEquipment);
+
+
+    @Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
+            "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
+            "WHERE LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "ORDER BY ed.id DESC " +
+            "LIMIT 5", nativeQuery = true)
+    List<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword);
+
+    boolean existsBySerialNumber(String serialNumber);
 }

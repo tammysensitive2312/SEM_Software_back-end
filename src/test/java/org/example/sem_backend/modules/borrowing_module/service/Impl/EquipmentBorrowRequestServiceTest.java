@@ -7,7 +7,6 @@ import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.Equ
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
-import org.example.sem_backend.modules.borrowing_module.domain.entity.TransactionsLog;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
@@ -90,7 +89,7 @@ class EquipmentBorrowRequestServiceTest {
     void processRequest_ShouldSucceed_WhenValidInput() {
         // Setup mocks with lenient matching to allow multiple calls
         lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        lenient().when(equipmentRepository.findEquipmentByName(equipmentName))
+        lenient().when(equipmentRepository.findByEquipmentName(equipmentName))
                 .thenReturn(Optional.of(equipment));
 
         // Create DTO for the test
@@ -138,7 +137,7 @@ class EquipmentBorrowRequestServiceTest {
     void processRequest_ShouldThrowException_WhenUserNotFound() {
         requestDto.setEquipmentItems(Collections.singletonList(itemDto));
         // Setup mocks
-        lenient().when(equipmentRepository.findEquipmentByName(equipmentName))
+        lenient().when(equipmentRepository.findByEquipmentName(equipmentName))
                 .thenReturn(Optional.of(equipment));
 
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -167,7 +166,7 @@ class EquipmentBorrowRequestServiceTest {
         equipment.setUsableQuantity(10);
 
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(false);
-        when(equipmentRepository.findEquipmentByName("Laptop")).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.findByEquipmentName("Laptop")).thenReturn(Optional.of(equipment));
 
         // Mock valid DTO
         EquipmentBorrowRequestDTO requestDto = new EquipmentBorrowRequestDTO();
@@ -181,7 +180,7 @@ class EquipmentBorrowRequestServiceTest {
         assertTrue(isValid);
 
         verify(requestRepository).hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class));
-        verify(equipmentRepository).findEquipmentByName("Laptop");
+        verify(equipmentRepository).findByEquipmentName("Laptop");
     }
 
 
@@ -204,13 +203,13 @@ class EquipmentBorrowRequestServiceTest {
     void validateRequest_ShouldReturnFalse_WhenEquipmentUnavailable() {
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(false);
         equipment.setUsableQuantity(0); // Không đủ số lượng
-        when(equipmentRepository.findEquipmentByName("Laptop")).thenReturn(Optional.of(equipment));
+        when(equipmentRepository.findByEquipmentName("Laptop")).thenReturn(Optional.of(equipment));
 
         ResourceConflictException ex = assertThrows(ResourceConflictException.class, () -> service.validateRequest(requestDto));
         assertEquals("Not enough quantity for equipment: Laptop", ex.getMessage());
 
         verify(requestRepository).hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class));
-        verify(equipmentRepository).findEquipmentByName("Laptop");
+        verify(equipmentRepository).findByEquipmentName("Laptop");
     }
 
     @Test

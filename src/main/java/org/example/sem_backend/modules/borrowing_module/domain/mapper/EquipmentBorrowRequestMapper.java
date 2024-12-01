@@ -7,10 +7,9 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = EquipmentBorrowRequestDetailMapper.class, builder = @Builder(disableBuilder = false))
+@Mapper(componentModel = "spring")
 public interface EquipmentBorrowRequestMapper {
 
-    @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "expectedReturnDate", target = "expectedReturnDate")
     @Mapping(target = "status", constant = "NOT_BORROWED")
     @Mapping(source = "equipmentItems", target = "borrowRequestDetails", ignore = true)

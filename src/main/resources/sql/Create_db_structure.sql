@@ -2,13 +2,20 @@ create table if not exists equipments
 (
     id              bigint auto_increment
         primary key,
-    create_at       datetime(6)                                                                                                                       null,
-    updated_at      datetime(6)                                                                                                                       null,
-    broken_quantity int                                                                                                                               not null,
-    category        enum ('ELECTRIC_EQUIPMENT', 'INFORMATION_TECHNOLOGY_EQUIPMENT', 'LABORATORY_EQUIPMENT', 'SPORTS_EQUIPMENT', 'TEACHING_EQUIPMENT') null,
-    name            varchar(255)                                                                                                                      null,
-    total_quantity  int                                                                                                                               not null,
-    usable_quantity int                                                                                                                               not null
+    create_at       datetime(6)                                                                                                                                           null,
+    updated_at      datetime(6)                                                                                                                                           null,
+    broken_quantity int                                                                                                                                                   not null,
+    category        enum ('ELECTRIC_EQUIPMENT', 'INFORMATION_TECHNOLOGY_EQUIPMENT', 'LABORATORY_EQUIPMENT', 'OFFICE_EQUIPMENT', 'SPORTS_EQUIPMENT', 'TEACHING_EQUIPMENT') null,
+    code            varchar(255)                                                                                                                                          not null,
+    equipment_name  varchar(255)                                                                                                                                          not null,
+    in_use_quantity int                                                                                                                                                   not null,
+    total_quantity  int                                                                                                                                                   not null,
+    usable_quantity int                                                                                                                                                   not null,
+    version         int                                                                                                                                                   not null,
+    constraint UK6j9l7rrrh7w5yqrmuagg5dg0q
+        unique (equipment_name),
+    constraint UK7fenrquevt41j1726xy6omw30
+        unique (code)
 );
 
 create table if not exists flyway_schema_history
@@ -37,28 +44,27 @@ create table if not exists rooms
     room_name varchar(255)                                                            not null,
     status    enum ('AVAILABLE', 'BROKEN', 'IN_USE')                                  null,
     type      enum ('CLASSROOM', 'LABORATORY', 'MEETING_ROOM', 'OFFICE', 'WAREHOUSE') null,
-    constraint UK2tklvare2e5touoeqsdgdsdgm
+    constraint UK36daphag00mnxmwforqperdnb
         unique (room_name)
 );
 
 create table if not exists equipment_details
 (
-    id              bigint auto_increment
+    id            bigint auto_increment
         primary key,
-    create_at       datetime(6)                           null,
-    updated_at      datetime(6)                           null,
-    code            varchar(255)                          not null,
-    description     varchar(255)                          null,
-    operating_hours int                                   not null,
-    purchase_date   varchar(255)                          not null,
-    status          enum ('BROKEN', 'OCCUPIED', 'USABLE') null,
-    equipment_id    bigint                                null,
-    room_id         bigint                                null,
-    constraint UKmymo71ouisl9bbkmptnwfea8k
-        unique (code),
-    constraint FK276pncwmhcsy50rlr7ooea6qd
+    create_at     datetime(6)                           null,
+    updated_at    datetime(6)                           null,
+    description   varchar(255)                          null,
+    purchase_date date                                  null,
+    serial_number varchar(255)                          not null,
+    status        enum ('BROKEN', 'OCCUPIED', 'USABLE') null,
+    equipment_id  bigint                                not null,
+    room_id       bigint                                null,
+    constraint UK811rio19pfgeqay3ka4mnpg2n
+        unique (serial_number),
+    constraint FKfdc6dt2e2n7he3o4htog4kha
         foreign key (equipment_id) references equipments (id),
-    constraint FK521xfk2bv9goim1en8mnfuglv
+    constraint FKg71fikpmsnluvg6bx2855iynp
         foreign key (room_id) references rooms (unique_id)
 );
 
@@ -69,8 +75,9 @@ create table if not exists room_schedules
     end_time   datetime(6)  null,
     start_time datetime(6)  null,
     user       varchar(255) null,
+    version    int          null,
     room_id    bigint       null,
-    constraint FKooaitydu342v3x24fso7r5hfd
+    constraint FKl0fj6n9kh38cf3xkmll8ld6wh
         foreign key (room_id) references rooms (unique_id)
 );
 
@@ -78,24 +85,23 @@ create table if not exists users
 (
     id         bigint auto_increment
         primary key,
+    create_at  datetime(6)  null,
+    updated_at datetime(6)  null,
     password   varchar(255) not null,
     role       varchar(255) null,
-    username   varchar(20)  not null,
-    created_at datetime(6)  null,
-    updated_at datetime(6)  null,
-    create_at  datetime(6)  null
+    username   varchar(20)  not null
 );
 
 create table if not exists equipment_borrow_requests
 (
     uniqueid             bigint auto_increment
         primary key,
-    create_at            datetime(6)                                                                                null,
-    updated_at           datetime(6)                                                                                null,
-    comment              text                                                                                       null,
-    expected_return_date date                                                                                       not null,
-    status               enum ('Not Borrowed', 'Borrowed', 'Returned', 'Partially Returned') default 'Not Borrowed' null,
-    user_id              bigint                                                                                     not null,
+    create_at            datetime(6)                                                         null,
+    updated_at           datetime(6)                                                         null,
+    comment              text                                                                null,
+    expected_return_date date                                                                null,
+    status               enum ('BORROWED', 'NOT_BORROWED', 'PARTIALLY_RETURNED', 'RETURNED') null,
+    user_id              bigint                                                              not null,
     constraint FKcboqms81ux6xvuvraamhnuff8
         foreign key (user_id) references users (id)
 );
@@ -104,16 +110,24 @@ create table if not exists equipment_borrow_request_details
 (
     unique_id               bigint auto_increment
         primary key,
-    create_at               datetime(6) null,
-    updated_at              datetime(6) null,
     condition_before_borrow varchar(50) null,
     quantity_borrowed       int         not null,
     borrow_request_id       bigint      not null,
-    equipment_id            bigint      not null,
-    constraint FK2m5cnrbemb12ro9g0myo6jb4f
-        foreign key (equipment_id) references equipment_details (id),
+    equipment_id            bigint      null,
     constraint FK4njewwac70qc0xiq7l2ggtd9o
-        foreign key (borrow_request_id) references equipment_borrow_requests (uniqueid)
+        foreign key (borrow_request_id) references equipment_borrow_requests (uniqueid),
+    constraint FKlm6tt6ly5gk4qqmwbjf3jlqg5
+        foreign key (equipment_id) references equipments (id)
+);
+
+create table if not exists borrow_detail_equipment
+(
+    borrow_request_detail_id bigint not null,
+    equipment_detail_id      bigint not null,
+    constraint FK4opgtbix6ply27p0u541hhghy
+        foreign key (borrow_request_detail_id) references equipment_borrow_request_details (unique_id),
+    constraint FKptwvnadx454x7uh6knemflxh
+        foreign key (equipment_detail_id) references equipment_details (id)
 );
 
 create table if not exists return_requests
@@ -132,16 +146,15 @@ create table if not exists return_requests
 
 create table if not exists return_request_details
 (
-    unique_id              bigint auto_increment
+    unique_id                bigint auto_increment
         primary key,
-    create_at              datetime(6) null,
-    updated_at             datetime(6) null,
-    condition_after_return varchar(50) null,
-    quantity_returned      int         not null,
-    equipment_id           bigint      not null,
-    return_id              bigint      not null,
-    constraint FKcw3o27jre1ld76bu79t6kwptp
-        foreign key (equipment_id) references equipment_details (id),
+    borrow_request_detail_id bigint      null,
+    condition_after_return   varchar(50) null,
+    quantity_returned        int         not null,
+    equipment_id             bigint      not null,
+    return_id                bigint      not null,
+    constraint FKikibhdm3p9jver0kicgshsnif
+        foreign key (equipment_id) references equipments (id),
     constraint FKiv6uqog6hm6a0p4l2bockh2od
         foreign key (return_id) references return_requests (uniqueid)
 );
@@ -169,7 +182,6 @@ create table if not exists transactions_log
         primary key,
     create_at            datetime(6) null,
     updated_at           datetime(6) null,
-    transaction_date     datetime(6) null,
     transaction_type     varchar(20) not null,
     equipment_request_id bigint      null,
     room_request_id      bigint      null,
