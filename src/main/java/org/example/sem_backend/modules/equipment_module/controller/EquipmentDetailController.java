@@ -41,7 +41,6 @@ public class EquipmentDetailController {
         return equipmentDetailService.getAllEquipmentSortedByRoom(pageable);
     }
 
-
     @Operation(summary = "Add new equipment detail",
             description = "Add a new equipment detail item to the system with specified details.")
     @ApiResponses(value = {
