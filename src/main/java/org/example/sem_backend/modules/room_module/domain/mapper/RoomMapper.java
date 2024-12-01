@@ -12,6 +12,7 @@ public interface RoomMapper {
 
     @Mapping(target = "status", source = "status")
     @Mapping(target = "type", source = "type.description")
+    @Mapping(target = "id", source = "uniqueId")
     RoomResponse toResponse(Room room);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

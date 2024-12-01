@@ -32,6 +32,6 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
 
     boolean existsByRoomName(String roomName);
 
-    @Query(value = "SELECT * FROM room r WHERE LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')) LIMIT 5", nativeQuery = true)
+    @Query(value = "SELECT * FROM rooms r WHERE LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')) LIMIT 5", nativeQuery = true)
     List<Room> searchRoom(@Param("keyword") String keyword);
 }

@@ -19,5 +19,5 @@ public class EquipmentDetailRequest {
     private Long equipmentId;
 
     @NotNull(message = "Equipment ID is required")
-    private Integer roomId;
+    private Long roomId;
 }

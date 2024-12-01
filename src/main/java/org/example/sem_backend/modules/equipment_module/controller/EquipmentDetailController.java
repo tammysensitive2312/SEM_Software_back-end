@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
+import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentDetailLocationRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.service.EquipmentDetailService;
@@ -54,6 +56,20 @@ public class EquipmentDetailController {
         return ResponseEntity.ok("Equipment detail added successfully");
     }
 
+    @Operation(summary = "Update equipment detail",
+              description = "Update an existing equipment detail item with new details.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment detail updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateEquipmentDetail(@PathVariable Long id, @Valid @RequestBody EquipmentDetailRequest request) {
+        equipmentDetailService.updateEquipmentDetail(id, request);
+        return ResponseEntity.ok("Equipment detail updated successfully");
+    }
+
+
     @Operation(summary = "Update equipment detail location",
             description = "Update the room of an equipment detail item.")
     @ApiResponses(value = {
@@ -61,16 +77,16 @@ public class EquipmentDetailController {
             @ApiResponse(responseCode = "400", description = "Invalid request data"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/location")
-    public ResponseEntity<String> updateEquipmentDetailLocation(@RequestParam Long equipmentDetailId, @RequestParam Integer roomId) {
-        equipmentDetailService.updateEquipmentDetailLocation(equipmentDetailId, roomId);
+    @PutMapping("/location/room/{roomId}")
+    public ResponseEntity<String> updateEquipmentDetailLocation(@RequestBody UpdateEquipmentDetailLocationRequest requests, @PathVariable Long roomId) {
+        equipmentDetailService.updateEquipmentDetailLocation(requests.getEquipmentDetailIds(), roomId);
         return ResponseEntity.ok("Equipment detail location updated successfully");
     }
 
     @Operation(summary = "Get equipment details by equipment ID",
             description = "Get a list of equipment detail items by equipment ID.")
-    @GetMapping("/equipment")
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@RequestParam Long equipmentId,
+    @GetMapping("/equipment/{equipmentId}")
+    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@PathVariable Long equipmentId,
                                                                           @RequestParam(value = "page", defaultValue = "0") int page,
                                                                           @RequestParam(value = "size", defaultValue = "15") int size) {
         return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, page, size);
@@ -78,8 +94,8 @@ public class EquipmentDetailController {
 
     @Operation(summary = "Get equipment details by room ID",
             description = "Get a list of equipment detail items by room ID.")
-    @GetMapping("/room")
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(@RequestParam Integer roomId,
+    @GetMapping("/room/{roomId}")
+    public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(@PathVariable Integer roomId,
                                                                      @RequestParam(value = "page", defaultValue = "0") int page,
                                                                      @RequestParam(value = "size", defaultValue = "15") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -91,5 +107,13 @@ public class EquipmentDetailController {
     @GetMapping("/search")
     public ResponseEntity<List<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam String keyword) {
         return ResponseEntity.ok(equipmentDetailService.searchEquipmentDetail(keyword));
+    }
+
+    @Operation(summary = "Delete equipment detail",
+            description = "Delete an equipment detail item by ID.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEquipmentDetail(@PathVariable Long id) {
+        equipmentDetailService.deleteEquipmentDetail(id);
+        return ResponseEntity.ok("Equipment detail deleted successfully");
     }
 }
