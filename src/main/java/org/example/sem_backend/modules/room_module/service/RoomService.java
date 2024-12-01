@@ -125,6 +125,9 @@ public class RoomService implements IRoomService{
 
     @Override
     public List<RoomResponse> searchRoom(String keyword) {
+        if (keyword.isBlank()) {
+            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
+        }
         List<Room> rooms = roomRepository.searchRoom(keyword);
         if (rooms.isEmpty()) {
             throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");

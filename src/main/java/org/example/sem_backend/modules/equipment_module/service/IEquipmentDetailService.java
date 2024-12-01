@@ -11,7 +11,9 @@ import java.util.List;
 public interface IEquipmentDetailService {
     void addEquipmentDetail(EquipmentDetailRequest request);
 
-    void updateEquipmentDetailLocation(Long equipmentDetailId, Integer roomId);
+    void updateEquipmentDetailLocation(List<Long> equipmentDetailId, Long roomId);
+
+    void updateEquipmentDetail(Long id, EquipmentDetailRequest request);
 
     Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
 
