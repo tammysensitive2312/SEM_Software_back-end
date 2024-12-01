@@ -15,14 +15,15 @@ RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
 
 WORKDIR /workspace
 
-COPY script.sh /workspace/script.sh
+#COPY script.sh /workspace/script.sh
 
 # Cấp quyền đúng cho script
-RUN chown developer:developer /workspace/script.sh && \
-    chmod +x /workspace/script.sh
+#RUN chown developer:developer /workspace/script.sh && \
+#    chmod +x /workspace/script.sh
 
 # Chuyển sang user không phải root
 USER developer
 
+#RUN sed -i 's/\r$//' /workspace/script.sh
 # Đặt entry point
-ENTRYPOINT ["/bin/bash", "/workspace/script.sh"]
+ENTRYPOINT ["/bin/bash"]

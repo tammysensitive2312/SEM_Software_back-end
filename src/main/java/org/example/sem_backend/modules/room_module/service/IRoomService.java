@@ -1,23 +1,27 @@
 package org.example.sem_backend.modules.room_module.service;
 
-import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
-
 import java.time.LocalDate;
 import java.util.List;
 
+import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
+import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public interface IRoomService {
-    List<RoomDto> findAvailableRooms(String type, LocalDate date, String period);
-    List<RoomDto> findRooms(Integer capacity, String comparisonOperator, String roomCondition);
-    void addRoom(RoomDto request);
+    void addRoom(RoomRequest request);
+    List<RoomResponse> findAvailableRooms(String type, LocalDate date, String period);
 
-    void updateRoom(RoomDto request, Long id);
+    List<RoomResponse> searchRoom(String keyword);
 
-    Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
+    List<RoomResponse> findRooms(Integer capacity, String comparisonOperator, String roomCondition);
 
-    //void deleteRoom(Long id);
+    void updateRoom(RoomRequest request, Integer id);
+
+    Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
 }

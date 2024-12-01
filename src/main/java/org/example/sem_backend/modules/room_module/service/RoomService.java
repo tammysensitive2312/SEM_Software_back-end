@@ -3,7 +3,8 @@ package org.example.sem_backend.modules.room_module.service;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.modules.room_module.domain.dto.RoomDto;
+import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
+import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
@@ -17,20 +18,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoomService implements IRoomService {
+public class RoomService implements IRoomService{
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
 
     @Transactional(readOnly = true)
-    public List<RoomDto> findAvailableRooms(String type, LocalDate date, String period) {
+    public List<RoomResponse> findAvailableRooms(String type, LocalDate date, String period) {
         // Chuyển đổi thứ thành khung giờ bắt đầu và kết thúc
         LocalDateTime startTime = convertPeriodToStartTime(date, period);
         LocalDateTime endTime = convertPeriodToEndTime(date, period);
@@ -43,23 +43,25 @@ public class RoomService implements IRoomService {
         }
         // Map kết quả sang DTO
         return rooms.stream()
-                .map(roomMapper::toDto)
+                .map(roomMapper::toResponse)
                 .collect(Collectors.toList());
-        }
+    }
 
 
     @Override
-    public void addRoom(RoomDto request) {
+    public void addRoom(RoomRequest request) {
         if (roomRepository.existsByRoomName(request.getRoomName())) {
             throw new ResourceConflictException("Room name already exists", "ROOM-MODULE");
         }
+
         Room room = roomMapper.toEntity(request);
         room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
     }
+
     @Override
-    public void updateRoom(RoomDto request, Long id) {
-        Room room = roomRepository.findById(id)
+    public void updateRoom(RoomRequest request, Integer id) {
+        Room room = roomRepository.findById(id.longValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {
             roomMapper.partialUpdate(request, room);
@@ -93,7 +95,7 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public Page<RoomDto> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable) {
+    public Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable) {
         String typeStr = type != null ? type.name() : null;
         String statusStr = status != null ? status.name() : null;
 
@@ -101,18 +103,18 @@ public class RoomService implements IRoomService {
         if (roomPage == null) {
             throw new ResourceNotFoundException("không có phòng nào thỏa mãn yêu cầu", "ROOM-MODULE");
         }
-        return roomPage.map(roomMapper::toDto);
-        }
+        return roomPage.map(roomMapper::toResponse);
+    }
 
 
     @Transactional(readOnly = true)
-    public List<RoomDto> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
+    public List<RoomResponse> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
         Specification<Room> spec = Specification.where(RoomSpecification.hasCapacity(capacity, comparisonOperator))
                 .and(RoomSpecification.hasRoomCondition(roomCondition));
 
-        List<RoomDto> rooms = roomRepository.findAll(spec)
+        List<RoomResponse> rooms = roomRepository.findAll(spec)
                 .stream()
-                .map(roomMapper::toDto)
+                .map(roomMapper::toResponse)
                 .toList();
 
         if (rooms.isEmpty()) {
@@ -121,10 +123,17 @@ public class RoomService implements IRoomService {
         return rooms;
     }
 
-//    @Override
-//    public void deleteRoom(Long id) {
-//        Room room = roomRepository.findById(id)
-//                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
-//        roomRepository.delete(room);
-//    }
+    @Override
+    public List<RoomResponse> searchRoom(String keyword) {
+        if (keyword.isBlank()) {
+            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
+        }
+        List<Room> rooms = roomRepository.searchRoom(keyword);
+        if (rooms.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
+        }
+        return rooms.stream()
+                .map(roomMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }
