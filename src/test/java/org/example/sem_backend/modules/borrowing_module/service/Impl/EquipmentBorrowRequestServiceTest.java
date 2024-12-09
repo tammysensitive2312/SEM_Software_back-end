@@ -7,6 +7,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.Equ
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
+import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestMapper;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
@@ -47,6 +48,8 @@ class EquipmentBorrowRequestServiceTest {
     private TransactionsLogRepository logRepository;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private EquipmentBorrowRequestMapper requestMapper;
 
     @InjectMocks
     private EquipmentBorrowRequestService service;
@@ -86,16 +89,12 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void processRequest_ShouldSucceed_WhenValidInput() {
+    void testProcessRequest_ShouldSucceed_WhenValidInput() {
         // Setup mocks with lenient matching to allow multiple calls
         lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         lenient().when(equipmentRepository.findByEquipmentName(equipmentName))
                 .thenReturn(Optional.of(equipment));
-
-        // Create DTO for the test
-        EquipmentBorrowRequestDTO requestDto = new EquipmentBorrowRequestDTO();
-        requestDto.setUserId(userId);  // Corrected: Added userId
-        requestDto.setExpectedReturnDate(LocalDate.now().plusDays(7));
+        when(requestMapper.toEntity(requestDto)).thenReturn(request);
 
         // Create equipment borrow item DTO
         EquipmentBorrowItemDTO itemDto = new EquipmentBorrowItemDTO();
@@ -134,7 +133,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
-    void processRequest_ShouldThrowException_WhenUserNotFound() {
+    void testProcessRequest_ShouldThrowException_WhenUserNotFound() {
         requestDto.setEquipmentItems(Collections.singletonList(itemDto));
         // Setup mocks
         lenient().when(equipmentRepository.findByEquipmentName(equipmentName))
@@ -152,7 +151,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void processRequest_ShouldThrowException_WhenEquipmentItemsIsNull() {
+    void testProcessRequest_ShouldThrowException_WhenEquipmentItemsIsNull() {
         requestDto.setEquipmentItems(null); // Equipment items là null
         // Execute & Assert
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.processRequest(requestDto));
@@ -162,7 +161,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void validateRequest_ShouldReturnTrue_WhenRequestIsValid() {
+    void testValidateRequest_ShouldReturnTrue_WhenRequestIsValid() {
         equipment.setUsableQuantity(10);
 
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(false);
@@ -185,7 +184,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
-    void validateRequest_ShouldReturnFalse_WhenOverdueRequestsExist() {
+    void testValidateRequest_ShouldReturnFalse_WhenOverdueRequestsExist() {
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(true);
 
         EquipmentBorrowRequestDTO requestDto = new EquipmentBorrowRequestDTO();
@@ -200,7 +199,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void validateRequest_ShouldReturnFalse_WhenEquipmentUnavailable() {
+    void testValidateRequest_ShouldReturnFalse_WhenEquipmentUnavailable() {
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(false);
         equipment.setUsableQuantity(0); // Không đủ số lượng
         when(equipmentRepository.findByEquipmentName("Laptop")).thenReturn(Optional.of(equipment));
@@ -217,7 +216,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void approveRequest_ShouldSucceed_WhenValidInput() {
+    void testApproveRequest_ShouldSucceed_WhenValidInput() {
         // Mock dữ liệu
         when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
         when(equipmentDetailRepository.findAvailableByEquipmentId(
@@ -246,7 +245,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
-    void approveRequest_ShouldThrowException_WhenRequestNotFound() {
+    void testApproveRequest_ShouldThrowException_WhenRequestNotFound() {
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
         // Execute & Assert
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> service.approveRequest(1L));

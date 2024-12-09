@@ -2,11 +2,14 @@ package org.example.sem_backend.main_service.middleware.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.example.sem_backend.common_module.exception.NotificationPersistenceException;
+import org.example.sem_backend.common_module.exception.NotificationRecipientException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.net.URI;
+import java.net.http.WebSocketHandshakeException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +65,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JpaSystemException.class)
     public ProblemDetail handleJpaSystemException(JpaSystemException ex, WebRequest request) {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "JPA System Error", ex.getRootCause().getMessage(), request);
+    }
+
+    @ExceptionHandler(NotificationRecipientException.class)
+    public ProblemDetail handleNotificationRecipientException(NotificationRecipientException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Notification Recipient Error", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(NotificationPersistenceException.class)
+    public ProblemDetail handleNotificationPersistenceException(NotificationPersistenceException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Notification Persistence Error", ex.getMessage(), request);
     }
 
     // Tạo ProblemDetail với các trường tùy chỉnh, không có `path`, chỉ có `instance`

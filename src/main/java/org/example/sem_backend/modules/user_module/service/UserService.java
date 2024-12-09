@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.main_service.middleware.LoggingFilter;
+import org.example.sem_backend.main_service.middleware.logging.LoggingFilter;
 import org.example.sem_backend.modules.user_module.domain.dto.UpdateUserRequest;
 import org.example.sem_backend.modules.user_module.domain.dto.UserDto;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
@@ -13,13 +13,12 @@ import org.example.sem_backend.modules.user_module.domain.mapper.UserMapper;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements IUserService{
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private static final Logger logger = LogManager.getLogger(LoggingFilter.class);
