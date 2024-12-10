@@ -88,8 +88,9 @@ create table if not exists users
     create_at  datetime(6)  null,
     updated_at datetime(6)  null,
     password   varchar(255) not null,
-    role       varchar(255) null,
-    username   varchar(20)  not null
+    role       varchar(255) not null,
+    username   varchar(20)  not null,
+    email      varchar(50)  not null
 );
 
 create table if not exists equipment_borrow_requests
