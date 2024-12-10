@@ -2,6 +2,7 @@ package org.example.sem_backend.main_service.middleware.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.example.sem_backend.common_module.exception.InvalidCredentialsException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.common_module.exception.TokenRefreshException;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -77,7 +79,7 @@ public class GlobalExceptionHandler {
         // Thêm headers vào nếu cần thiết
         Map<String, String> headers = new HashMap<>();
         request.getHeaderNames().forEachRemaining(headerName -> headers.put(headerName, request.getHeader(headerName)));
-        //problemDetail.setProperty("headers", headers);
+        problemDetail.setProperty("headers", headers);
 
         return problemDetail;
     }
@@ -98,6 +100,13 @@ public class GlobalExceptionHandler {
             violations.put(fieldError.getField(), fieldError.getDefaultMessage());
         });
         problemDetail.setProperty("violations", violations);
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ProblemDetail handleInvalidCredentialsException(InvalidCredentialsException ex, WebRequest request) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.UNAUTHORIZED, "Bad Credentials exception", ex.getMessage(), request);
         return problemDetail;
     }
 }

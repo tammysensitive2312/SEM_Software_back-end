@@ -25,21 +25,17 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
-            AuthResponse response = service.authenticateUser(loginRequest);
+        AuthResponse response = service.authenticateUser(loginRequest);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, response.getJwtCookie())
-                    .header(HttpHeaders.SET_COOKIE, response.getRefreshCookie())
-                    .body(new UserResponse(
-                            response.getUserInfo().getId(),
-                            response.getUserInfo().getUsername(),
-                            response.getUserInfo().getEmail(),
-                            response.getUserInfo().getRole()
-                            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Mật khẩu không đúng"));
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, response.getJwtCookie())
+                .header(HttpHeaders.SET_COOKIE, response.getRefreshCookie())
+                .body(new UserResponse(
+                        response.getUserInfo().getId(),
+                        response.getUserInfo().getUsername(),
+                        response.getUserInfo().getEmail(),
+                        response.getUserInfo().getRole()
+                ));
     }
 
 

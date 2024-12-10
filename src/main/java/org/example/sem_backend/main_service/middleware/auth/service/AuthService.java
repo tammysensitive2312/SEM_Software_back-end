@@ -2,6 +2,7 @@ package org.example.sem_backend.main_service.middleware.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.example.sem_backend.common_module.exception.InvalidCredentialsException;
 import org.example.sem_backend.main_service.middleware.auth.payload.request.LoginRequest;
 import org.example.sem_backend.main_service.middleware.auth.payload.request.SignupRequest;
 import org.example.sem_backend.main_service.middleware.auth.payload.response.AuthResponse;
@@ -16,6 +17,7 @@ import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,34 +36,42 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
-    public AuthResponse authenticateUser(LoginRequest loginRequest) {
+    public AuthResponse authenticateUser(LoginRequest loginRequest) throws BadCredentialsException {
         if (!userRepository.existsByUsername(loginRequest.getUsername())) {
             throw new ResourceNotFoundException("User not found with provided info", "Auth-Controller");
         }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
+        try {
+            // Thực hiện xác thực
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails.getUsername(), userDetails.getEmail());
-        ResponseCookie refreshCookie = jwtUtils.generateRefreshJwtCookie(
-                refreshTokenService.createRefreshToken(userDetails.getId()).getToken()
-        );
+            // Tạo JWT và refresh token cookie
+            ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails.getUsername(), userDetails.getEmail());
+            ResponseCookie refreshCookie = jwtUtils.generateRefreshJwtCookie(
+                    refreshTokenService.createRefreshToken(userDetails.getId()).getToken()
+            );
 
-        AuthResponse response = new AuthResponse();
-        response.setJwtCookie(jwtCookie.toString());
-        response.setRefreshCookie(refreshCookie.toString());
-        response.setUserInfo(new UserResponse(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                userDetails.getRole().name()
-        ));
+            // Tạo phản hồi xác thực
+            AuthResponse response = new AuthResponse();
+            response.setJwtCookie(jwtCookie.toString());
+            response.setRefreshCookie(refreshCookie.toString());
+            response.setUserInfo(new UserResponse(
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    userDetails.getEmail(),
+                    userDetails.getRole().name()
+            ));
 
-        return response;
+            return response;
+
+        } catch (BadCredentialsException ex) {
+            throw new InvalidCredentialsException("Invalid username or password", "Auth-Controller");
+        }
     }
 
     public MessageResponse registerUser(SignupRequest request) {
