@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.security.jwt;
+package org.example.sem_backend.main_service.middleware.auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -21,16 +21,16 @@ public class JwtUtils {
 
     private final Key key;
 
-    @Value("${sem.app.jwtExpirationMs}")
+    @Value("${spring.sem.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
-    @Value("${sem.app.jwtCookieName}")
+    @Value("${spring.sem.jwt.cookie-name}")
     private String jwtCookie;
 
-    @Value("${sem.app.jwtRefreshCookieName}")
+    @Value("${spring.sem.jwt.refresh-cookie-name}")
     private String jwtRefreshCookie;
 
-    public JwtUtils(@Value("${sem.app.jwtSecret}") String jwtSecret) {
+    public JwtUtils(@Value("${spring.sem.jwt.secret-key}") String jwtSecret) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
@@ -86,7 +86,7 @@ public class JwtUtils {
                 .claim("email", email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 

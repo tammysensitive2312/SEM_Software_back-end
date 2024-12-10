@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.security.service;
+package org.example.sem_backend.main_service.middleware.auth.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

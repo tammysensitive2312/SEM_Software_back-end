@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.security.jwt;
+package org.example.sem_backend.main_service.middleware.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.security.service;
+package org.example.sem_backend.main_service.middleware.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.user_module.domain.entity.User;

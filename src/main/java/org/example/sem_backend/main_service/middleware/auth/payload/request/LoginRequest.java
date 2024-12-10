@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.payload.request;
+package org.example.sem_backend.main_service.middleware.auth.payload.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

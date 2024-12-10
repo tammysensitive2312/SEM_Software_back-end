@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.auth.security.service;
+package org.example.sem_backend.main_service.middleware.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.TokenRefreshException;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
-    @Value("${sem.app.jwtRefreshExpirationMs}")
+    @Value("${spring.sem.jwt.refresh-expiration-ms}")
     private Long refreshTokenDurationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;

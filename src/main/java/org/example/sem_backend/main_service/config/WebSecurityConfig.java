@@ -1,8 +1,8 @@
-package org.example.sem_backend.common_module.auth.security;
+package org.example.sem_backend.main_service.config;
 
-import org.example.sem_backend.common_module.auth.security.jwt.AuthEntryPointJwt;
-import org.example.sem_backend.common_module.auth.security.jwt.AuthTokenFilter;
-import org.example.sem_backend.common_module.auth.security.service.UserDetailsServiceImpl;
+import org.example.sem_backend.main_service.middleware.auth.jwt.AuthEntryPointJwt;
+import org.example.sem_backend.main_service.middleware.auth.jwt.AuthTokenFilter;
+import org.example.sem_backend.main_service.middleware.auth.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

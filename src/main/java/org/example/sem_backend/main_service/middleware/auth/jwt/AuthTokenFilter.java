@@ -1,11 +1,11 @@
-package org.example.sem_backend.common_module.auth.security.jwt;
+package org.example.sem_backend.main_service.middleware.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import org.example.sem_backend.common_module.auth.security.service.UserDetailsServiceImpl;
+import org.example.sem_backend.main_service.middleware.auth.service.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
