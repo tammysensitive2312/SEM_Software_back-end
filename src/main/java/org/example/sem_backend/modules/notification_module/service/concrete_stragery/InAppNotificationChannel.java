@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.notification_module.service.concreteStragery;
+package org.example.sem_backend.modules.notification_module.service.concrete_stragery;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.exception.NotificationPersistenceException;
