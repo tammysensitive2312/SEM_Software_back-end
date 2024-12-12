@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Service
@@ -27,17 +27,34 @@ public class NotificationService {
         Long requestId = event.getRequestId();
         String message = "Đơn mượn #" + requestId + " của bạn đã được duyệt thành công.";
 
-        Notification notification = new Notification();
-        notification.setRecipients(Set.of(userId));
-        notification.setType(NotificationType.IN_APP);
-        notification.setMessage(message);
-        notification.setRead(false);
-        notificationRepository.save(notification);
+        createAndSendNotification(userId, "Đơn mượn được duyệt", message, true);
+    }
 
+    @Transactional
+    public void sendInAppNotificationAndSave(Long userId, String message) {
+        createAndSendNotification(userId, "Thông báo mới", message, true);
+    }
+
+    private void createAndSendNotification(Long userId, String subject, String message, boolean needSave) {
+        Notification notification = new Notification();
+        notification.setSubject(subject);
+        notification.setMessage(message);
+        notification.setType(NotificationType.IN_APP);
+        notification.setRead(false);
+        notification.setCreateAt(LocalDateTime.now());
+        notification.setRecipients(new HashSet<>());
+        notification.getRecipients().add(userId);
+
+        if (needSave) {
+            notificationRepository.save(notification);
+        }
+
+        // Gửi thông báo qua tất cả các kênh
         for (NotificationChannel channel : notificationChannels) {
             channel.send(notification);
         }
     }
+
 
     public List<Notification> getUnreadNotifications(Long userId) {
         return notificationRepository.findByRecipientsContainingAndIsReadFalse(userId);

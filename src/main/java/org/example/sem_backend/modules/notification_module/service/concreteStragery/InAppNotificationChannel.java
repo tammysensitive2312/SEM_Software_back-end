@@ -16,7 +16,23 @@ public class InAppNotificationChannel implements NotificationChannel {
     private final SseEmitterService emitterService;
 
     /**
-     * {@link Notification}
+     * Sends a notification to specified recipients using ServerSentEvent mechanism.
+     *
+     * <p>This method handles the complete notification sending process, which includes:
+     * <ul>
+     *   <li>Validating the presence of recipients</li>
+     *   <li>Persisting the notification in the database</li>
+     *   <li>Sending real-time notifications to each recipient via ServerSentEvent</li>
+     * </ul>
+     * </p>
+     *
+     * @param notification The notification to be sent, containing message and recipient details
+     * @throws NotificationRecipientException If no recipients are specified for the notification
+     * @throws NotificationPersistenceException If there is an error saving or sending the notification
+     *
+     * @see Notification
+     * @see NotificationRepository
+     * @see SseEmitterService
      */
     @Override
     public void send(Notification notification) {
@@ -29,11 +45,12 @@ public class InAppNotificationChannel implements NotificationChannel {
             System.out.println("In-App Notification created: " + savedNotification);
 
             for (Long recipientId : notification.getRecipients()) {
+                System.out.println("Recipient ID: " + recipientId);
                 String message = savedNotification.getMessage();
                 emitterService.sendNotification(recipientId, message);
             }
         } catch (Exception e) {
-            throw new NotificationPersistenceException("Failed to save notification", e);
+            throw new NotificationPersistenceException("Failed to save notification with error :" + e);
         }
     }
 }

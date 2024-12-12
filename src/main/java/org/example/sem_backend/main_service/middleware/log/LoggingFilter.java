@@ -1,4 +1,4 @@
-package org.example.sem_backend.main_service.middleware.logging;
+package org.example.sem_backend.main_service.middleware.log;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

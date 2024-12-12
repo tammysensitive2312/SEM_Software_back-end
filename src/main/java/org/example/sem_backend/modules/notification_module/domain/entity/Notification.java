@@ -10,6 +10,7 @@ import org.example.sem_backend.modules.notification_module.domain.enums.Notifica
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -29,7 +30,7 @@ public class Notification extends BaseEntity {
     @ElementCollection
     @CollectionTable(name = "notification_recipients", joinColumns = @JoinColumn(name = "notification_id"))
     @Column(name = "recipient_id")
-    private Set<Long> recipients;
+    private Set<Long> recipients = new HashSet<>();
 
     private boolean isRead = false;
     private LocalDateTime readAt;
