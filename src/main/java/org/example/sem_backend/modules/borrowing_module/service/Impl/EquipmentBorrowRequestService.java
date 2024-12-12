@@ -68,7 +68,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     @Override
     @Transactional
     public void processRequest(EquipmentBorrowRequestDTO requestDto) {
-        System.out.println("Input dto : " + requestDto.toString());
+//        System.out.println("Input dto : " + requestDto.toString());
 
         if (requestDto.getEquipmentItems() == null || requestDto.getEquipmentItems().isEmpty()) {
             throw new IllegalArgumentException("Equipment items cannot be null or empty");
@@ -158,11 +158,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     }
 
 
-
-    /**
-     * @param requestDto
-     * @return
-     */
     @Override
     public void updateRequest(EquipmentBorrowRequestDTO requestDto) {
         EquipmentBorrowRequest borrowRequest = requestRepository.findById(requestDto.getUniqueID())

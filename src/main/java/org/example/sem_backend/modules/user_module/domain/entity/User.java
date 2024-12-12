@@ -1,10 +1,6 @@
 package org.example.sem_backend.modules.user_module.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
 import org.example.sem_backend.common_module.service.ValidPassword;
@@ -27,6 +23,7 @@ public class User extends BaseEntity {
     private String email;
 
     @Column(nullable = false)
+    @ValidPassword
     private String password;
 
     @Enumerated(EnumType.STRING)
