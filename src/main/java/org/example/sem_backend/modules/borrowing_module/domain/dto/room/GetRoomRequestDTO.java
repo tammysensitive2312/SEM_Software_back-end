@@ -11,6 +11,8 @@ public class GetRoomRequestDTO {
     private Long uniqueId;
     private String roomName;
     private String username;
+    private String email;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private String comment;
 }

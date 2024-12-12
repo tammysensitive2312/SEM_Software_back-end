@@ -229,8 +229,8 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      *
      * @return A paginated list of room borrow requests for administrative use.
      */
-    public Page<GetRoomRequestDTO> getAdminRequests(String username, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+    public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
         return roomBorrowRequestRepository.
-                findRequestsWithSchedules(null, username, startTime, endTime, pageable);
+                findRequestsWithSchedules(null, email, startTime, endTime, pageable);
     }
 }
