@@ -109,4 +109,10 @@ public class GlobalExceptionHandler {
 
         return problemDetail;
     }
+
+    @ExceptionHandler(EmailExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleEmailExistsException(EmailExistsException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.CONFLICT, "Email Exists", ex.getMessage(), request);
+    }
 }

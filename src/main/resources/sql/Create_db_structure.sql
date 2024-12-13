@@ -90,7 +90,7 @@ create table if not exists users
     password   varchar(255) not null,
     role       varchar(255) not null,
     username   varchar(20)  not null,
-    email      varchar(50)  not null
+    email      varchar(50)  not null unique
 );
 
 create table if not exists equipment_borrow_requests

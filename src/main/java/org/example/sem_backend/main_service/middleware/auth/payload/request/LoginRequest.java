@@ -10,7 +10,7 @@ import lombok.Setter;
 public class LoginRequest {
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
-    private String username;
+    private String email;
 
     @NotBlank(message = "Password cannot be blank")
 //    @ValidPassword(message = "Password must contain at least one uppercase letter, one lowercase letter, one special character, and no spaces")

@@ -41,26 +41,26 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        MessageResponse response = service.registerUser(signUpRequest);
-        return ResponseEntity.accepted().body(response);
+        service.registerUser(signUpRequest);
+        return ResponseEntity.accepted().body(new MessageResponse("User registered successfully!"));
     }
 
     @PostMapping("/sign-out")
-    public ResponseEntity<String> logoutUser() {
+    public ResponseEntity<MessageResponse> logoutUser() {
         String cleanJwtCookie = service.logoutUser().getFirst();
         String cleanRefreshCookie = service.logoutUser().getSecond();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cleanJwtCookie)
                 .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie)
-                .body("You've been signed out!");
+                .body(new MessageResponse("User logged out successfully!"));
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String refreshTokenCookie = service.refreshToken(request);
         if (refreshTokenCookie.isEmpty()) {
-            return ResponseEntity.badRequest().body("Refresh token is required");
+            return ResponseEntity.badRequest().body(new MessageResponse("Refresh token is required"));
         }
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie)

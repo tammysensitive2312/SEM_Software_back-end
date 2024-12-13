@@ -3,7 +3,6 @@ package org.example.sem_backend.modules.user_module.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.sem_backend.common_module.entity.BaseEntity;
-import org.example.sem_backend.common_module.service.ValidPassword;
 
 @Entity(name = "users")
 @Getter
@@ -17,13 +16,13 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
-    @ValidPassword
+    private String username;
+
+    @Column(nullable = false)
+//    @ValidPassword
     private String password;
 
     @Enumerated(EnumType.STRING)

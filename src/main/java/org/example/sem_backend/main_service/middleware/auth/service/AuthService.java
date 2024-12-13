@@ -2,15 +2,15 @@ package org.example.sem_backend.main_service.middleware.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.example.sem_backend.common_module.exception.EmailExistsException;
 import org.example.sem_backend.common_module.exception.InvalidCredentialsException;
+import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
+import org.example.sem_backend.common_module.exception.TokenRefreshException;
+import org.example.sem_backend.main_service.middleware.auth.jwt.JwtUtils;
 import org.example.sem_backend.main_service.middleware.auth.payload.request.LoginRequest;
 import org.example.sem_backend.main_service.middleware.auth.payload.request.SignupRequest;
 import org.example.sem_backend.main_service.middleware.auth.payload.response.AuthResponse;
-import org.example.sem_backend.main_service.middleware.auth.payload.response.MessageResponse;
 import org.example.sem_backend.main_service.middleware.auth.payload.response.UserResponse;
-import org.example.sem_backend.main_service.middleware.auth.jwt.JwtUtils;
-import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.common_module.exception.TokenRefreshException;
 import org.example.sem_backend.modules.user_module.domain.entity.RefreshToken;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
@@ -37,14 +37,14 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     public AuthResponse authenticateUser(LoginRequest loginRequest) throws BadCredentialsException {
-        if (!userRepository.existsByUsername(loginRequest.getUsername())) {
-            throw new ResourceNotFoundException("User not found with provided info", "Auth-Controller");
+        if (!userRepository.existsByEmail(loginRequest.getEmail())) {
+            throw new ResourceNotFoundException("Email does not existed", "Auth-Controller");
         }
 
         try {
             // Thực hiện xác thực
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -70,19 +70,13 @@ public class AuthService {
             return response;
 
         } catch (BadCredentialsException ex) {
-            throw new InvalidCredentialsException("Invalid username or password", "Auth-Controller");
+            throw new InvalidCredentialsException("Password is incorrect", "Auth-Controller");
         }
     }
 
-    public MessageResponse registerUser(SignupRequest request) {
-        MessageResponse response = new MessageResponse();
-
-        if (userRepository.existsByUsername(request.getUsername())) {
-            response.setMessage("Username is already taken!");
-        }
-
+    public void registerUser(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            response.setMessage("Email is already in use!");
+            throw new EmailExistsException("'" + request.getEmail() +"'");
         }
 
         User user = User.builder()
@@ -92,9 +86,6 @@ public class AuthService {
                 .role(request.getRole())
                 .build();
         userRepository.save(user);
-        response.setMessage("User registered successfully!");
-
-        return response;
     }
 
     public Pair<String, String> logoutUser() {
@@ -117,7 +108,7 @@ public class AuthService {
                     .map(refreshTokenService::verifyExpiration)
                     .map(RefreshToken::getUser)
                     .map(user -> {
-                        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user.getUsername(), user.getEmail(), user.getId());
+                        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user.getEmail(), user.getUsername(), user.getId());
                         return jwtCookie.toString();
                     })
                     .orElseThrow(() -> new TokenRefreshException(refreshToken, "Refresh token is not in database!"));

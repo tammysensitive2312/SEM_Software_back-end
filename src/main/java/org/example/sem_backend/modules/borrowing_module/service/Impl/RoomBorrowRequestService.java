@@ -86,7 +86,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         try {
             RoomSchedule schedule = new RoomSchedule();
             schedule.setRoom(room);
-            schedule.setUser(user.getUsername());
+            schedule.setUser(user.getEmail());
             schedule.setStartTime(requestDto.getStartTime());
             schedule.setEndTime(requestDto.getEndTime());
 
@@ -110,7 +110,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
 
         log.info("Successfully processed room booking - Room ID: {}, User: {}, Time: {} to {}",
                 requestDto.getRoomId(),
-                user.getUsername(),
+                user.getEmail(),
                 requestDto.getStartTime(),
                 requestDto.getEndTime()
         );
