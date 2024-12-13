@@ -1,0 +1,124 @@
+@startuml
+!define SpringComponent stereotype
+
+' Interface NotificationChannel
+interface NotificationChannel {
+    +send(Notification notification)
+}
+
+' Enum NotificationType
+enum NotificationType {
+    EMAIL
+    PUSH
+    IN_APP
+}
+
+' Class NotificationRequest
+class NotificationRequest {
+    -String recipient
+    -String subject
+    -String message
+    -List<NotificationType> types
+    +getRecipient() : String
+    +setRecipient(String)
+    +getSubject() : String
+    +setSubject(String)
+    +getMessage() : String
+    +setMessage(String)
+    +getTypes() : List<NotificationType>
+    +setTypes(List<NotificationType>)
+}
+
+' Class Notification
+class Notification {
+    -Long id
+    -String recipient
+    -String subject
+    -String message
+    -NotificationType type
+    -LocalDateTime createdAt
+    +getId() : Long
+    +setId(Long)
+    +getRecipient() : String
+    +setRecipient(String)
+    +getSubject() : String
+    +setSubject(String)
+    +getMessage() : String
+    +setMessage(String)
+    +getType() : NotificationType
+    +setType(NotificationType)
+    +getCreatedAt() : LocalDateTime
+    +setCreatedAt(LocalDateTime)
+}
+
+' Classes implementing NotificationChannel
+'@Service
+class EmailNotificationChannel implements NotificationChannel {
+    -JavaMailSender mailSender
+    +send(Notification)
+}
+
+'@Service
+class PushNotificationChannel implements NotificationChannel {
+    -PushService pushService
+    +send(Notification)
+}
+
+'@Service
+class InAppNotificationChannel implements NotificationChannel {
+    -NotificationRepository notificationRepository
+    +send(Notification)
+}
+
+' NotificationService
+'@Service
+class NotificationService {
+    -Map<NotificationType, NotificationChannel> channels
+    +sendNotification(NotificationRequest)
+}
+
+' AsyncNotificationService
+'@Service
+class AsyncNotificationService {
+    -NotificationService notificationService
+    +sendAsyncNotification(NotificationRequest)
+}
+
+' UserPreferences
+'@Entity
+class UserPreferences {
+    -String userId
+    -boolean emailNotifications
+    -boolean pushNotifications
+    -boolean inAppNotifications
+    +getUserId() : String
+    +setUserId(String)
+    +isEmailNotifications() : boolean
+    +setEmailNotifications(boolean)
+    +isPushNotifications() : boolean
+    +setPushNotifications(boolean)
+    +isInAppNotifications() : boolean
+    +setInAppNotifications(boolean)
+}
+
+' NotificationRepository
+'@Repository
+interface NotificationRepository {
+    +save(Notification) : Notification
+}
+
+' NotificationController
+'@RestController
+class NotificationController {
+    -AsyncNotificationService asyncNotificationService
+    +sendNotification(NotificationRequest) : ResponseEntity<String>
+}
+
+' Relationships
+NotificationService "1" --> "*" NotificationChannel : uses
+AsyncNotificationService "1" --> "1" NotificationService : uses
+NotificationController "1" --> "1" AsyncNotificationService : uses
+EmailNotificationChannel ..|> NotificationChannel
+PushNotificationChannel ..|> NotificationChannel
+InAppNotificationChannel ..|> NotificationChannel
+@enduml

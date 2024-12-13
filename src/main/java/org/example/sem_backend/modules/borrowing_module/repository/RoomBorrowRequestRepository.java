@@ -15,19 +15,19 @@ import java.time.LocalDateTime;
 public interface RoomBorrowRequestRepository extends JpaRepository<RoomBorrowRequest, Long> {
     @Query("""
     SELECT new org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO(
-        r.uniqueID, rm.roomName, u.username, rs.startTime, rs.endTime
+        r.uniqueID, rm.roomName, u.username, u.email, rs.startTime, rs.endTime, r.comment
     )
     FROM RoomBorrowRequest r
     LEFT JOIN r.user u
     LEFT JOIN r.room rm
     LEFT JOIN RoomSchedule rs ON rs.room.uniqueId = r.room.uniqueId
     WHERE (:userId IS NULL OR u.id = :userId)
-      AND (:username IS NULL OR u.username LIKE %:username%)
+      AND (:email IS NULL OR u.email LIKE %:email%)
       AND (:startTime IS NULL OR (rs.startTime >= :startTime AND rs.endTime <= :endTime))
     """)
     Page<GetRoomRequestDTO> findRequestsWithSchedules(
             @Param("userId") Long userId,
-            @Param("username") String username,
+            @Param("email") String email,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime,
             Pageable pageable

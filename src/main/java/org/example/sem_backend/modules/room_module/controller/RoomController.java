@@ -79,7 +79,7 @@ public class RoomController {
     })
     public ResponseEntity<String> updateRoom(
             @RequestBody RoomRequest roomRequest,
-            @Parameter(description = "ID of the room to update", required = true) @PathVariable int id) {
+            @Parameter(description = "ID of the room to update", required = true) @PathVariable Integer id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }
@@ -95,15 +95,6 @@ public class RoomController {
         roomService.addRoom(roomRequest);
         return ResponseEntity.ok("Room added successfully");
     }
-
-    @Operation(summary = "Update a room",
-            description = "Update an existing room with new details")
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRoom(@Valid @RequestBody RoomRequest roomRequest, @PathVariable Integer id) {
-        roomService.updateRoom(roomRequest, id);
-        return ResponseEntity.ok("Room updated successfully");
-    }
-
 
     @Operation(summary = "Filter rooms by type and status", description = "Retrieve a paginated list of rooms filtered by type and/or status")
     @ApiResponses(value = {

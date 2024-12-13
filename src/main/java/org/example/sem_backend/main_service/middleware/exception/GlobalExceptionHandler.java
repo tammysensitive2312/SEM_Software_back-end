@@ -2,16 +2,12 @@ package org.example.sem_backend.main_service.middleware.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.example.sem_backend.common_module.exception.InvalidCredentialsException;
-import org.example.sem_backend.common_module.exception.ResourceConflictException;
-import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
-import org.example.sem_backend.common_module.exception.TokenRefreshException;
+import org.example.sem_backend.common_module.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.jpa.JpaSystemException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,6 +65,36 @@ public class GlobalExceptionHandler {
         return createProblemDetail(HttpStatus.BAD_REQUEST, "JPA System Error", Objects.requireNonNull(ex.getRootCause()).getMessage(), request);
     }
 
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Validation Error", "Validation failure", request);
+
+        Map<String, String> violations = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(fieldError -> violations.put(fieldError.getField(), fieldError.getDefaultMessage()));
+        problemDetail.setProperty("violations", violations);
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ProblemDetail handleInvalidCredentialsException(InvalidCredentialsException ex, WebRequest request) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.UNAUTHORIZED, "Bad Credentials exception", ex.getMessage(), request);
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NotificationException.class)
+    public ProblemDetail handleNotificationException(NotificationException ex, WebRequest request) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Notification exception", ex.getMessage(), request);
+        return problemDetail;
+    }
+
     // Tạo ProblemDetail với các trường tùy chỉnh, không có `path`, chỉ có `instance`
     private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail, WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
@@ -84,29 +110,9 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(value = TokenRefreshException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ProblemDetail handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Validation Error", "Validation failure", request);
-
-        Map<String, String> violations = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            violations.put(fieldError.getField(), fieldError.getDefaultMessage());
-        });
-        problemDetail.setProperty("violations", violations);
-        return problemDetail;
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ProblemDetail handleInvalidCredentialsException(InvalidCredentialsException ex, WebRequest request) {
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.UNAUTHORIZED, "Bad Credentials exception", ex.getMessage(), request);
-        return problemDetail;
+    @ExceptionHandler(EmailExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleEmailExistsException(EmailExistsException ex, WebRequest request) {
+        return createProblemDetail(HttpStatus.CONFLICT, "Email Exists", ex.getMessage(), request);
     }
 }
