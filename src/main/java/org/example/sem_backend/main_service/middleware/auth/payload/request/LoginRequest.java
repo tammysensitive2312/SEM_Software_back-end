@@ -1,5 +1,6 @@
 package org.example.sem_backend.main_service.middleware.auth.payload.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -8,8 +9,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class LoginRequest {
-    @NotBlank(message = "Username cannot be blank")
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @NotBlank(message = "Email cannot be blank")
+    @Email
     private String email;
 
     @NotBlank(message = "Password cannot be blank")

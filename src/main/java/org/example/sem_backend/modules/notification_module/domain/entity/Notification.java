@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.sem_backend.common_module.entity.BaseEntity;
 import org.example.sem_backend.modules.notification_module.domain.enums.NotificationType;
-import org.example.sem_backend.modules.user_module.domain.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -23,7 +22,6 @@ public class Notification extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String subject;
     private String message;
     private NotificationType type;
 
@@ -39,7 +37,6 @@ public class Notification extends BaseEntity {
     public String toString() {
         return getClass().getSimpleName() + "(" +
                 "id = " + getId() + ", " +
-                "subject = " + getSubject() + ", " +
                 "message = " + getMessage() + ", " +
                 "type = " + getType() + ", " +
                 "isRead = " + isRead() + ", " +

@@ -32,15 +32,15 @@ class NotificationRequest {
 ' Class Notification
 class Notification {
     -Long id
-    -String recipient
+    -Set<Long> recipient
     -String subject
     -String message
     -NotificationType type
     -LocalDateTime createdAt
     +getId() : Long
     +setId(Long)
-    +getRecipient() : String
-    +setRecipient(String)
+    +getRecipient() : HashSet<Long>
+    +setRecipient(Set<Long>)
     +getSubject() : String
     +setSubject(String)
     +getMessage() : String
@@ -79,10 +79,10 @@ class NotificationService {
 
 ' AsyncNotificationService
 '@Service
-class AsyncNotificationService {
-    -NotificationService notificationService
-    +sendAsyncNotification(NotificationRequest)
-}
+'class AsyncNotificationService {
+'    -NotificationService notificationService
+'    +sendAsyncNotification(NotificationRequest)
+'}
 
 ' UserPreferences
 '@Entity
@@ -116,8 +116,8 @@ class NotificationController {
 
 ' Relationships
 NotificationService "1" --> "*" NotificationChannel : uses
-AsyncNotificationService "1" --> "1" NotificationService : uses
-NotificationController "1" --> "1" AsyncNotificationService : uses
+'AsyncNotificationService "1" --> "1" NotificationService : uses
+NotificationController "1" --> "1" NotificationService : uses
 EmailNotificationChannel ..|> NotificationChannel
 PushNotificationChannel ..|> NotificationChannel
 InAppNotificationChannel ..|> NotificationChannel

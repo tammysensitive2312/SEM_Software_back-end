@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.main_service.middleware.auth.service.UserDetailsImpl;
+import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.service.NotificationService;
 import org.example.sem_backend.modules.notification_module.service.SseEmitterService;
@@ -64,7 +65,7 @@ public class NotificationController {
                     )
             }
     )
-    public List<Notification> getUnreadNotifications(
+    public List<NotificationRequest> getUnreadNotifications(
             @Parameter(hidden = true)
             @AuthenticationPrincipal UserDetailsImpl userInfo
     ) {

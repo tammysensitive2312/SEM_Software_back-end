@@ -225,7 +225,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      */
     @Transactional
     public void approveRequest(Long requestId) {
-        // Tìm kiếm đơn mượn
         EquipmentBorrowRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found", "BORROWING_MODULE"));
 
@@ -243,7 +242,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getEquipmentName(), "");
             }
 
-            // Gán các thiết bị cụ thể
             detail.getEquipmentDetails().addAll(availableDetails);
 //            detailRepository.save(detail);
         }

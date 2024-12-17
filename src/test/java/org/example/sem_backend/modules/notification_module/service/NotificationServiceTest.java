@@ -1,7 +1,9 @@
 package org.example.sem_backend.modules.notification_module.service;
 
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
+import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
 import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,10 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,12 +26,15 @@ class NotificationServiceTest {
     @Mock
     private NotificationChannel notificationChannel;
 
+    @Mock
+    private NotificationMapper mapper;
+
     private NotificationService notificationService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        notificationService = new NotificationService(notificationRepository, List.of(notificationChannel));
+        notificationService = new NotificationService(notificationRepository, List.of(notificationChannel), mapper);
     }
 
     @Test
@@ -48,7 +51,6 @@ class NotificationServiceTest {
         verify(notificationChannel).send(notificationCaptor.capture());
 
         Notification notification = notificationCaptor.getValue();
-        assertEquals("Đơn mượn được duyệt", notification.getSubject());
         assertEquals("Đơn mượn #1 của bạn đã được duyệt thành công.", notification.getMessage());
         assertTrue(notification.getRecipients().contains(2L));
         assertFalse(notification.isRead());
@@ -69,7 +71,6 @@ class NotificationServiceTest {
         verify(notificationChannel).send(notificationCaptor.capture());
 
         Notification notification = notificationCaptor.getValue();
-        assertEquals("Thông báo mới", notification.getSubject());
         assertEquals(message, notification.getMessage());
         assertTrue(notification.getRecipients().contains(userId));
         assertFalse(notification.isRead());
@@ -84,16 +85,21 @@ class NotificationServiceTest {
         notification.setRecipients(new HashSet<>(Collections.singletonList(userId)));
         notification.setRead(false);
 
+        NotificationRequest request = new NotificationRequest(
+                notification.getMessage(),
+                false);
+
         when(notificationRepository.findByRecipientsContainingAndIsReadFalse(userId))
                 .thenReturn(List.of(notification));
 
+        when(mapper.toDto(notification)).thenReturn(request);
         // Act
-        List<Notification> unreadNotifications = notificationService.getUnreadNotifications(userId);
+        List<NotificationRequest> unreadNotifications = notificationService.getUnreadNotifications(userId);
 
         // Assert
         assertNotNull(unreadNotifications);
         assertEquals(1, unreadNotifications.size());
-        assertEquals(notification, unreadNotifications.getFirst());
+        assertEquals(request, unreadNotifications.getFirst());
     }
 
     @Test

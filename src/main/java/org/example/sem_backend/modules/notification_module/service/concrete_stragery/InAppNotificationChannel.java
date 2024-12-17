@@ -42,7 +42,7 @@ public class InAppNotificationChannel implements NotificationChannel {
 
         try {
             Notification savedNotification = notificationRepository.save(notification);
-            System.out.println("In-App Notification created: " + savedNotification);
+            //System.out.println("In-App Notification created: " + savedNotification);
 
             for (Long recipientId : notification.getRecipients()) {
                 System.out.println("Recipient ID: " + recipientId);
