@@ -21,14 +21,4 @@ public class EventConfig {
         return multicaster;
     }
 
-//    @Bean(name = "applicationTaskExecutor")
-//    public TaskExecutor taskExecutor() {
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//        executor.setCorePoolSize(10);
-//        executor.setMaxPoolSize(100);
-//        executor.setQueueCapacity(50);
-//        executor.setThreadNamePrefix("BorrowTask-");
-//        executor.initialize();
-//        return executor;
-//    }
 }

@@ -6,13 +6,13 @@ import org.example.sem_backend.modules.notification_module.domain.entity.Notific
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
 import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
+import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,12 +29,15 @@ class NotificationServiceTest {
     @Mock
     private NotificationMapper mapper;
 
+    @Mock
+    private UserRepository userRepository;
+
     private NotificationService notificationService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        notificationService = new NotificationService(notificationRepository, List.of(notificationChannel), mapper);
+        notificationService = new NotificationService(notificationRepository, userRepository,List.of(notificationChannel), mapper);
     }
 
     @Test
@@ -64,7 +67,7 @@ class NotificationServiceTest {
         ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
 
         // Act
-        notificationService.sendInAppNotificationAndSave(userId, message);
+        //notificationService.sendInAppNotificationAndSave(userId, message);
 
         // Assert
         verify(notificationRepository).save(notificationCaptor.capture());

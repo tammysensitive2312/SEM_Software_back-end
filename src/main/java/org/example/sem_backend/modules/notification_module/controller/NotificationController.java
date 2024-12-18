@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.main_service.middleware.auth.service.UserDetailsImpl;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
-import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.service.NotificationService;
 import org.example.sem_backend.modules.notification_module.service.SseEmitterService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -73,6 +77,28 @@ public class NotificationController {
         return notificationService.getUnreadNotifications(userId);
     }
 
+    @GetMapping("/allMessage")
+    @Operation(
+            summary = "Retrieve all notifications",
+            description = "Fetches a list of notifications for the authenticated user",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            }
+    )
+    public ResponseEntity<Page<NotificationRequest>> getAllNotifications(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal UserDetailsImpl userInfo,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "15") int size) {
+        Long userId = userInfo.getId();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NotificationRequest> messages = notificationService.getAllNotifications(userId, pageable);
+
+        return ResponseEntity.ok(messages);
+    }
+
     @PostMapping("/{notificationId}/read")
     @Operation(
             summary = "Mark a notification as read",
@@ -92,5 +118,22 @@ public class NotificationController {
     ) {
         notificationService.markAsRead(notificationId);
         return "Notification marked as read.";
+    }
+
+    @Operation(
+            summary = "Send a report incident to all admin user",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "202",
+                            description = "request have been sent to the server and server" +
+                                    "will send it to all user"
+                    )
+            }
+    )
+    @PostMapping("/sendAlertNotify")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> sendReportAndNotify(@RequestBody NotificationRequest request) {
+        notificationService.sendNotificationToAdminUser(request);
+        return ResponseEntity.accepted().build();
     }
 }

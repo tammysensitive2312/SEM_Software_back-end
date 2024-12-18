@@ -16,7 +16,6 @@ enum NotificationType {
 ' Class NotificationRequest
 class NotificationRequest {
     -String recipient
-    -String subject
     -String message
     -List<NotificationType> types
     +getRecipient() : String
@@ -33,7 +32,6 @@ class NotificationRequest {
 class Notification {
     -Long id
     -Set<Long> recipient
-    -String subject
     -String message
     -NotificationType type
     -LocalDateTime createdAt
@@ -110,7 +108,7 @@ interface NotificationRepository {
 ' NotificationController
 '@RestController
 class NotificationController {
-    -AsyncNotificationService asyncNotificationService
+    -NotificationService notificationService
     +sendNotification(NotificationRequest) : ResponseEntity<String>
 }
 

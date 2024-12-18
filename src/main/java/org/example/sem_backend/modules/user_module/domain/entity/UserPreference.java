@@ -1,11 +1,10 @@
-package org.example.sem_backend.modules.notification_module.domain.entity;
+package org.example.sem_backend.modules.user_module.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.sem_backend.modules.user_module.domain.entity.User;
 
 @Getter
 @Setter
