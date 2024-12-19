@@ -1,8 +1,5 @@
 package org.example.sem_backend.modules.room_module.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
 import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
@@ -21,7 +18,9 @@ public interface IRoomService {
 
     List<RoomResponse> findRooms(Integer capacity, String comparisonOperator, String roomCondition);
 
-    void updateRoom(RoomRequest request, Integer id);
+    void updateRoom(RoomRequest request, Long id);
 
     Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
+
+    void deleteRoom(Long id);
 }

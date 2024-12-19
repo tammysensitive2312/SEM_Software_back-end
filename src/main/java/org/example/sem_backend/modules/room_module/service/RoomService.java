@@ -60,8 +60,8 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public void updateRoom(RoomRequest request, Integer id) {
-        Room room = roomRepository.findById(id.longValue())
+    public void updateRoom(RoomRequest request, Long id) {
+        Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {
             roomMapper.partialUpdate(request, room);
@@ -125,9 +125,9 @@ public class RoomService implements IRoomService{
 
     @Override
     public List<RoomResponse> searchRoom(String keyword) {
-        if (keyword.isBlank()) {
-            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
-        }
+//        if (keyword.isBlank()) {
+//            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
+//        }
         List<Room> rooms = roomRepository.searchRoom(keyword);
         if (rooms.isEmpty()) {
             throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
@@ -135,5 +135,12 @@ public class RoomService implements IRoomService{
         return rooms.stream()
                 .map(roomMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteRoom(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
+        roomRepository.delete(room);
     }
 }
