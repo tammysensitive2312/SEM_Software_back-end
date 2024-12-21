@@ -169,8 +169,6 @@ create table if not exists room_borrow_requests
     comment    text        null,
     room_id    bigint      not null,
     user_id    bigint      not null,
-    constraint UKj8okfu0ofmqq97vlko0iqdc1m
-        unique (room_id),
     constraint FKkiqgup85vl0jarthgvuci0xou
         foreign key (room_id) references rooms (unique_id),
     constraint FKmtf2qobqi6d50r1ftw6fyjlej

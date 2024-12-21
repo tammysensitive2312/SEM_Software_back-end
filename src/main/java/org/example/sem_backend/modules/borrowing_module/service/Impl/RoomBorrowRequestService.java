@@ -14,9 +14,9 @@ import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowReq
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
-import org.example.sem_backend.modules.room_module.domain.entity.RoomSchedule;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
-import org.example.sem_backend.modules.room_module.repository.RoomScheduleRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.data.domain.Page;

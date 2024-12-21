@@ -251,6 +251,10 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
 
+    public void markAsReturned(List<Long> requestId) {
+
+    }
+
     @Override
     @Transactional
     public void deleteRequestsByIds(List<Long> requestIds) {

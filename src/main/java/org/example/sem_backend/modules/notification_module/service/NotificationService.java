@@ -2,6 +2,7 @@ package org.example.sem_backend.modules.notification_module.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.GenericEvent;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.domain.enums.NotificationType;
@@ -41,32 +42,56 @@ public class NotificationService {
         createAndSendNotification(userId, message, true);
     }
 
-    /**
- * Creates a new notification and sends it through all available notification channels.
- * If specified, the notification is also saved to the database.
- *
- * @param userId    The ID of the user to whom the notification is being sent.
- * @param message   The content of the notification message.
- * @param needSave  A boolean flag indicating whether the notification should be saved to the database.
- *                  If true, the notification is persisted; if false, it is only sent through channels.
- */
-private void createAndSendNotification(Long userId, String message, boolean needSave) {
-    Notification notification = new Notification();
-    notification.setMessage(message);
-    notification.setType(NotificationType.IN_APP);
-    notification.setRead(false);
-    notification.setRecipients(new HashSet<>());
-    notification.getRecipients().add(userId);
-
-    if (needSave) {
-        notificationRepository.save(notification);
+    @EventListener
+    public void handleRoomStatusChangedEvent(GenericEvent<List<Long>> event) {
+        List<Long> userIds = event.getData();
+        String message = "Phòng hiện đang gặp sự cố, admin đang xử lý";
+        createAndSendNotification(userIds, message, true);
     }
+
+    /**
+     * Creates a new notification and sends it through all available notification channels.
+     * If specified, the notification is also saved to the database.
+     *
+     * @param userId    The ID of the user to whom the notification is being sent.
+     * @param message   The content of the notification message.
+     * @param needSave  A boolean flag indicating whether the notification should be saved to the database.
+     *                  If true, the notification is persisted; if false, it is only sent through channels.
+     */
+    private void createAndSendNotification(Long userId, String message, boolean needSave) {
+        Notification notification = new Notification();
+        notification.setMessage(message);
+        notification.setType(NotificationType.IN_APP);
+        notification.setRead(false);
+        notification.setRecipients(new HashSet<>());
+        notification.getRecipients().add(userId);
+
+        if (needSave) {
+            notificationRepository.save(notification);
+        }
 
     // Gửi thông báo qua tất cả các kênh
-    for (NotificationChannel channel : notificationChannels) {
-        channel.send(notification);
+        for (NotificationChannel channel : notificationChannels) {
+            channel.send(notification);
+        }
     }
-}
+
+    private void createAndSendNotification(List<Long> userIds, String message, boolean needSave) {
+        Notification notification = new Notification();
+        notification.setMessage(message);
+        notification.setType(NotificationType.IN_APP);
+        notification.setRead(false);
+        notification.setRecipients(new HashSet<>(userIds)); // Thêm tất cả userIds vào recipients
+
+        if (needSave) {
+            notificationRepository.save(notification);
+        }
+
+        // Gửi thông báo qua tất cả các kênh
+        for (NotificationChannel channel : notificationChannels) {
+            channel.send(notification);
+        }
+    }
 
     // method run asynchronous to send notification to all user
     @Async
@@ -81,23 +106,23 @@ private void createAndSendNotification(Long userId, String message, boolean need
 
 
     /**
- * Sends a message to multiple users identified by their user IDs.
- * This method retrieves a list of user IDs from the provided UserIdProvider,
- * validates the list, and then sends a notification to each user.
- *
- * @param provider {@link UserIdProvider} A Functional Interface that supplies the list of user IDs to send the message to.
- * @param message The content of the message to be sent to the users.
- * @throws IllegalArgumentException If the list of user IDs is null or empty.
- */
-private void sendMessage(UserIdProvider provider, String message) {
-    List<Long> receipientIds = provider.getUserIds();
+     * Sends a message to multiple users identified by their user IDs.
+     * This method retrieves a list of user IDs from the provided UserIdProvider,
+     * validates the list, and then sends a notification to each user.
+     *
+     * @param provider {@link UserIdProvider} A Functional Interface that supplies the list of user IDs to send the message to.
+     * @param message The content of the message to be sent to the users.
+     * @throws IllegalArgumentException If the list of user IDs is null or empty.
+     */
+    void sendMessage(UserIdProvider provider, String message) {
+        List<Long> receipientIds = provider.getUserIds();
 
-    if (receipientIds == null || receipientIds.isEmpty()) {
-        throw new IllegalArgumentException("UserId list cannot be null or empty");
+        if (receipientIds == null || receipientIds.isEmpty()) {
+            throw new IllegalArgumentException("UserId list cannot be null or empty");
+        }
+
+        createAndSendNotification(receipientIds, message, true);
     }
-
-    receipientIds.forEach(userId -> createAndSendNotification(userId, message, true));
-}
 
     public List<NotificationRequest> getUnreadNotifications(Long userId) {
 

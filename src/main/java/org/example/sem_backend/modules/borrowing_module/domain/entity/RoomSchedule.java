@@ -1,10 +1,11 @@
-package org.example.sem_backend.modules.room_module.domain.entity;
+package org.example.sem_backend.modules.borrowing_module.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.sem_backend.modules.room_module.domain.entity.Room;
 
 import java.time.LocalDateTime;
 

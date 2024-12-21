@@ -6,6 +6,7 @@ import org.example.sem_backend.modules.notification_module.domain.entity.Notific
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
 import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
+import org.example.sem_backend.modules.user_module.domain.entity.ERole;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,26 +57,6 @@ class NotificationServiceTest {
         Notification notification = notificationCaptor.getValue();
         assertEquals("Đơn mượn #1 của bạn đã được duyệt thành công.", notification.getMessage());
         assertTrue(notification.getRecipients().contains(2L));
-        assertFalse(notification.isRead());
-    }
-
-    @Test
-    void sendInAppNotificationAndSave_shouldSaveAndSendNotification() {
-        // Arrange
-        Long userId = 2L;
-        String message = "This is a test notification";
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
-
-        // Act
-        //notificationService.sendInAppNotificationAndSave(userId, message);
-
-        // Assert
-        verify(notificationRepository).save(notificationCaptor.capture());
-        verify(notificationChannel).send(notificationCaptor.capture());
-
-        Notification notification = notificationCaptor.getValue();
-        assertEquals(message, notification.getMessage());
-        assertTrue(notification.getRecipients().contains(userId));
         assertFalse(notification.isRead());
     }
 
@@ -134,5 +115,68 @@ class NotificationServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 notificationService.markAsRead(notificationId));
         assertEquals("Notification not found", exception.getMessage());
+    }
+
+    @Test
+    void sendNotificationToAdminUser_shouldSendToAdmins() {
+        // Arrange
+        NotificationRequest request = new NotificationRequest("Test message", false);
+        List<Long> adminIds = List.of(1L, 2L);
+        when(userRepository.findIdByRole(ERole.ROLE_ADMIN)).thenReturn(adminIds);
+
+        // Act
+        notificationService.sendNotificationToAdminUser(request).join();
+
+        // Assert
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository, atLeastOnce()).save(captor.capture());
+
+        Notification savedNotification = captor.getValue();
+        assertEquals("Test message", savedNotification.getMessage());
+        assertTrue(savedNotification.getRecipients().containsAll(adminIds),
+                "Recipients should contain all admin IDs");
+    }
+
+
+    @Test
+    void sendMessage_shouldSendToValidUserIds() {
+        // Arrange
+        List<Long> userIds = List.of(1L, 2L);
+        String message = "Hello Users!";
+
+        // Act
+        notificationService.sendMessage(() -> userIds, message);
+
+        // Assert
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(notificationRepository).save(captor.capture());
+
+        Notification savedNotification = captor.getValue();
+        assertEquals(message, savedNotification.getMessage());
+        assertTrue(savedNotification.getRecipients().containsAll(userIds),
+                "Recipients should contain all user IDs");
+    }
+
+
+    @Test
+    void sendMessage_shouldThrowExceptionForEmptyUserList() {
+        // Arrange
+        String message = "Hello Users!";
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                notificationService.sendMessage(Collections::emptyList, message));
+        assertEquals("UserId list cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void sendMessage_shouldHandleNullUserList() {
+        // Arrange
+        String message = "Hello Users!";
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                notificationService.sendMessage(() -> null, message));
+        assertEquals("UserId list cannot be null or empty", exception.getMessage());
     }
 }
