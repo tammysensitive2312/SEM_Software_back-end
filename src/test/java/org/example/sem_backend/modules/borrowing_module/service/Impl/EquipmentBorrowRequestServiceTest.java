@@ -1,6 +1,8 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
+import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentReturnedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowItemDTO;
@@ -17,6 +19,7 @@ import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepo
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,6 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -253,6 +257,115 @@ class EquipmentBorrowRequestServiceTest {
 
         verify(requestRepository).findById(1L);
         verifyNoInteractions(equipmentDetailRepository, eventPublisher);
+    }
+
+    @Test
+    @DisplayName("Should successfully return equipment when all requests are valid")
+    void returnEquipment_Success() {
+        // Arrange
+        List<Long> requestIds = Arrays.asList(1L, 2L);
+
+        EquipmentBorrowRequest request1 = new EquipmentBorrowRequest();
+        request1.setStatus(EquipmentBorrowRequest.Status.BORROWED);
+
+        EquipmentBorrowRequest request2 = new EquipmentBorrowRequest();
+        request2.setStatus(EquipmentBorrowRequest.Status.BORROWED);
+
+        List<EquipmentBorrowRequest> requests = Arrays.asList(request1, request2);
+
+        when(requestRepository.findAllById(requestIds)).thenReturn(requests);
+        when(requestRepository.saveAll(any())).thenReturn(requests);
+
+        // Act
+        try {
+            service.returnEquipment(requestIds);
+        } catch (BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Assert
+        verify(requestRepository).findAllById(requestIds);
+        verify(requestRepository).saveAll(requests);
+        verify(eventPublisher).publishEvent(any(EquipmentReturnedEvent.class));
+
+        assertEquals(EquipmentBorrowRequest.Status.RETURNED, request1.getStatus());
+        assertEquals(EquipmentBorrowRequest.Status.RETURNED, request2.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when no requests found")
+    void returnEquipment_NoRequestsFound() {
+        // Arrange
+        List<Long> requestIds = Arrays.asList(1L, 2L);
+        when(requestRepository.findAllById(requestIds)).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> service.returnEquipment(requestIds)
+        );
+
+        assertEquals("No borrow requests found", exception.getMessage());
+        assertEquals("EQUIPMENT-MODULE", exception.getModule());
+        verify(requestRepository).findAllById(requestIds);
+        verify(requestRepository, never()).saveAll(any());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BadRequestException when some requests are not in BORROWED status")
+    void returnEquipment_InvalidStatus() {
+        // Arrange
+        List<Long> requestIds = Arrays.asList(1L, 2L);
+
+        EquipmentBorrowRequest request1 = new EquipmentBorrowRequest();
+        request1.setStatus(EquipmentBorrowRequest.Status.BORROWED);
+
+        EquipmentBorrowRequest request2 = new EquipmentBorrowRequest();
+        request2.setStatus(EquipmentBorrowRequest.Status.RETURNED); // Invalid status
+
+        List<EquipmentBorrowRequest> requests = Arrays.asList(request1, request2);
+
+        when(requestRepository.findAllById(requestIds)).thenReturn(requests);
+
+        // Act & Assert
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> service.returnEquipment(requestIds)
+        );
+
+        assertEquals("Some requests are not in BORROWED status", exception.getMessage());
+        verify(requestRepository).findAllById(requestIds);
+        verify(requestRepository, never()).saveAll(any());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    @DisplayName("Should throw IllegalArgumentException when request ids list is null")
+    void returnEquipment_NullRequestIds() {
+        // Act & Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.returnEquipment(null)
+        );
+
+        verify(requestRepository, never()).findAllById(any());
+        verify(requestRepository, never()).saveAll(any());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    @DisplayName("Should throw IllegalArgumentException when request ids list is empty")
+    void returnEquipment_EmptyRequestIds() {
+        // Act & Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.returnEquipment(Collections.emptyList())
+        );
+
+        verify(requestRepository, never()).findAllById(any());
+        verify(requestRepository, never()).saveAll(any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
 }

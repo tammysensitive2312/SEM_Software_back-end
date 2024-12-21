@@ -27,6 +27,9 @@ public class RoomStatusChangedListener {
     public void handleRoomStatusChange(GenericEvent<Long> event) {
         if (event.getSource() instanceof RoomService) {
             Long roomId = event.getData();
+            if (roomId == null) {
+                log.error("roomId in event context is null");
+            }
             log.info("RoomStatusChangedListener: Handling room status change for roomId: {}", roomId);
 
             List<Long> userIds = borrowingRepository.findUserIdsWithBookingsAfter(LocalDateTime.now(), roomId);

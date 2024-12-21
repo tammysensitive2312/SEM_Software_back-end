@@ -2,7 +2,9 @@ package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentReturnedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.*;
@@ -251,10 +253,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
 
-    public void markAsReturned(List<Long> requestId) {
-
-    }
-
     @Override
     @Transactional
     public void deleteRequestsByIds(List<Long> requestIds) {
@@ -311,6 +309,42 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 .collect(Collectors.toList());
 
         return new EquipmentBorrowRequestDetailsDTO(request.getUniqueID(), detailDTOs);
+    }
+
+    @Transactional
+    public void returnEquipment(List<Long> equipmentBorrowRequestIds) throws BadRequestException {
+        if (equipmentBorrowRequestIds == null || equipmentBorrowRequestIds.isEmpty()) {
+            throw new IllegalArgumentException("request id list should not be null or empty");
+        }
+
+        List<EquipmentBorrowRequest> borrowRequests = requestRepository
+                .findAllById(equipmentBorrowRequestIds);
+
+        if (borrowRequests.isEmpty()) {
+            throw new ResourceNotFoundException("No borrow requests found", "EQUIPMENT-MODULE");
+        }
+
+        boolean hasInvalidStatus = borrowRequests.stream()
+                .anyMatch(request -> request.getStatus() != EquipmentBorrowRequest.Status.BORROWED);
+        if (hasInvalidStatus) {
+            throw new BadRequestException("Some requests are not in BORROWED status");
+        }
+
+        borrowRequests.forEach(request -> {
+//            boolean allReturned = request.getBorrowRequestDetails().stream()
+//                    .allMatch(detail -> detail.getReturnedQuantity() >= detail.getBorrowedQuantity());
+//
+//            if (allReturned) {
+//                request.setStatus(EquipmentBorrowRequest.Status.RETURNED);
+//            } else {
+//                request.setStatus(EquipmentBorrowRequest.Status.PARTIALLY_RETURNED);
+//            }
+            request.setStatus(EquipmentBorrowRequest.Status.RETURNED);
+        });
+
+        requestRepository.saveAll(borrowRequests);
+
+        eventPublisher.publishEvent(new EquipmentReturnedEvent(this, equipmentBorrowRequestIds));
     }
 
 }

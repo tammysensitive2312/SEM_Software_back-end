@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailsDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestSummaryDTO;
@@ -175,5 +178,42 @@ public class EquipmentBorrowRequestController {
     public ResponseEntity<Void> deleteRequests(@RequestBody List<Long> requestIds) {
         requestService.deleteRequestsByIds(requestIds);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Return borrowed equipment",
+            description = "Update status of multiple borrow requests to RETURNED. Only requests with BORROWED status can be processed."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Equipment returned successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No borrow requests found with provided IDs",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Some requests are not in BORROWED status",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            )
+    })
+    @PatchMapping("/return")
+    @ResponseStatus(HttpStatus.OK)
+    public void returnEquipment(
+            @Parameter(
+                    description = "List of borrow request IDs to be returned",
+                    required = true
+            )
+            @RequestBody @NotEmpty(message = "Request IDs list cannot be empty")
+            List<@NotNull(message = "Request ID cannot be null") Long> requestIds
+    ) throws BadRequestException {
+        requestService.returnEquipment(requestIds);
     }
 }
