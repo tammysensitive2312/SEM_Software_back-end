@@ -36,6 +36,32 @@ create table if not exists flyway_schema_history
 create index flyway_schema_history_s_idx
     on flyway_schema_history (success);
 
+create table if not exists notifications
+(
+    id         bigint auto_increment
+        primary key,
+    create_at  datetime(6)  null,
+    updated_at datetime(6)  null,
+    is_read    bit          not null,
+    message    varchar(255) null,
+    read_at    datetime(6)  null,
+    type       tinyint      null,
+    check (`type` between 0 and 2)
+);
+
+create table if not exists notification_recipients
+(
+    notification_id bigint not null,
+    recipient_id    bigint null,
+    constraint FKiuf5qgbttjq6ry57u1dni7qn4
+        foreign key (notification_id) references notifications (id)
+);
+
+create table if not exists refresh_token_seq
+(
+    next_val bigint null
+);
+
 create table if not exists rooms
 (
     unique_id bigint auto_increment
@@ -88,9 +114,9 @@ create table if not exists users
     create_at  datetime(6)  null,
     updated_at datetime(6)  null,
     password   varchar(255) not null,
-    role       varchar(255) not null,
-    username   varchar(20)  not null,
-    email      varchar(50)  not null unique
+    role       varchar(255) null,
+    username   varchar(255) not null,
+    email      varchar(255) not null
 );
 
 create table if not exists equipment_borrow_requests
@@ -131,33 +157,19 @@ create table if not exists borrow_detail_equipment
         foreign key (equipment_detail_id) references equipment_details (id)
 );
 
-create table if not exists return_requests
+create table if not exists refresh_token
 (
-    uniqueid               bigint auto_increment
+    id          bigint       not null
         primary key,
-    create_at              datetime(6) null,
-    updated_at             datetime(6) null,
-    comment                text        null,
-    condition_after_return varchar(50) null,
-    status                 varchar(20) null,
-    user_id                bigint      not null,
-    constraint FK6pd9hi2rbbct43io2pgcma1sh
+    expiry_date datetime(6)  not null,
+    token       varchar(255) not null,
+    user_id     bigint       null,
+    constraint UKf95ixxe7pa48ryn1awmh2evt7
+        unique (user_id),
+    constraint UKr4k4edos30bx9neoq81mdvwph
+        unique (token),
+    constraint FKjtx87i0jvq2svedphegvdwcuy
         foreign key (user_id) references users (id)
-);
-
-create table if not exists return_request_details
-(
-    unique_id                bigint auto_increment
-        primary key,
-    borrow_request_detail_id bigint      null,
-    condition_after_return   varchar(50) null,
-    quantity_returned        int         not null,
-    equipment_id             bigint      not null,
-    return_id                bigint      not null,
-    constraint FKikibhdm3p9jver0kicgshsnif
-        foreign key (equipment_id) references equipments (id),
-    constraint FKiv6uqog6hm6a0p4l2bockh2od
-        foreign key (return_id) references return_requests (uniqueid)
 );
 
 create table if not exists room_borrow_requests
@@ -169,8 +181,6 @@ create table if not exists room_borrow_requests
     comment    text        null,
     room_id    bigint      not null,
     user_id    bigint      not null,
-    constraint FKkiqgup85vl0jarthgvuci0xou
-        foreign key (room_id) references rooms (unique_id),
     constraint FKmtf2qobqi6d50r1ftw6fyjlej
         foreign key (user_id) references users (id)
 );
@@ -191,5 +201,19 @@ create table if not exists transactions_log
         foreign key (room_request_id) references room_borrow_requests (uniqueid),
     constraint FKoe6txnh5rpqdv3fecd0l6fx9p
         foreign key (equipment_request_id) references equipment_borrow_requests (uniqueid)
+);
+
+create table if not exists user_preference
+(
+    id                  bigint auto_increment
+        primary key,
+    email_notification  bit    not null,
+    in_app_notification bit    not null,
+    push_notification   bit    not null,
+    user_id             bigint null,
+    constraint UKs5oeayykfc7bpkpdwyrffwcqx
+        unique (user_id),
+    constraint FK7mgxw6j2m7uvuk3svr9vsar8p
+        foreign key (user_id) references users (id)
 );
 

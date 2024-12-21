@@ -1,0 +1,15 @@
+insert into sem_db.equipments (id, create_at, updated_at, broken_quantity, category, code, equipment_name, in_use_quantity, total_quantity, usable_quantity, version)
+values  (1, '2024-11-30 10:06:30.000000', '2024-12-16 08:23:00.473617', 0, 'INFORMATION_TECHNOLOGY_EQUIPMENT', 'LPT', 'Laptop', 3, 9, 9, 5),
+        (2, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'INFORMATION_TECHNOLOGY_EQUIPMENT', 'MNT', 'Màn Hình', 0, 3, 3, 1),
+        (3, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'INFORMATION_TECHNOLOGY_EQUIPMENT', 'PRJ', 'Máy Chiếu', 0, 2, 2, 1),
+        (4, '2024-11-30 10:06:30.000000', '2024-12-17 08:30:06.915614', 0, 'OFFICE_EQUIPMENT', 'PRN', 'Máy In', 2, 2, 2, 3),
+        (5, '2024-11-30 10:06:30.000000', '2024-12-21 21:27:01.968437', 0, 'OFFICE_EQUIPMENT', 'CAB', 'Tủ Hồ Sơ', 0, 3, 3, 2),
+        (6, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'OFFICE_EQUIPMENT', 'DSK', 'Bàn Làm Việc', 0, 3, 3, 1),
+        (7, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'TEACHING_EQUIPMENT', 'WBD', 'Bảng Trắng', 0, 2, 2, 1),
+        (8, '2024-11-30 10:06:30.000000', '2024-12-21 21:23:25.716034', 0, 'TEACHING_EQUIPMENT', 'MRO', 'Micro', 0, 2, 2, 3),
+        (9, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'ELECTRIC_EQUIPMENT', 'AIR', 'Máy Lạnh', 0, 2, 2, 1),
+        (10, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'ELECTRIC_EQUIPMENT', 'FAN', 'Quạt Điện', 0, 3, 3, 1),
+        (11, '2024-11-30 10:06:30.000000', '2024-12-17 08:27:52.662353', 0, 'LABORATORY_EQUIPMENT', 'MIC', 'Kính Hiển Vi', 1, 2, 2, 2),
+        (12, '2024-11-30 10:06:30.000000', '2024-12-21 21:23:25.686231', 0, 'LABORATORY_EQUIPMENT', 'BSC', 'Cân Kỹ Thuật', 0, 1, 1, 2),
+        (13, '2024-11-30 10:06:30.000000', '2024-11-30 10:06:30.000000', 0, 'SPORTS_EQUIPMENT', 'BBL', 'Bóng Rổ', 0, 2, 2, 1),
+        (14, '2024-11-30 10:06:30.000000', '2024-12-21 21:23:25.639758', 0, 'SPORTS_EQUIPMENT', 'FTB', 'Bóng Đá', 0, 2, 2, 2);
