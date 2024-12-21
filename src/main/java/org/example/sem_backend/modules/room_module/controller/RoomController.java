@@ -17,7 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -79,7 +81,7 @@ public class RoomController {
     })
     public ResponseEntity<String> updateRoom(
             @RequestBody RoomRequest roomRequest,
-            @Parameter(description = "ID of the room to update", required = true) @PathVariable int id) {
+            @Parameter(description = "ID of the room to update", required = true) @PathVariable Integer id) {
         roomService.updateRoom(roomRequest, id);
         return ResponseEntity.ok("Room updated successfully");
     }
@@ -95,15 +97,6 @@ public class RoomController {
         roomService.addRoom(roomRequest);
         return ResponseEntity.ok("Room added successfully");
     }
-
-    @Operation(summary = "Update a room",
-            description = "Update an existing room with new details")
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRoom(@Valid @RequestBody RoomRequest roomRequest, @PathVariable Integer id) {
-        roomService.updateRoom(roomRequest, id);
-        return ResponseEntity.ok("Room updated successfully");
-    }
-
 
     @Operation(summary = "Filter rooms by type and status", description = "Retrieve a paginated list of rooms filtered by type and/or status")
     @ApiResponses(value = {
@@ -133,4 +126,33 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
+    @Operation(
+            summary = "Update room status",
+            description = "Updates the status of a specific room. If status is changed to BROKEN, it will trigger an event."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Room status updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Room not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            )
+    })
+    @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateRoomStatus(
+            @Parameter(description = "Room ID", required = true)
+            @PathVariable long id,
+
+            @Parameter(description = "New room status", required = true)
+            @RequestBody @Valid RoomStatus request
+    ) {
+        roomService.changeRoomStatus(request, id);
+    }
 }

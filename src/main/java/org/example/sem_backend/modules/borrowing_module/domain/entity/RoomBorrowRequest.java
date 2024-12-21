@@ -1,7 +1,5 @@
 package org.example.sem_backend.modules.borrowing_module.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.base.CommonRequest;
@@ -20,7 +18,7 @@ public class RoomBorrowRequest extends CommonRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 }

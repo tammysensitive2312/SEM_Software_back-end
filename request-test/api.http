@@ -59,3 +59,32 @@ Content-Type: application/json
   "startTime": "2024-11-15T10:00:00",
   "endTime": "2024-11-15T12:00:00"
 }
+
+###
+
+POST http://localhost:8080/api/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "dinhtruong1234lhp@gmail.com",
+  "password": "yeutruong"
+}
+
+###
+
+
+
+###
+
+GET http://localhost:8080/api/v1/notifications/allMessage?page=0&size=10
+Cookie: auth-token=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkaW5odHJ1b25nMTIzNGxocEBnbWFpbC5jb20iLCJlbWFpbCI6InR1eWVuIiwidXNlcklkIjozLCJpYXQiOjE3MzQ0Mjg3OTEsImV4cCI6MTczNDQzMjM5MX0.1mEfSAXrXXo8csEHguDfuSnckQNQs48zvyJ60IXBtb413n5Uqa_Sn9dXnNqCm0nvqVol8MCyfs7BC1Hlz-hXPQ
+
+###
+
+POST http://localhost:8080/api/v1/notifications/18/read
+Cookie: auth-token=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkaW5odHJ1b25nMTIzNGxocEBnbWFpbC5jb20iLCJlbWFpbCI6InR1eWVuIiwidXNlcklkIjozLCJpYXQiOjE3MzQ0Mjg3OTEsImV4cCI6MTczNDQzMjM5MX0.1mEfSAXrXXo8csEHguDfuSnckQNQs48zvyJ60IXBtb413n5Uqa_Sn9dXnNqCm0nvqVol8MCyfs7BC1Hlz-hXPQ
+
+###
+
+GET http://localhost:8080/api/v1/notifications/unread
+Cookie: auth-token=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkaW5odHJ1b25nMTIzNGxocEBnbWFpbC5jb20iLCJlbWFpbCI6InR1eWVuIiwidXNlcklkIjozLCJpYXQiOjE3MzQ0Mjg3OTEsImV4cCI6MTczNDQzMjM5MX0.1mEfSAXrXXo8csEHguDfuSnckQNQs48zvyJ60IXBtb413n5Uqa_Sn9dXnNqCm0nvqVol8MCyfs7BC1Hlz-hXPQ

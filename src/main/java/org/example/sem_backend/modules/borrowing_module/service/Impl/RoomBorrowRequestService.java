@@ -14,9 +14,9 @@ import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowReq
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
-import org.example.sem_backend.modules.room_module.domain.entity.RoomSchedule;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
-import org.example.sem_backend.modules.room_module.repository.RoomScheduleRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -86,7 +86,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         try {
             RoomSchedule schedule = new RoomSchedule();
             schedule.setRoom(room);
-            schedule.setUser(user.getUsername());
+            schedule.setUser(user.getEmail());
             schedule.setStartTime(requestDto.getStartTime());
             schedule.setEndTime(requestDto.getEndTime());
 
@@ -110,7 +110,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
 
         log.info("Successfully processed room booking - Room ID: {}, User: {}, Time: {} to {}",
                 requestDto.getRoomId(),
-                user.getUsername(),
+                user.getEmail(),
                 requestDto.getStartTime(),
                 requestDto.getEndTime()
         );
@@ -229,8 +229,8 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      *
      * @return A paginated list of room borrow requests for administrative use.
      */
-    public Page<GetRoomRequestDTO> getAdminRequests(String username, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+    public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
         return roomBorrowRequestRepository.
-                findRequestsWithSchedules(null, username, startTime, endTime, pageable);
+                findRequestsWithSchedules(null, email, startTime, endTime, pageable);
     }
 }
