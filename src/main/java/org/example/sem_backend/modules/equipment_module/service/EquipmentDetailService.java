@@ -22,7 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,25 +42,31 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         Equipment existingEquipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
 
-        long count = equipmentDetailRepository.countByEquipment(existingEquipment);
+        EquipmentDetail equipmentDetail = createEquipmentDetail(request, existingEquipment, room);
 
-        // Sinh số sê-ri: mã code nối với số thứ tự
+        equipmentDetailRepository.save(equipmentDetail);
+
+        existingEquipment.incrementQuantity();
+        equipmentRepository.save(existingEquipment);
+    }
+
+    private EquipmentDetail createEquipmentDetail(EquipmentDetailRequest request, Equipment existingEquipment, Room room) {
+        // Kiểm tra và sinh số sê-ri
+        long count = equipmentDetailRepository.countByEquipment(existingEquipment);
         String serialNumber = existingEquipment.getCode() + "-" + (count + 1);
 
         if (equipmentDetailRepository.existsBySerialNumber(serialNumber)) {
             throw new ResourceConflictException("Serial number " + serialNumber + " already exists", "EQUIPMENT-DETAIL-MODULE");
         }
 
+        // Chuyển đổi EquipmentDetailRequest thành entity và thiết lập các thuộc tính
         EquipmentDetail equipmentDetail = equipmentDetailMapper.toEntity(request);
         equipmentDetail.setStatus(EquipmentDetailStatus.USABLE);
         equipmentDetail.setSerialNumber(serialNumber);
         equipmentDetail.setEquipment(existingEquipment);
         equipmentDetail.setRoom(room);
 
-        equipmentDetailRepository.save(equipmentDetail);
-
-        existingEquipment.incrementQuantity();
-        equipmentRepository.save(existingEquipment);
+        return equipmentDetail;
     }
 
     @Override
@@ -169,4 +175,62 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         // Lưu cập nhật vào thiết bị
         equipmentRepository.save(equipment);
     }
+
+    @Override
+    @Transactional
+    public void addListEquipmentDetail(List<EquipmentDetailRequest> requests) {
+        // initialize a set of id that needs to be checked for existence
+        Set<Long> roomIds = requests.stream().map(EquipmentDetailRequest::getRoomId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<Long> equipmentIds = requests.stream().map(EquipmentDetailRequest::getEquipmentId).collect(Collectors.toSet());
+
+        Map<Long, Room> rooms = roomRepository.findAllById(roomIds).stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Room::getUniqueId, room -> room));
+        if (rooms.size() != roomIds.size()) {
+            throw new ResourceNotFoundException("One or more rooms not found", "EQUIPMENT-DETAIL-MODULE");
+        }
+
+        Map<Long, Equipment> equipmentMap = equipmentRepository.findAllById(equipmentIds).stream()
+                .collect(Collectors.toMap(Equipment::getId, equipment -> equipment));
+        if (equipmentMap.size() != equipmentIds.size()) {
+            throw new ResourceNotFoundException("One or more equipments not found", "EQUIPMENT-DETAIL-MODULE");
+        }
+
+        List<EquipmentDetail> detailList = new ArrayList<>();
+        Map<Equipment, Long> equipmentSerialCounts = new HashMap<>();
+
+        for (EquipmentDetailRequest request : requests) {
+            Equipment existingEquipment = equipmentMap.get(request.getEquipmentId());
+            Room room = rooms.get(request.getRoomId());
+
+            // compute serial number of each equipment detail
+            long count = equipmentSerialCounts.compute(existingEquipment, (equipment, currentCount) -> {
+                if (currentCount == null) {
+                    currentCount = equipmentDetailRepository.countByEquipment(equipment);
+                }
+                return currentCount + 1;
+            });
+
+            // Create a unique serial number for the device
+            String serialNumber = existingEquipment.getCode() + "-" + count;
+
+            // Map EquipmentDetailRequest to entity
+            EquipmentDetail equipmentDetail = equipmentDetailMapper.toEntity(request);
+            equipmentDetail.setStatus(EquipmentDetailStatus.USABLE);
+            equipmentDetail.setSerialNumber(serialNumber);
+            equipmentDetail.setEquipment(existingEquipment);
+            equipmentDetail.setRoom(room);
+
+            detailList.add(equipmentDetail);
+        }
+
+        equipmentDetailRepository.saveAllAndFlush(detailList);
+
+        // Update equipment's quantity in table Equipment
+        for (Equipment existingEquipment : equipmentMap.values()) {
+            existingEquipment.incrementQuantity(requests.size());
+            equipmentRepository.save(existingEquipment);
+        }
+    }
+
 }

@@ -1,11 +1,13 @@
 package org.example.sem_backend.modules.equipment_module.repository;
 
+import jakarta.persistence.QueryHint;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +22,17 @@ import java.util.List;
 public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail, Long> {
     Page<EquipmentDetail> findAllByOrderByRoomAsc(Pageable pageable);
 
-    @Query("SELECT ed FROM equipment_details ed WHERE ed.serialNumber IN :serialNumbers")
-    List<EquipmentDetail> findBySerialNumber(@Param("serialNumbers") List<String> serialNumbers);
-
-    @Query("SELECT ed FROM equipment_details ed WHERE ed.equipment.id = :equipmentId AND ed.status = 'USABLE'")
+    @Query("SELECT DISTINCT ed FROM equipment_details ed " +
+            "JOIN fetch ed.equipment e " +
+            "WHERE e.id = :equipmentId AND ed.status = 'USABLE'")
+    @QueryHints({
+            @QueryHint(name = "org.hibernate.timeout", value = "3"),
+            @QueryHint(name = "org.hibernate.readOnly", value = "true"),
+            @QueryHint(name="org.hibernate.fetchSize", value = "50"),
+            @QueryHint(name ="org.hibernate.cacheable", value = "true"),
+            @QueryHint(name ="jakarta.persistence.cache.retrieveMode", value = "USE"),
+            @QueryHint(name ="jakarta.persistence.cache.storeMode", value = "USE")
+    })
     List<EquipmentDetail> findAvailableByEquipmentId(@Param("equipmentId") Long equipmentId, Pageable pageable);
 
     Page<EquipmentDetail> findByEquipmentId(Long equipmentId, Pageable pageable);

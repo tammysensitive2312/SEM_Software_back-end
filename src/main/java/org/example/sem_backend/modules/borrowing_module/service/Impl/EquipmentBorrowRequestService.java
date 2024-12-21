@@ -68,7 +68,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     @Override
     @Transactional
     public void processRequest(EquipmentBorrowRequestDTO requestDto) {
-        System.out.println("Input dto : " + requestDto.toString());
+//        System.out.println("Input dto : " + requestDto.toString());
 
         if (requestDto.getEquipmentItems() == null || requestDto.getEquipmentItems().isEmpty()) {
             throw new IllegalArgumentException("Equipment items cannot be null or empty");
@@ -158,11 +158,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     }
 
 
-
-    /**
-     * @param requestDto
-     * @return
-     */
     @Override
     public void updateRequest(EquipmentBorrowRequestDTO requestDto) {
         EquipmentBorrowRequest borrowRequest = requestRepository.findById(requestDto.getUniqueID())
@@ -230,7 +225,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      */
     @Transactional
     public void approveRequest(Long requestId) {
-        // Tìm kiếm đơn mượn
         EquipmentBorrowRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found", "BORROWING_MODULE"));
 
@@ -248,7 +242,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getEquipmentName(), "");
             }
 
-            // Gán các thiết bị cụ thể
             detail.getEquipmentDetails().addAll(availableDetails);
 //            detailRepository.save(detail);
         }
@@ -256,6 +249,10 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         requestRepository.save(request);
 
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
+    }
+
+    public void markAsReturned(List<Long> requestId) {
+
     }
 
     @Override

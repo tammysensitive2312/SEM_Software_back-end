@@ -88,8 +88,9 @@ create table if not exists users
     create_at  datetime(6)  null,
     updated_at datetime(6)  null,
     password   varchar(255) not null,
-    role       varchar(255) null,
-    username   varchar(20)  not null
+    role       varchar(255) not null,
+    username   varchar(20)  not null,
+    email      varchar(50)  not null unique
 );
 
 create table if not exists equipment_borrow_requests
@@ -168,8 +169,6 @@ create table if not exists room_borrow_requests
     comment    text        null,
     room_id    bigint      not null,
     user_id    bigint      not null,
-    constraint UKj8okfu0ofmqq97vlko0iqdc1m
-        unique (room_id),
     constraint FKkiqgup85vl0jarthgvuci0xou
         foreign key (room_id) references rooms (unique_id),
     constraint FKmtf2qobqi6d50r1ftw6fyjlej

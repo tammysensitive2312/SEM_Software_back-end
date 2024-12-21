@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/equipment-detail")
+@Tag(name = "Equipment Detail Controller", description = "APIs for handling manage EquipmentDetail")
 public class EquipmentDetailController {
     private final EquipmentDetailService equipmentDetailService;
 
@@ -54,6 +56,19 @@ public class EquipmentDetailController {
     public ResponseEntity<String> addEquipmentDetail(@RequestBody EquipmentDetailRequest request) {
         equipmentDetailService.addEquipmentDetail(request);
         return ResponseEntity.ok("Equipment detail added successfully");
+    }
+
+    @Operation(summary = "Add a list of new equipment detail",
+            description = "Add a list of new equipment detail item to the system with specified details.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Equipment detail added successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/add-list")
+    public ResponseEntity<String> addListEquipmentDetail(@RequestBody List<EquipmentDetailRequest> requests) {
+        equipmentDetailService.addListEquipmentDetail(requests);
+        return ResponseEntity.ok("List Equipment detail added successfully");
     }
 
     @Operation(summary = "Update equipment detail",

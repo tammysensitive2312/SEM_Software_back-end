@@ -43,4 +43,9 @@ public class Equipment extends BaseEntity {
         this.totalQuantity++;
         this.usableQuantity++;
     }
+
+    public void incrementQuantity(int value) {
+        this.totalQuantity += value;
+        this.usableQuantity += value;
+    }
 }

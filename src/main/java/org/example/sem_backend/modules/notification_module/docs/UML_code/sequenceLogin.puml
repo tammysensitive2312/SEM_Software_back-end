@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+Client -> Server : <b>1.</b> POST:/api/auth/sign-in
+Server -> Client : <b>2.</b> cookies + UserInfo
+
+par
+Client -> Server : <b>3.1.</b> GET:/api/v1/notifications/subscribe
+Client -> Server : <b>3.2.</b> GET:api/v1/notifications/unread
+end
+
+Server -> Client : <b>4</b> response data
+Client -> Client : <b>5</b> render data
+@enduml
