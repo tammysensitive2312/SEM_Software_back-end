@@ -1,29 +1,54 @@
-FROM openjdk:21-bullseye
+# Build stage
+FROM maven:3.8.3-slim AS builder
 
-RUN apt-get update && apt-get install -y maven make entr
+# Cài đặt flyway plugin trong builder stage
+RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
 
-RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+# Development stage
+FROM eclipse-temurin:21-jre-jammy
 
-ENV SHELL /bin/bash
+# Cài đặt các package cần thiết cho development
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    make \
+    entr \
+    git \
+    curl \
+    wget \
+    vim \
+    maven && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
+# Tạo non-root user
 RUN useradd -ms /bin/bash developer
 
+# Tạo và set quyền cho workspace
 RUN mkdir -p /workspace && \
     chown -R developer:developer /workspace
 
-RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
+# Copy maven dependencies từ builder stage
+COPY --from=builder /root/.m2 /home/developer/.m2
 
+# Set workspace
 WORKDIR /workspace
 
-#COPY script.sh /workspace/script.sh
+# Set environment variables
+ENV SHELL=/bin/bash \
+    JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-# Cấp quyền đúng cho script
-#RUN chown developer:developer /workspace/script.sh && \
-#    chmod +x /workspace/script.sh
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Chuyển sang user không phải root
+# Switch to non-root user
 USER developer
 
-#RUN sed -i 's/\r$//' /workspace/script.sh
-# Đặt entry point
-ENTRYPOINT ["/bin/bash"]
+# Mount points cho source code và maven dependencies
+VOLUME ["/workspace", "/home/developer/.m2"]
+
+# Expose ports cho development
+EXPOSE 8080
+
+# Set entry point
+ENTRYPOINT ["tail", "-f", "/dev/null"]

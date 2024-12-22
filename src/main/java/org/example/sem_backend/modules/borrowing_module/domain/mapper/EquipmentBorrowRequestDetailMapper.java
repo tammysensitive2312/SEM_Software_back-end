@@ -1,14 +1,11 @@
 package org.example.sem_backend.modules.borrowing_module.domain.mapper;
 
-import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowItemDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailsDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
-import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
-import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

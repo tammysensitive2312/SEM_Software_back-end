@@ -23,6 +23,7 @@ public class EquipmentBorrowRequest extends CommonRequest {
     }
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User user;
 
     @Column(name = "expected_return_date")
@@ -33,5 +34,6 @@ public class EquipmentBorrowRequest extends CommonRequest {
     private Status status;
 
     @OneToMany(mappedBy = "borrowRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<EquipmentBorrowRequestDetail> borrowRequestDetails = new ArrayList<>();
 }

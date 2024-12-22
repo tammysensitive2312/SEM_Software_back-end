@@ -2,7 +2,9 @@ package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentReturnedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.*;
@@ -13,6 +15,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.entity.Transactio
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestDetailMapper;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestMapper;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestSpecification;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
@@ -25,6 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +72,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     @Override
     @Transactional
     public void processRequest(EquipmentBorrowRequestDTO requestDto) {
-        System.out.println("Input dto : " + requestDto.toString());
+//        System.out.println("Input dto : " + requestDto.toString());
 
         if (requestDto.getEquipmentItems() == null || requestDto.getEquipmentItems().isEmpty()) {
             throw new IllegalArgumentException("Equipment items cannot be null or empty");
@@ -158,11 +162,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     }
 
 
-
-    /**
-     * @param requestDto
-     * @return
-     */
     @Override
     public void updateRequest(EquipmentBorrowRequestDTO requestDto) {
         EquipmentBorrowRequest borrowRequest = requestRepository.findById(requestDto.getUniqueID())
@@ -230,7 +229,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      */
     @Transactional
     public void approveRequest(Long requestId) {
-        // Tìm kiếm đơn mượn
         EquipmentBorrowRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found", "BORROWING_MODULE"));
 
@@ -248,7 +246,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 throw new ResourceConflictException("Not enough available equipment for: " + detail.getEquipment().getEquipmentName(), "");
             }
 
-            // Gán các thiết bị cụ thể
             detail.getEquipmentDetails().addAll(availableDetails);
 //            detailRepository.save(detail);
         }
@@ -291,6 +288,32 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
 
+    public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
+        Specification<EquipmentBorrowRequest> spec = Specification.where(null);
+
+        if (filterDTO.getUserId() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.hasUserId(filterDTO.getUserId()));
+        }
+
+        if (filterDTO.getStatuses() != null && !filterDTO.getStatuses().isEmpty()) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.hasStatuses(filterDTO.getStatuses()));
+        }
+
+        if (filterDTO.getExpectedReturnDateBefore() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.expectedReturnDateBefore(filterDTO.getExpectedReturnDateBefore()));
+        }
+
+        if (filterDTO.getExpectedReturnDateAfter() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.expectedReturnDateAfter(filterDTO.getExpectedReturnDateAfter()));
+        }
+
+        if (filterDTO.getUsername() != null && !filterDTO.getUsername().isEmpty()) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.userUsernameContains(filterDTO.getUsername()));
+        }
+
+        Page<EquipmentBorrowRequest> requests = requestRepository.findAll(spec, pageable);
+        return requests.map(requestMapper::toSummaryDto);
+    }
 
     public Page<EquipmentBorrowRequestSummaryDTO> getAllRequests(String filter, Pageable pageable) {
         Page<EquipmentBorrowRequest> requests;
@@ -314,6 +337,42 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 .collect(Collectors.toList());
 
         return new EquipmentBorrowRequestDetailsDTO(request.getUniqueID(), detailDTOs);
+    }
+
+    @Transactional
+    public void returnEquipment(List<Long> equipmentBorrowRequestIds) throws BadRequestException {
+        if (equipmentBorrowRequestIds == null || equipmentBorrowRequestIds.isEmpty()) {
+            throw new IllegalArgumentException("request id list should not be null or empty");
+        }
+
+        List<EquipmentBorrowRequest> borrowRequests = requestRepository
+                .findAllById(equipmentBorrowRequestIds);
+
+        if (borrowRequests.isEmpty()) {
+            throw new ResourceNotFoundException("No borrow requests found", "EQUIPMENT-MODULE");
+        }
+
+        boolean hasInvalidStatus = borrowRequests.stream()
+                .anyMatch(request -> request.getStatus() != EquipmentBorrowRequest.Status.BORROWED);
+        if (hasInvalidStatus) {
+            throw new BadRequestException("Some requests are not in BORROWED status");
+        }
+
+        borrowRequests.forEach(request -> {
+//            boolean allReturned = request.getBorrowRequestDetails().stream()
+//                    .allMatch(detail -> detail.getReturnedQuantity() >= detail.getBorrowedQuantity());
+//
+//            if (allReturned) {
+//                request.setStatus(EquipmentBorrowRequest.Status.RETURNED);
+//            } else {
+//                request.setStatus(EquipmentBorrowRequest.Status.PARTIALLY_RETURNED);
+//            }
+            request.setStatus(EquipmentBorrowRequest.Status.RETURNED);
+        });
+
+        requestRepository.saveAll(borrowRequests);
+
+        eventPublisher.publishEvent(new EquipmentReturnedEvent(this, equipmentBorrowRequestIds));
     }
 
 }

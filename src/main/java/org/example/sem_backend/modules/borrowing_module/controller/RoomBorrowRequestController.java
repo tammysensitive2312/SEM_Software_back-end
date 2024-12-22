@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.RoomBorrowRequestDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -117,12 +116,12 @@ public class RoomBorrowRequestController {
     )
     @GetMapping("/admin-request")
     public ResponseEntity<Page<GetRoomRequestDTO>> getAdminRequests(
-            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             Pageable pageable
     ) {
-        Page<GetRoomRequestDTO> requests = service.getAdminRequests(username, startTime, endTime, pageable);
+        Page<GetRoomRequestDTO> requests = service.getAdminRequests(email, startTime, endTime, pageable);
         return ResponseEntity.ok(requests);
     }
 }

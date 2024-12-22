@@ -1,11 +1,9 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
 	"name": "Spring Boot Development",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"dockerComposeFile": "../../docker-compose.yaml",
 	"service": "devcontainer",
-	workspaceFolder: "/workspace",
+	"workspaceFolder": "/workspace",
+
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
 			"version": "21",
@@ -14,13 +12,6 @@
 		}
 	},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "java -version",
-
-	// Configure tool-specific properties.
 	"customizations": {
 		"jetbrains": {
 			"backend": "intellij"
@@ -28,17 +19,39 @@
 		"vscode": {
 			"extensions": [
 				"vscjava.vscode-java-pack",
+				"vmware.vscode-spring-boot",
 				"pivotal.vscode-spring-boot",
+				"vscjava.vscode-spring-initializr",
+				"vscjava.vscode-spring-boot-dashboard",
+				"redhat.java",
 				"redhat.vscode-xml",
-				"vscjava.vscode-spring-boot-dashboard"
-			]
+				"vscjava.vscode-maven"
+			],
+			"settings": {
+				"java.configuration.updateBuildConfiguration": "automatic",
+				"java.server.launchMode": "Standard",
+				"java.compile.nullAnalysis.mode": "automatic",
+				"java.debug.settings.hotCodeReplace": "auto"
+			}
 		}
 	},
 
+	"mounts": [
+		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.m2,target=/home/developer/.m2,type=bind,consistency=cached"
+	],
+
 	"forwardPorts": [8080, 3306],
-	"postCreateCommand": "mvn dependency:go-offline",
-	"postStartCommand": "/workspace/script.sh",
-	//"remoteUser": "vscode"
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root"
+
+	"postCreateCommand": "mvn dependency:go-offline && mvn install -DskipTests",
+//	"postStartCommand": "/workspace/script.sh",
+
+	// Chuyển sang user developer thay vì root để tăng tính bảo mật
+	"remoteUser": "developer",
+
+	// Thêm healthcheck
+	"overrideCommand": true,
+	"initializeCommand": {
+		"check-health": "curl -f http://localhost:8080/actuator/health || exit 0"
+	}
 }

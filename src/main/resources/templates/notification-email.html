@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Báo Mới</title>
+    <style>
+        /* Thêm CSS tùy chỉnh tại đây */
+        body {
+            font-family: 'Roboto', Arial, sans-serif; /* Sử dụng Roboto, nếu không có thì Arial */
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+        }
+    </style>
+    <!-- Thêm liên kết đến Google Fonts nếu sử dụng Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+<!--        <img src="đường-dẫn-đến-logo.png" alt="Logo" class="header-logo">-->
+        <h2>Thông báo mới từ SEM</h2>
+    </div>
+    <div class="content">
+        <p>Xin chào <strong th:text="${userName}"></strong>,</p>
+        <p th:text="${message}"></p>
+    </div>
+    <div class="footer">
+        <p>© 2024 SEM. Bảo lưu mọi quyền.</p>
+    </div>
+</div>
+</body>
+</html>

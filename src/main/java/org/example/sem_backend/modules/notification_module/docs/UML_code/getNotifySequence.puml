@@ -1,0 +1,44 @@
+@startuml
+actor "Admin" as A
+actor "User" as U
+participant "Order/Borrowing Service" as BS
+participant "ApplicationEventPublisher" as AEP
+participant "NotificationService" as NS
+participant "NotificationRepository" as NR
+participant "Client (Frontend)" as FE
+participant "AuthAPI" as Auth
+participant "NotificationAPI" as NAPI
+
+== Admin approves request ==
+A -> BS: POST /api/borrowing-requests/{requestId}/approve
+BS -> AEP: publish EquipmentBorrowedEvent(requestId, userId)
+
+== NotificationService creates notification ==
+AEP -> NS: EquipmentBorrowedEvent(requestId, userId)
+NS -> NR: save(Notification with recipients = {userId}, read=false)
+NR --> NS: saved Notification
+
+== User not in app at that time ==
+note right of NS
+User not connected via SSE at this time.
+Notification is stored in DB.
+end note
+
+== Later, user logs in ==
+U -> Auth: POST /api/auth/login (username, password)
+Auth --> U: returns JWT token
+
+== User calls to get unread notifications ==
+U -> FE: Open App with JWT token
+FE -> NAPI: GET /api/notifications/unread (Authorization: Bearer <token>)
+NAPI -> NS: getUnreadNotifications(userId)
+NS -> NR: findByRecipientsContainingAndIsReadFalse(userId)
+NR --> NS: List<unread Notifications>
+NS --> NAPI: return List<unread Notifications>
+NAPI --> FE: JSON list of unread notifications
+
+== FE renders notifications ==
+FE -> FE: renderNotifications(unreadList)
+FE -> U: Display notifications on screen
+
+@enduml
