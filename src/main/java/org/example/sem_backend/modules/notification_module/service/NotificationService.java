@@ -77,11 +77,15 @@ public class NotificationService {
     }
 
     private void createAndSendNotification(List<Long> userIds, String message, boolean needSave) {
+        if (userIds == null || userIds.isEmpty()) {
+            throw new IllegalArgumentException("userIds cannot be null or empty");
+        }
+
         Notification notification = new Notification();
         notification.setMessage(message);
         notification.setType(NotificationType.IN_APP);
         notification.setRead(false);
-        notification.setRecipients(new HashSet<>(userIds)); // Thêm tất cả userIds vào recipients
+        notification.setRecipients(new HashSet<>(userIds));
 
         if (needSave) {
             notificationRepository.save(notification);
@@ -97,11 +101,9 @@ public class NotificationService {
     @Async
     @Transactional
     public CompletableFuture<Void> sendNotificationToAdminUser(NotificationRequest request) {
-        return CompletableFuture.runAsync(() -> {
-            sendMessage(() ->
-                            userRepository.findIdByRole(ERole.ROLE_ADMIN),
-                            request.getMessage());
-        });
+        return CompletableFuture.runAsync(() -> sendMessage(() ->
+                        userRepository.findIdByRole(ERole.ROLE_ADMIN),
+                        request.getMessage()));
     }
 
 

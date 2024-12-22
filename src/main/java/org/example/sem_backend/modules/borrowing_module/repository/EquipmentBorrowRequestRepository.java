@@ -5,6 +5,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentB
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface EquipmentBorrowRequestRepository extends JpaRepository<EquipmentBorrowRequest, Long> {
+public interface EquipmentBorrowRequestRepository extends JpaRepository<EquipmentBorrowRequest, Long>, JpaSpecificationExecutor<EquipmentBorrowRequest> {
     @Query("SELECT COUNT(r) > 0 FROM EquipmentBorrowRequest r " +
             "WHERE r.user.id = :userId " +
             "AND r.status IN :statuses " +

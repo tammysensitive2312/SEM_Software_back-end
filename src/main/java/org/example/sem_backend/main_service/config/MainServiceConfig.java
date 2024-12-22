@@ -1,10 +1,17 @@
 package org.example.sem_backend.main_service.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templateresolver.ITemplateResolver;
+
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 @Configuration
@@ -22,4 +29,11 @@ public class MainServiceConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
+
+//    @Bean
+//    public TemplateEngine templateEngine(List<ITemplateResolver> templateResolvers) {
+//        SpringTemplateEngine engine = new SpringTemplateEngine();
+//        engine.setTemplateResolvers(new LinkedHashSet<>(templateResolvers));
+//        return engine;
+//    }
 }

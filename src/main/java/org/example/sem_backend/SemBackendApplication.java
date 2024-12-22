@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 public class SemBackendApplication {
 
     @Configuration
-    public class RestTemplateConfig {
+    public static class RestTemplateConfig {
 
         @Bean
         public RestTemplate restTemplate() {

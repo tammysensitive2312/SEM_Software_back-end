@@ -15,6 +15,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.entity.Transactio
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestDetailMapper;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestMapper;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestSpecification;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
@@ -27,6 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -286,6 +288,32 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
 
+    public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
+        Specification<EquipmentBorrowRequest> spec = Specification.where(null);
+
+        if (filterDTO.getUserId() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.hasUserId(filterDTO.getUserId()));
+        }
+
+        if (filterDTO.getStatuses() != null && !filterDTO.getStatuses().isEmpty()) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.hasStatuses(filterDTO.getStatuses()));
+        }
+
+        if (filterDTO.getExpectedReturnDateBefore() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.expectedReturnDateBefore(filterDTO.getExpectedReturnDateBefore()));
+        }
+
+        if (filterDTO.getExpectedReturnDateAfter() != null) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.expectedReturnDateAfter(filterDTO.getExpectedReturnDateAfter()));
+        }
+
+        if (filterDTO.getUsername() != null && !filterDTO.getUsername().isEmpty()) {
+            spec = spec.and(EquipmentBorrowRequestSpecification.userUsernameContains(filterDTO.getUsername()));
+        }
+
+        Page<EquipmentBorrowRequest> requests = requestRepository.findAll(spec, pageable);
+        return requests.map(requestMapper::toSummaryDto);
+    }
 
     public Page<EquipmentBorrowRequestSummaryDTO> getAllRequests(String filter, Pageable pageable) {
         Page<EquipmentBorrowRequest> requests;

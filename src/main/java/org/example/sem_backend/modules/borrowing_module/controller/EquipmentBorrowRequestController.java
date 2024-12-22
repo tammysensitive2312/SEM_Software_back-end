@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailsDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestFilterDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestSummaryDTO;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.EquipmentBorrowRequestService;
 import org.springframework.data.domain.Page;
@@ -117,6 +118,34 @@ public class EquipmentBorrowRequestController {
             Pageable pageable
     ) {
         Page<EquipmentBorrowRequestSummaryDTO> requests = requestService.getAllRequests(filter, pageable);
+        return ResponseEntity.ok(requests);
+    }
+
+    @Operation(
+            summary = "API để lọc các đơn mượn theo nhiều tiêu chí",
+            description = "Trả về danh sách các đơn mượn thiết bị. Có thể lọc theo nhiều loại như tên, id user, thời gian, trạng thái"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Danh sách đơn mượn thiết bị trả về thành công",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = EquipmentBorrowRequestSummaryDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Yêu cầu không hợp lệ",
+                    content = @Content
+            )
+    })
+    @GetMapping("/filter")
+    public ResponseEntity<Page<EquipmentBorrowRequestSummaryDTO>> filterEquipmentBorrowRequests(
+            EquipmentBorrowRequestFilterDTO filterDTO,
+            Pageable pageable
+    ) {
+        Page<EquipmentBorrowRequestSummaryDTO> requests = requestService.getFilteredRequests(filterDTO, pageable);
         return ResponseEntity.ok(requests);
     }
 
