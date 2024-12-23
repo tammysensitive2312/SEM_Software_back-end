@@ -10,8 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
 import org.example.sem_backend.modules.room_module.domain.dto.response.RoomResponse;
-import org.example.sem_backend.modules.room_module.enums.RoomStatus;
-import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.service.RoomService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,9 +18,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -96,31 +93,20 @@ public class RoomController {
         return ResponseEntity.ok("Room added successfully");
     }
 
-    @Operation(summary = "Filter rooms by type and status", description = "Retrieve a paginated list of rooms filtered by type and/or status")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of rooms"),
-            @ApiResponse(responseCode = "400", description = "Invalid filter parameters")
-    })
-    @GetMapping("/filter")
-    public ResponseEntity<Page<RoomResponse>> filterRooms(
-            @Parameter(description = "Type of room to filter") @RequestParam(required = false) RoomType type,
-            @Parameter(description = "Status of room to filter") @RequestParam(required = false) RoomStatus status,
-            @Parameter(description = "Page number for pagination", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size for pagination", example = "12") @RequestParam(defaultValue = "12") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<RoomResponse> rooms = roomService.filterRoomsByTypeAndStatus(type, status, pageable);
-        return ResponseEntity.ok(rooms);
-    }
-
-    @GetMapping("/search")
-    @Operation(summary = "Search rooms by keyword", description = "Retrieve a list of rooms matching the given keyword")
+    @Operation(summary = "Search rooms by keyword, type, status", description = "Retrieve a list of rooms matching the given keyword, type, and status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of rooms"),
             @ApiResponse(responseCode = "400", description = "Invalid search keyword")
     })
-    public ResponseEntity<List<RoomResponse>> searchRoom(
-            @Parameter(description = "Keyword to search for") @RequestParam String keyword) {
-        List<RoomResponse> rooms = roomService.searchRoom(keyword);
+    @GetMapping("/search")
+    public ResponseEntity<Page<RoomResponse>> searchRoom(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RoomResponse> rooms = roomService.searchRoom(type, status, keyword, pageable);
         return ResponseEntity.ok(rooms);
     }
 

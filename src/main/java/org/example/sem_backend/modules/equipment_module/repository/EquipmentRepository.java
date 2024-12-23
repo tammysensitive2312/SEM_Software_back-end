@@ -14,10 +14,6 @@ import java.util.Optional;
 public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     Optional<Equipment> findByEquipmentName(String equipmentName);
 
-//    @Query(value = "SELECT * FROM equipments e WHERE (:category IS NULL OR e.category = :category)",
-//            nativeQuery = true)
-//    Page<Equipment> findByCategory(@Param("category") String category, Pageable pageable);
-
     @Query(value = "SELECT * FROM equipments e WHERE " +
             "(:category IS NULL OR :category = '' OR e.category = :category) AND " +
             "(:keyword IS NULL OR :keyword = '' OR " +
@@ -32,10 +28,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     Page<Equipment> searchEquipment(@Param("category") String category,
                                     @Param("keyword") String keyword,
                                     Pageable pageable);
-
-
-
-
 
     boolean existsByCode(String code);
 }

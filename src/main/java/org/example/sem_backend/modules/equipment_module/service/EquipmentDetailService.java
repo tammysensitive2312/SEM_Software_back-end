@@ -106,19 +106,6 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         equipmentDetailRepository.saveAll(equipmentDetails);
     }
 
-//    @Override
-//    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size) {
-//        // Tạo Pageable với sắp xếp giảm dần theo id
-//        Pageable pageableSort = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-//
-//        // Gọi repository với Pageable đã được sắp xếp
-//        Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findByEquipmentId(equipmentId, pageableSort);
-//
-//        // Ánh xạ kết quả sang EquipmentDetailResponse
-//        return equipmentDetails.map(equipmentDetailMapper::toResponse);
-//    }
-
-
     @Override
     public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable) {
         Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findByRoomId(roomId, pageable);
@@ -130,9 +117,6 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     public Page<EquipmentDetailResponse> searchEquipmentDetail(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable dựa trên page và size
         Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.searchEquipmentDetail(keyword, pageable);
-        if (equipmentDetails.isEmpty()) {
-            throw new ResourceNotFoundException("No equipment detail found with keyword: " + keyword, "EQUIPMENT-DETAIL_MODULE");
-        }
         return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
 
@@ -144,9 +128,6 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         }
 
         Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, pageable);
-        if (equipmentDetails.isEmpty()) {
-            throw new ResourceNotFoundException("No equipment detail found with keyword: " + keyword, "EQUIPMENT-DETAIL-MODULE");
-        }
         return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
 
