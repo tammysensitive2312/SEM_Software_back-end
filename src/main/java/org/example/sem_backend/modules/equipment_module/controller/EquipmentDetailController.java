@@ -103,7 +103,7 @@ public class EquipmentDetailController {
     @Operation(summary = "Search equipment detail",
             description = "Search for equipment detail items by keyword in name or se-ri.")
     @GetMapping("/search")
-    public ResponseEntity<Page<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam String keyword,
+    public ResponseEntity<Page<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam(required = false) String keyword,
                                                                                @RequestParam(value = "page", defaultValue = "0") int page,
                                                                                @RequestParam(value = "size", defaultValue = "15") int size) {
         if (page < 0 || size <= 0) {
