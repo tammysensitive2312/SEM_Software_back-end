@@ -34,4 +34,24 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
 
     @Query(value = "SELECT * FROM rooms r WHERE LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')) LIMIT 5", nativeQuery = true)
     List<Room> searchRoom(@Param("keyword") String keyword);
+
+    @Query(value = """
+    SELECT * FROM rooms r 
+    WHERE (:type IS NULL OR r.type = :type) 
+      AND (:status IS NULL OR r.status = :status) 
+      AND (:keyword IS NULL OR LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """,
+            countQuery = """
+    SELECT COUNT(*) FROM rooms r 
+    WHERE (:type IS NULL OR r.type = :type) 
+      AND (:status IS NULL OR r.status = :status) 
+      AND (:keyword IS NULL OR LOWER(r.room_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """,
+            nativeQuery = true)
+    Page<Room> findByTypeStatusAndKeyword(
+            @Param("type") String type,
+            @Param("status") String status,
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
 }

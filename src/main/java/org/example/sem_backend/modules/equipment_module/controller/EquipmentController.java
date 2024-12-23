@@ -68,7 +68,7 @@ public class EquipmentController {
             description = "Search for equipment items by keyword in name or code or category.")
     @GetMapping("/search")
     public ResponseEntity<Page<EquipmentResponse>> searchEquipment(@RequestParam(required = false) String category,
-                                                                   @RequestParam String keyword,
+                                                                   @RequestParam(required = false) String keyword,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
                                                                    @RequestParam(value = "size", defaultValue = "15") int size) {
         Page<EquipmentResponse> equipments = equipmentService.searchEquipments(category, keyword, page, size);

@@ -38,18 +38,21 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
 
 //    Tìm kiếm thiết bị theo tên thiết bị hoặc số sê-ri trong toàn trường.
 //    Nếu không truyền keyword thì sẽ trả ve tất cả
-    @Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
-            "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
-            "WHERE LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))",
-            countQuery = "SELECT COUNT(*) FROM sem_db.equipment_details ed " +
-                    "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
-                    "WHERE LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                    "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))",
-            nativeQuery = true)
-    Page<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword, Pageable pageable);
+@Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
+        "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
+        "WHERE (:keyword IS NULL OR :keyword = '' " +
+        "OR LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+        "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+        countQuery = "SELECT COUNT(*) FROM sem_db.equipment_details ed " +
+                "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
+                "WHERE (:keyword IS NULL OR :keyword = '' " +
+                "OR LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+        nativeQuery = true)
+Page<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword, Pageable pageable);
 
-//    Lấy chi tiết thiết bị theo id của thiết bị và từ khóa tìm kiếm.
+
+    //    Lấy chi tiết thiết bị theo id của thiết bị và từ khóa tìm kiếm.
 @Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
         "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
         "WHERE ed.equipment_id = :equipmentId " +
