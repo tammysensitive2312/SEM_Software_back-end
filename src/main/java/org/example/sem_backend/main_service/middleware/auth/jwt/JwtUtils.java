@@ -34,8 +34,8 @@ public class JwtUtils {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public ResponseCookie generateJwtCookie(String username, String email, Long userId) {
-        String jwt = generateTokenFromUsernameAndEmail(username, email, userId);
+    public ResponseCookie generateJwtCookie(String email, String username, Long userId) {
+        String jwt = generateToken(email, username, userId);
         return generateCookie(jwtCookie, jwt, "/api");
     }
 
@@ -57,7 +57,7 @@ public class JwtUtils {
                 .build();
     }
 
-    public String getUserNameFromJwtToken(String token) {
+    public String getEmailFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
@@ -80,10 +80,10 @@ public class JwtUtils {
     }
 
 
-    public String generateTokenFromUsernameAndEmail(String username, String email, Long userId) {
+    public String generateToken(String email, String username, Long userId) {
         return Jwts.builder()
-                .setSubject(username)
-                .claim("email", email)
+                .setSubject(email)
+                .claim("username", username)
                 .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))

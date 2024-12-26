@@ -32,8 +32,8 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, response.getRefreshCookie())
                 .body(new UserResponse(
                         response.getUserInfo().getId(),
-                        response.getUserInfo().getUsername(),
                         response.getUserInfo().getEmail(),
+                        response.getUserInfo().getUsername(),
                         response.getUserInfo().getRole()
                 ));
     }

@@ -48,14 +48,17 @@ public class UserService implements IUserService{
     @Override
     public UserDto getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         String currentEmail = authentication.getName();
+
+        log.info("==============currentEmail " + currentEmail);
 
         Optional<User> optionalUser = userRepository.findByEmail(currentEmail);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             return userMapper.toDto(user);
         } else {
-            throw new ResourceNotFoundException("User not found", "User-Service");
+            throw new ResourceNotFoundException("User not found with email: " + currentEmail, "User-Service");
         }
     }
 
