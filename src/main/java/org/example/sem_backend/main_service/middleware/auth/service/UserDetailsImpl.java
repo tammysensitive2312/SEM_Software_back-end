@@ -23,8 +23,8 @@ public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private String email;
     private String username;
+    private String email;
 
     @JsonIgnore
     private String password;
@@ -46,10 +46,6 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     @Override

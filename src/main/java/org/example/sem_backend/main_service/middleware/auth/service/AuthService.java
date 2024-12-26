@@ -2,7 +2,6 @@ package org.example.sem_backend.main_service.middleware.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.exception.EmailExistsException;
 import org.example.sem_backend.common_module.exception.InvalidCredentialsException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
@@ -30,7 +29,6 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -51,10 +49,9 @@ public class AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            log.info("User details auth service: " + userDetails.getUsername());
 
             // Tạo JWT và refresh token cookie
-            ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails.getEmail(), userDetails.getUsername(), userDetails.getId());
+            ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails.getUsername(), userDetails.getEmail(), userDetails.getId());
             ResponseCookie refreshCookie = jwtUtils.generateRefreshJwtCookie(
                     refreshTokenService.createRefreshToken(userDetails.getId()).getToken()
             );
@@ -65,8 +62,8 @@ public class AuthService {
             response.setRefreshCookie(refreshCookie.toString());
             response.setUserInfo(new UserResponse(
                     userDetails.getId(),
-                    userDetails.getEmail(),
                     userDetails.getUsername(),
+                    userDetails.getEmail(),
                     userDetails.getRole().name()
             ));
 
