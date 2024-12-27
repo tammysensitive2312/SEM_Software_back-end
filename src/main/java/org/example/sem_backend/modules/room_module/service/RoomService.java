@@ -1,7 +1,6 @@
 package org.example.sem_backend.modules.room_module.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.sem_backend.common_module.common.event.GenericEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.room_module.domain.dto.request.RoomRequest;
@@ -12,7 +11,6 @@ import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,7 +28,6 @@ public class RoomService implements IRoomService{
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<RoomResponse> findAvailableRooms(String type, LocalDate date, String period) {
@@ -63,26 +60,14 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public void updateRoom(RoomRequest request, Integer id) {
-        Room room = roomRepository.findById(id.longValue())
+    public void updateRoom(RoomRequest request, Long id) {
+        Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {
             roomMapper.partialUpdate(request, room);
             roomRepository.save(room);
         } catch (Exception e) {
             throw new RuntimeException("Error from ROOM-MODULE" + e);
-        }
-    }
-
-    public void changeRoomStatus(RoomStatus status, long id) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
-
-        room.setStatus(status);
-        roomRepository.save(room);
-
-        if (status.equals(RoomStatus.BROKEN)) {
-            eventPublisher.publishEvent(new GenericEvent<Long>(this, id));
         }
     }
 
@@ -109,17 +94,14 @@ public class RoomService implements IRoomService{
         };
     }
 
-    @Override
-    public Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable) {
-        String typeStr = type != null ? type.name() : null;
-        String statusStr = status != null ? status.name() : null;
-
-        Page<Room> roomPage = roomRepository.findByTypeAndStatus(typeStr, statusStr, pageable);
-        if (roomPage == null) {
-            throw new ResourceNotFoundException("không có phòng nào thỏa mãn yêu cầu", "ROOM-MODULE");
-        }
-        return roomPage.map(roomMapper::toResponse);
-    }
+//    @Override
+//    public Page<RoomResponse> searchRoom(String keyword, String type, String status, Pageable pageable) {
+//        Page<Room> rooms = roomRepository.findByTypeStatusAndKeyword(type, status, keyword, pageable);
+//        if (rooms.isEmpty()) {
+//            throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
+//        }
+//        return rooms.map(roomMapper::toResponse);
+//    }
 
 
     @Transactional(readOnly = true)
@@ -139,18 +121,15 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public List<RoomResponse> searchRoom(String keyword) {
+    public Page<RoomResponse> searchRoom(String type, String status, String keyword, Pageable pageable) {
+        Page<Room> rooms = roomRepository.findByTypeStatusAndKeyword(type, status, keyword, pageable);
+        return rooms.map(roomMapper::toResponse);
+    }
 
-//        bỏ đi
-//        if (keyword.isBlank()) {
-//            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
-//        }
-        List<Room> rooms = roomRepository.searchRoom(keyword);
-        if (rooms.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
-        }
-        return rooms.stream()
-                .map(roomMapper::toResponse)
-                .collect(Collectors.toList());
+    @Override
+    public void deleteRoom(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
+        roomRepository.delete(room);
     }
 }
