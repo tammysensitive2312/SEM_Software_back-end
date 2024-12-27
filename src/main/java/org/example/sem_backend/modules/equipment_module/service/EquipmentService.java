@@ -8,24 +8,17 @@ import org.example.sem_backend.modules.equipment_module.domain.dto.request.Updat
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.mapper.EquipmentMapper;
-import org.example.sem_backend.modules.equipment_module.enums.Category;
-import org.example.sem_backend.modules.equipment_module.repository.EquipmentDetailRepository;
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
-import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EquipmentService implements IEquipmentService {
 
     private final EquipmentRepository equipmentRepository;
-    private final EquipmentDetailRepository equipmentDetailRepository;
-    private final RoomRepository roomRepository;
     private final EquipmentMapper equipmentMapper;
 
     @Override
@@ -51,21 +44,10 @@ public class EquipmentService implements IEquipmentService {
     }
 
     @Override
-    public Page<EquipmentResponse> filterEquipment(Category category, Pageable pageable) {
-        String categoryStr = category != null ? category.name() : null;
-
-        Page<Equipment> equipments = equipmentRepository.findByCategory(categoryStr, pageable);
+    public Page<EquipmentResponse> searchEquipments(String category, String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ page và size
+        Page<Equipment> equipments = equipmentRepository.searchEquipment(category, keyword, pageable);
         return equipments.map(equipmentMapper::toEquipmentResponse);
     }
 
-    @Override
-    public List<EquipmentResponse> searchEquipments(String keyword) {
-        List<Equipment> equipments = equipmentRepository.searchEquipment(keyword);
-        if (equipments.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy thiết bị nào", "EQUIPMENT-MODULE");
-        }
-        return equipments.stream()
-                .map(equipmentMapper::toEquipmentResponse)
-                .collect(Collectors.toList());
-    }
 }

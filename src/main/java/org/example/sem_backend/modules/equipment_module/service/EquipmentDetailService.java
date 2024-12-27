@@ -15,10 +15,7 @@ import org.example.sem_backend.modules.equipment_module.repository.EquipmentDeta
 import org.example.sem_backend.modules.equipment_module.repository.EquipmentRepository;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,31 +39,25 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         Equipment existingEquipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
 
-        EquipmentDetail equipmentDetail = createEquipmentDetail(request, existingEquipment, room);
-
-        equipmentDetailRepository.save(equipmentDetail);
-
-        existingEquipment.incrementQuantity();
-        equipmentRepository.save(existingEquipment);
-    }
-
-    private EquipmentDetail createEquipmentDetail(EquipmentDetailRequest request, Equipment existingEquipment, Room room) {
-        // Kiểm tra và sinh số sê-ri
         long count = equipmentDetailRepository.countByEquipment(existingEquipment);
+
+        // Sinh số sê-ri: mã code nối với số thứ tự
         String serialNumber = existingEquipment.getCode() + "-" + (count + 1);
 
         if (equipmentDetailRepository.existsBySerialNumber(serialNumber)) {
             throw new ResourceConflictException("Serial number " + serialNumber + " already exists", "EQUIPMENT-DETAIL-MODULE");
         }
 
-        // Chuyển đổi EquipmentDetailRequest thành entity và thiết lập các thuộc tính
         EquipmentDetail equipmentDetail = equipmentDetailMapper.toEntity(request);
         equipmentDetail.setStatus(EquipmentDetailStatus.USABLE);
         equipmentDetail.setSerialNumber(serialNumber);
         equipmentDetail.setEquipment(existingEquipment);
         equipmentDetail.setRoom(room);
 
-        return equipmentDetail;
+        equipmentDetailRepository.save(equipmentDetail);
+
+        existingEquipment.incrementQuantity();
+        equipmentRepository.save(existingEquipment);
     }
 
     @Override
@@ -117,19 +108,6 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     }
 
     @Override
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size) {
-        // Tạo Pageable với sắp xếp giảm dần theo id
-        Pageable pageableSort = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-
-        // Gọi repository với Pageable đã được sắp xếp
-        Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findByEquipmentId(equipmentId, pageableSort);
-
-        // Ánh xạ kết quả sang EquipmentDetailResponse
-        return equipmentDetails.map(equipmentDetailMapper::toResponse);
-    }
-
-
-    @Override
     public Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable) {
         Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.findByRoomId(roomId, pageable);
 
@@ -137,15 +115,23 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     }
 
     @Override
-    public List<EquipmentDetailResponse> searchEquipmentDetail(String keyword) {
-        List<EquipmentDetail> equipmentDetails = equipmentDetailRepository.searchEquipmentDetail(keyword);
-        if (equipmentDetails.isEmpty()) {
-            throw new ResourceNotFoundException("No equipment detail found with keyword: " + keyword, "EQUIPMENT-DETAIL_MODULE");
-        }
-        return equipmentDetails.stream()
-                .map(equipmentDetailMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<EquipmentDetailResponse> searchEquipmentDetail(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable dựa trên page và size
+        Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.searchEquipmentDetail(keyword, pageable);
+        return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
+
+    @Override
+    public Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, Pageable pageable) {
+
+        if (equipmentId == null) {
+            throw new IllegalArgumentException("Equipment ID is required.");
+        }
+
+        Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, pageable);
+        return equipmentDetails.map(equipmentDetailMapper::toResponse);
+    }
+
 
     @Override
     @Transactional
@@ -232,5 +218,4 @@ public class EquipmentDetailService implements IEquipmentDetailService {
             equipmentRepository.save(existingEquipment);
         }
     }
-
 }

@@ -98,14 +98,14 @@ public class EquipmentDetailController {
         return ResponseEntity.ok("Equipment detail location updated successfully");
     }
 
-    @Operation(summary = "Get equipment details by equipment ID",
-            description = "Get a list of equipment detail items by equipment ID.")
-    @GetMapping("/equipment/{equipmentId}")
-    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@PathVariable Long equipmentId,
-                                                                          @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                          @RequestParam(value = "size", defaultValue = "15") int size) {
-        return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, page, size);
-    }
+//    @Operation(summary = "Get equipment details by equipment ID",
+//            description = "Get a list of equipment detail items by equipment ID.")
+//    @GetMapping("/equipment/{equipmentId}")
+//    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@PathVariable Long equipmentId,
+//                                                                          @RequestParam(value = "page", defaultValue = "0") int page,
+//                                                                          @RequestParam(value = "size", defaultValue = "15") int size) {
+//        return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, page, size);
+//    }
 
     @Operation(summary = "Get equipment details by room ID",
             description = "Get a list of equipment detail items by room ID.")
@@ -120,8 +120,25 @@ public class EquipmentDetailController {
     @Operation(summary = "Search equipment detail",
             description = "Search for equipment detail items by keyword in name or se-ri.")
     @GetMapping("/search")
-    public ResponseEntity<List<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam String keyword) {
-        return ResponseEntity.ok(equipmentDetailService.searchEquipmentDetail(keyword));
+    public ResponseEntity<Page<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam(required = false) String keyword,
+                                                                               @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                               @RequestParam(value = "size", defaultValue = "15") int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page must be non-negative and size must be greater than 0");
+        }
+        return ResponseEntity.ok(equipmentDetailService.searchEquipmentDetail(keyword, page, size));
+    }
+
+    @Operation(summary = "Get equipment detail by equipment ID",
+            description = "Get a list of equipment detail items by equipment ID and keyword.")
+    @GetMapping("/equipment/{equipmentId}/search")
+    public Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(@PathVariable Long equipmentId,
+                                                                        @RequestParam(required = false) String keyword,
+                                                                        @RequestParam(required = false) String status,
+                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                        @RequestParam(value = "size", defaultValue = "15") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return equipmentDetailService.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, pageable);
     }
 
     @Operation(summary = "Delete equipment detail",

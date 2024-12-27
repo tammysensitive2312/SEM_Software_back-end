@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.List;
 
 @Repository
 public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
@@ -24,15 +23,20 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     })
     Optional<Equipment> findByEquipmentName(String equipmentName);
 
-    @Query(value = "SELECT * FROM equipments e WHERE (:category IS NULL OR e.category = :category)",
-            nativeQuery = true)
-    Page<Equipment> findByCategory(@Param("category") String category, Pageable pageable);
-
     @Query(value = "SELECT * FROM equipments e WHERE " +
+            "(:category IS NULL OR :category = '' OR e.category = :category) AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(e.code) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "LIMIT 5", nativeQuery = true)
-    List<Equipment> searchEquipment(@Param("keyword") String keyword);
+            "LOWER(e.code) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+            countQuery = "SELECT COUNT(*) FROM equipments e WHERE " +
+                    "(:category IS NULL OR :category = '' OR e.category = :category) AND " +
+                    "(:keyword IS NULL OR :keyword = '' OR " +
+                    "LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                    "LOWER(e.code) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+            nativeQuery = true)
+    Page<Equipment> searchEquipment(@Param("category") String category,
+                                    @Param("keyword") String keyword,
+                                    Pageable pageable);
 
     boolean existsByCode(String code);
 }
