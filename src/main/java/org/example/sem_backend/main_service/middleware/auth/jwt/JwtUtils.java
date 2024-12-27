@@ -80,10 +80,10 @@ public class JwtUtils {
     }
 
 
-    public String generateTokenFromUsernameAndEmail(String username, String email, Long userId) {
+    public String generateTokenFromUsernameAndEmail(String email, String username, Long userId) {
         return Jwts.builder()
-                .setSubject(username)
-                .claim("email", email)
+                .setSubject(email)
+                .claim("username", username)
                 .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
