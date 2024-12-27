@@ -56,7 +56,7 @@ public class RoomController {
             @ApiResponse(responseCode = "400", description = "Invalid input parameters", content = @Content)
     })
     @GetMapping("/searchByCondition")
-    public ResponseEntity<List<RoomResponse>> searchRooms(
+    public ResponseEntity<List<RoomResponse>> searchRoomsByCondition(
             @Parameter(description = "Capacity of the room")
             @RequestParam(required = false) Integer capacity,
             @Parameter(description = "Comparison operator for capacity (e.g., >, <, >=, <=, =)")
