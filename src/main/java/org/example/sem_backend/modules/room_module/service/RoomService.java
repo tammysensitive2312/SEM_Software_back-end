@@ -8,7 +8,6 @@ import org.example.sem_backend.modules.room_module.domain.dto.response.RoomRespo
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
-import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
 import org.springframework.data.domain.Page;
@@ -93,16 +92,6 @@ public class RoomService implements IRoomService{
             default -> throw new IllegalArgumentException("tham số tiết học không hợp lệ");
         };
     }
-
-//    @Override
-//    public Page<RoomResponse> searchRoom(String keyword, String type, String status, Pageable pageable) {
-//        Page<Room> rooms = roomRepository.findByTypeStatusAndKeyword(type, status, keyword, pageable);
-//        if (rooms.isEmpty()) {
-//            throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
-//        }
-//        return rooms.map(roomMapper::toResponse);
-//    }
-
 
     @Transactional(readOnly = true)
     public List<RoomResponse> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
