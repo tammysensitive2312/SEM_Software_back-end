@@ -1,7 +1,7 @@
 @startuml
 actor Sender
 participant "NotificationController" as Controller
-participant "AsyncNotificationService" as AsyncService
+'participant "AsyncNotificationService" as AsyncService
 participant "NotificationService" as NotificationService
 participant "EmailNotificationChannel" as EmailChannel
 participant "PushNotificationChannel" as PushChannel
@@ -12,10 +12,10 @@ actor Recipient
 Sender -> Controller : sendNotification(NotificationRequest)
 activate Controller
 
-Controller -> AsyncService : sendAsyncNotification(request)
-activate AsyncService
+'Controller -> AsyncService : sendAsyncNotification(request)
+'activate AsyncService
 
-AsyncService -> NotificationService : sendNotification(request)
+Controller -> NotificationService : sendNotification(request)
 activate NotificationService
 
 alt Email Notification
@@ -43,11 +43,8 @@ alt InApp Notification
     deactivate InAppChannel
 end
 
-NotificationService --> AsyncService : Notifications processed
+NotificationService --> Controller : Notifications processed
 deactivate NotificationService
-
-AsyncService --> Controller : Async processing complete
-deactivate AsyncService
 
 Controller --> Sender : ResponseEntity<String>
 deactivate Controller

@@ -25,3 +25,7 @@ WHERE r.type = 'phòng thí nghiệm'
       AND ('2024-10-21 09:45' < rs.end_time AND '2024-10-21 9:00' > rs.start_time)
 );
 
+SELECT ed.* from sem_db.equipment_details ed
+JOIN sem_db.equipments e on e.id = ed.equipment_id
+where (:keyword is null OR :keyword ='')
+

@@ -2,6 +2,7 @@ package org.example.sem_backend.modules.user_module.repository;
 
 import org.example.sem_backend.modules.user_module.domain.entity.ERole;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,6 +21,7 @@ class UserRepositoryTest {
     private UserRepository userRepository;
 
     @Test
+    @DisplayName("Find by role success response")
     void findIdByRole_ShouldReturnUserIds() {
         User adminUser = new User(1L, "admin@example.com", "Admin", "User", ERole.ROLE_ADMIN);
         User anotherAdminUser = new User(2L, "another-admin@example.com", "Another", "Admin", ERole.ROLE_ADMIN);
@@ -32,14 +34,4 @@ class UserRepositoryTest {
         assertEquals(2, adminIds.size());
         assertEquals(Arrays.asList(1L, 2L), adminIds);
     }
-
-//    @Test
-//    void findIdByRole_ShouldReturnEmptyListForNonExistentRole() {
-//        when(userRepository.findIdByRole("ROLE_NON_EXISTENT"))
-//                .thenReturn(Arrays.asList());
-//
-//        List<Long> nonExistentRoleIds = userRepository.findIdByRole("ROLE_NON_EXISTENT");
-//
-//        assertEquals(0, nonExistentRoleIds.size());
-//    }
 }

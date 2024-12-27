@@ -1,0 +1,108 @@
+@startuml
+'https://plantuml.com/class-diagram
+package service {
+    interface RequestService {
+        void processRequest(D requestDto);
+        boolean validateRequest(D requestDto);
+        void updateRequest(D requestDto);
+        void approveRequest(Long requestId);
+        void deleteRequestsByIds(List<Long> requestIds);
+    }
+
+    class RoomBorrowRequestService implements RequestService
+    class EquipmentBorrowRequestService implements RequestService
+
+    RoomBorrowRequestService --> ValidationStragery : uses
+    EquipmentBorrowRequestService --> ValidationStragery : uses
+
+    interface ValidationStragery {
+        boolean validate(D requestDto);
+    }
+    class RoomBorrowRequestValidation implements ValidationStragery
+    class EquipmentBorrowRequestValidation implements ValidationStragery
+}
+@enduml
+
+@startuml
+package controller {
+    class EquipmentBorrowRequestController
+    class RoomBorrowRequestController
+}
+
+package service {
+    interface RequestService {
+        void processRequest(D requestDto);
+        boolean validateRequest(D requestDto);
+        void updateRequest(D requestDto);
+        void approveRequest(Long requestId);
+        void deleteRequestsByIds(List<Long> requestIds);
+    }
+
+    class RoomBorrowRequestService implements RequestService
+    class EquipmentBorrowRequestService implements RequestService
+
+    package listener {
+    class EventListener {
+        void onEvent(Event event);
+    }
+    }
+}
+
+package repository {
+    interface EquipmentBorrowRequestRepository
+    interface EquipmentBorrowRequestDetailRepository
+    interface RoomBorrowRequestRepository
+    interface RoomScheduleRepository
+}
+
+EquipmentBorrowRequestController --> RequestService : has
+RoomBorrowRequestController -> RequestService : has
+EquipmentBorrowRequestService --> EquipmentBorrowRequestRepository : has
+RoomBorrowRequestService -> RoomBorrowRequestRepository : has
+EquipmentBorrowRequestService --> EquipmentBorrowRequestDetailRepository : has
+RoomBorrowRequestService -> RoomScheduleRepository : has
+
+package entity {
+abstract class CommonRequest {
+    -Long uniqueID
+    -String comment
+    -String createdAt
+    -String updatedAt
+}
+entity EquipmentBorrowRequest extends CommonRequest{
+    -Status status
+    -List<EquipmentBorrowRequestDetail> borrowRequestDetails
+    -User user
+}
+entity EquipmentBorrowRequestDetail {
+    -Long id
+    -Equipment equipment
+    -List<EquipmentDetail> equipmentDetails
+    -EquipmentBorrowRequest borrowRequest
+    -int quantityBorrowed
+    -String conditionBeforeBorrow
+}
+entity RoomBorrowRequest extends CommonRequest{
+    -Room room
+    -User user
+}
+entity RoomSchedule {
+    -Long uniqueId
+    -Room room
+    -User user
+    -String startTime
+    -String endTime
+}
+enum Status {
+    NOT_BORROWED,
+    BORROWED,
+    RETURNED
+}
+EquipmentBorrowRequest --> EquipmentBorrowRequestDetail : has
+}
+
+EquipmentBorrowRequestRepository ..> EquipmentBorrowRequest : depends on
+EquipmentBorrowRequestDetailRepository ..> EquipmentBorrowRequestDetail : depends on
+RoomBorrowRequestRepository ..> RoomBorrowRequest : depends on
+RoomScheduleRepository ..> RoomSchedule : depends on
+@enduml

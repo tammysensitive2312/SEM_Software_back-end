@@ -4,6 +4,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrow
 import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,6 +33,7 @@ class RoomBorrowRequestServiceTest {
     }
 
     @Test
+    @DisplayName("delete should clear log and request data when ID valid")
     void deleteRequestsByIds_ShouldDeleteLogsAndRequests_WhenValidIds() {
         // Mock dữ liệu
         RoomBorrowRequest request1 = new RoomBorrowRequest();

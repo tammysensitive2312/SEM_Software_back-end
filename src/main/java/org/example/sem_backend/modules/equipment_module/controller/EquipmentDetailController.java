@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentDetailLocationRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
@@ -120,7 +121,7 @@ public class EquipmentDetailController {
     @Operation(summary = "Search equipment detail",
             description = "Search for equipment detail items by keyword in name or se-ri.")
     @GetMapping("/search")
-    public ResponseEntity<List<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam String keyword) {
+    public ResponseEntity<List<EquipmentDetailResponse>> searchEquipmentDetail(@RequestParam(required = false) String keyword) {
         return ResponseEntity.ok(equipmentDetailService.searchEquipmentDetail(keyword));
     }
 

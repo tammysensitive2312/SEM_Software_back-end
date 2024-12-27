@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -96,10 +98,11 @@ class RoomStatusChangedListenerTest {
         GenericEvent<Long> event = new GenericEvent<>(roomService, null);
 
         // Act
-        roomStatusChangedListener.handleRoomStatusChange(event);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                roomStatusChangedListener.handleRoomStatusChange(event));
 
         // Assert
-        verify(borrowingRepository).findUserIdsWithBookingsAfter(any(LocalDateTime.class), null);
+        assertEquals("roomId in event context is null ", exception.getMessage());
         verify(eventPublisher, never()).publishEvent(any());
     }
 }

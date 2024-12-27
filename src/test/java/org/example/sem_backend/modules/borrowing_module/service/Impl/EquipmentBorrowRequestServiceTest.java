@@ -93,6 +93,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
+    @DisplayName("Process request should successfully when valid input")
     void testProcessRequest_ShouldSucceed_WhenValidInput() {
         // Setup mocks with lenient matching to allow multiple calls
         lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -137,6 +138,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
+    @DisplayName("Process request should throw ResourceNotFoundException when user not found")
     void testProcessRequest_ShouldThrowException_WhenUserNotFound() {
         requestDto.setEquipmentItems(Collections.singletonList(itemDto));
         // Setup mocks
@@ -155,6 +157,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
+    @DisplayName("Process request throw IllegalArgumentException when equipment null")
     void testProcessRequest_ShouldThrowException_WhenEquipmentItemsIsNull() {
         requestDto.setEquipmentItems(null); // Equipment items là null
         // Execute & Assert
@@ -165,6 +168,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
+    @DisplayName("Validate return true when request valid")
     void testValidateRequest_ShouldReturnTrue_WhenRequestIsValid() {
         equipment.setUsableQuantity(10);
 
@@ -188,6 +192,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
+    @DisplayName("Validate request return false when overdue exist")
     void testValidateRequest_ShouldReturnFalse_WhenOverdueRequestsExist() {
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(true);
 
@@ -203,6 +208,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
+    @DisplayName("Validate request return false when equipment unavailable")
     void testValidateRequest_ShouldReturnFalse_WhenEquipmentUnavailable() {
         when(requestRepository.hasOverdueRequests(anyLong(), anyList(), any(LocalDate.class))).thenReturn(false);
         equipment.setUsableQuantity(0); // Không đủ số lượng
@@ -216,10 +222,7 @@ class EquipmentBorrowRequestServiceTest {
     }
 
     @Test
-    void updateRequest() {
-    }
-
-    @Test
+    @DisplayName("Approve request success")
     void testApproveRequest_ShouldSucceed_WhenValidInput() {
         // Mock dữ liệu
         when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
@@ -249,6 +252,7 @@ class EquipmentBorrowRequestServiceTest {
 
 
     @Test
+    @DisplayName("Approve request throw exception when request not found")
     void testApproveRequest_ShouldThrowException_WhenRequestNotFound() {
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
         // Execute & Assert
