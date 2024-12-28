@@ -132,7 +132,6 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
 
-
     @Override
     @Transactional
     public void deleteEquipmentDetail(Long equipmentDetailId) {
