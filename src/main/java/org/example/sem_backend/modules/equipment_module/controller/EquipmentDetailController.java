@@ -99,15 +99,6 @@ public class EquipmentDetailController {
         return ResponseEntity.ok("Equipment detail location updated successfully");
     }
 
-//    @Operation(summary = "Get equipment details by equipment ID",
-//            description = "Get a list of equipment detail items by equipment ID.")
-//    @GetMapping("/equipment/{equipmentId}")
-//    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@PathVariable Long equipmentId,
-//                                                                          @RequestParam(value = "page", defaultValue = "0") int page,
-//                                                                          @RequestParam(value = "size", defaultValue = "15") int size) {
-//        return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, page, size);
-//    }
-
     @Operation(summary = "Get equipment details by room ID",
             description = "Get a list of equipment detail items by room ID.")
     @GetMapping("/room/{roomId}")
