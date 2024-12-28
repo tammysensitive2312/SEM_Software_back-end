@@ -9,7 +9,6 @@ import org.example.sem_backend.modules.room_module.domain.dto.response.RoomRespo
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.room_module.domain.mapper.RoomMapper;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
-import org.example.sem_backend.modules.room_module.enums.RoomType;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.room_module.repository.RoomSpecification;
 import org.springframework.context.ApplicationEventPublisher;
@@ -63,8 +62,8 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public void updateRoom(RoomRequest request, Integer id) {
-        Room room = roomRepository.findById(id.longValue())
+    public void updateRoom(RoomRequest request, Long id) {
+        Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
         try {
             roomMapper.partialUpdate(request, room);
@@ -109,19 +108,6 @@ public class RoomService implements IRoomService{
         };
     }
 
-    @Override
-    public Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable) {
-        String typeStr = type != null ? type.name() : null;
-        String statusStr = status != null ? status.name() : null;
-
-        Page<Room> roomPage = roomRepository.findByTypeAndStatus(typeStr, statusStr, pageable);
-        if (roomPage == null) {
-            throw new ResourceNotFoundException("không có phòng nào thỏa mãn yêu cầu", "ROOM-MODULE");
-        }
-        return roomPage.map(roomMapper::toResponse);
-    }
-
-
     @Transactional(readOnly = true)
     public List<RoomResponse> findRooms(Integer capacity, String comparisonOperator, String roomCondition) {
         Specification<Room> spec = Specification.where(RoomSpecification.hasCapacity(capacity, comparisonOperator))
@@ -139,18 +125,15 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public List<RoomResponse> searchRoom(String keyword) {
+    public Page<RoomResponse> searchRoom(String type, String status, String keyword, Pageable pageable) {
+        Page<Room> rooms = roomRepository.findByTypeStatusAndKeyword(type, status, keyword, pageable);
+        return rooms.map(roomMapper::toResponse);
+    }
 
-//        bỏ đi
-//        if (keyword.isBlank()) {
-//            throw new ResourceNotFoundException("Từ khóa tìm kiếm không hợp lệ", "ROOM-MODULE");
-//        }
-        List<Room> rooms = roomRepository.searchRoom(keyword);
-        if (rooms.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy phòng nào", "ROOM-MODULE");
-        }
-        return rooms.stream()
-                .map(roomMapper::toResponse)
-                .collect(Collectors.toList());
+    @Override
+    public void deleteRoom(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found", "ROOM-MODULE"));
+        roomRepository.delete(room);
     }
 }

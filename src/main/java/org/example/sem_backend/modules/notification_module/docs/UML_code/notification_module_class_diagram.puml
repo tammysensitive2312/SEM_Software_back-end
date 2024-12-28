@@ -49,6 +49,12 @@ class Notification {
     +setCreatedAt(LocalDateTime)
 }
 
+class SseEmitterService {
+    +sendNotification(String)
+    +addEmitter(SseEmitter emitter, Long userId)
+    +removeEmitter(SseEmitter emitter, Long userId)
+}
+
 ' Classes implementing NotificationChannel
 '@Service
 class EmailNotificationChannel implements NotificationChannel {
@@ -67,6 +73,8 @@ class InAppNotificationChannel implements NotificationChannel {
     -NotificationRepository notificationRepository
     +send(Notification)
 }
+
+InAppNotificationChannel *-- SseEmitterService : has
 
 ' NotificationService
 '@Service
@@ -116,7 +124,5 @@ class NotificationController {
 NotificationService "1" --> "*" NotificationChannel : uses
 'AsyncNotificationService "1" --> "1" NotificationService : uses
 NotificationController "1" --> "1" NotificationService : uses
-EmailNotificationChannel ..|> NotificationChannel
-PushNotificationChannel ..|> NotificationChannel
-InAppNotificationChannel ..|> NotificationChannel
+NotificationService --> NotificationRepository : uses
 @enduml

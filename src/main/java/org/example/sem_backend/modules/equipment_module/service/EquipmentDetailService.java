@@ -39,31 +39,25 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         Equipment existingEquipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
 
-        EquipmentDetail equipmentDetail = createEquipmentDetail(request, existingEquipment, room);
-
-        equipmentDetailRepository.save(equipmentDetail);
-
-        existingEquipment.incrementQuantity();
-        equipmentRepository.save(existingEquipment);
-    }
-
-    private EquipmentDetail createEquipmentDetail(EquipmentDetailRequest request, Equipment existingEquipment, Room room) {
-        // Kiểm tra và sinh số sê-ri
         long count = equipmentDetailRepository.countByEquipment(existingEquipment);
+
+        // Sinh số sê-ri: mã code nối với số thứ tự
         String serialNumber = existingEquipment.getCode() + "-" + (count + 1);
 
         if (equipmentDetailRepository.existsBySerialNumber(serialNumber)) {
             throw new ResourceConflictException("Serial number " + serialNumber + " already exists", "EQUIPMENT-DETAIL-MODULE");
         }
 
-        // Chuyển đổi EquipmentDetailRequest thành entity và thiết lập các thuộc tính
         EquipmentDetail equipmentDetail = equipmentDetailMapper.toEntity(request);
         equipmentDetail.setStatus(EquipmentDetailStatus.USABLE);
         equipmentDetail.setSerialNumber(serialNumber);
         equipmentDetail.setEquipment(existingEquipment);
         equipmentDetail.setRoom(room);
 
-        return equipmentDetail;
+        equipmentDetailRepository.save(equipmentDetail);
+
+        existingEquipment.incrementQuantity();
+        equipmentRepository.save(existingEquipment);
     }
 
     @Override
@@ -223,5 +217,4 @@ public class EquipmentDetailService implements IEquipmentDetailService {
             equipmentRepository.save(existingEquipment);
         }
     }
-
 }

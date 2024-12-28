@@ -1,0 +1,39 @@
+@startuml
+package main_service {
+package config {}
+package middleware {
+package auth {}
+package exception {}
+package log {}
+}
+}
+
+package common_module {
+package common{}
+package entity{}
+package exception{}
+package service{}
+}
+package modules {
+package borrowing_module {
+package controller {}
+package service {
+package listener {}
+}
+package repository {}
+package domain {
+package entity {}
+package dto {}
+package mapper {}
+}
+}
+package equipment_module {}
+package room_module {}
+package user_module {}
+package notification_module {}
+}
+
+main_service .> common_module
+main_service .-> modules
+modules .-> common_module
+@enduml

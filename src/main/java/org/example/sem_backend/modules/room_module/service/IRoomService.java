@@ -18,7 +18,5 @@ public interface IRoomService {
 
     void updateRoom(RoomRequest request, Long id);
 
-//    Page<RoomResponse> filterRoomsByTypeAndStatus(RoomType type, RoomStatus status, Pageable pageable);
-
     void deleteRoom(Long id);
 }

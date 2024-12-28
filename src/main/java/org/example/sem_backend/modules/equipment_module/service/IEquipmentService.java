@@ -11,7 +11,5 @@ public interface IEquipmentService {
 
     void updateEquipment(Long id, UpdateEquipmentRequest request);
 
-//    Page<EquipmentResponse> filterEquipment(Category category, Pageable pageable);
-
     Page<EquipmentResponse> searchEquipments(String category, String keyword, int page, int size);
 }

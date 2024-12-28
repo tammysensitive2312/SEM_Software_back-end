@@ -1,8 +1,9 @@
 @startuml
 actor "Admin" as A
 actor "User" as U
-participant "Order/Borrowing Service" as BS
+participant "EquipmentBorrowService" as BS
 participant "ApplicationEventPublisher" as AEP
+participant "EquipmentBorrowedListener" as EL
 participant "NotificationService" as NS
 participant "NotificationRepository" as NR
 participant "Client (Frontend)" as FE
@@ -10,9 +11,12 @@ participant "AuthAPI" as Auth
 participant "NotificationAPI" as NAPI
 
 == Admin approves request ==
-A -> BS: POST /api/borrowing-requests/{requestId}/approve
+A -> BS: POST /api/borrowing/equipment/{requestId}/approve
 BS -> AEP: publish EquipmentBorrowedEvent(requestId, userId)
 
+== EquipmentBorrowedListener process equipment data ==
+AEP -> EL: EquipmentBorrowedEvent(requestId, userId)
+EL -> EL : process data
 == NotificationService creates notification ==
 AEP -> NS: EquipmentBorrowedEvent(requestId, userId)
 NS -> NR: save(Notification with recipients = {userId}, read=false)

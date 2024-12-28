@@ -15,8 +15,6 @@ public interface IEquipmentDetailService {
 
     void updateEquipmentDetail(Long id, EquipmentDetailRequest request);
 
-//    Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
-
     Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable);
 
     Page<EquipmentDetailResponse> searchEquipmentDetail(String keyword, int page, int size);

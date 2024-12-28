@@ -57,7 +57,7 @@ public class RoomServiceTest {
 
         when(roomRepository.findById(anyLong())).thenReturn(Optional.of(room));
 
-        roomService.updateRoom(request, 1);
+        roomService.updateRoom(request, 1L);
 
         verify(roomMapper, times(1)).partialUpdate(request, room);
         verify(roomRepository, times(1)).save(room);
@@ -69,7 +69,7 @@ public class RoomServiceTest {
 
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
-                () -> roomService.updateRoom(new RoomRequest(), 1)
+                () -> roomService.updateRoom(new RoomRequest(), 1L)
         );
 
         assertEquals("Room not found", exception.getMessage());

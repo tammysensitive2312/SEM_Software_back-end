@@ -29,6 +29,7 @@ public class RoomStatusChangedListener {
             Long roomId = event.getData();
             if (roomId == null) {
                 log.error("roomId in event context is null");
+                throw new IllegalArgumentException("roomId in event context is null ");
             }
             log.info("RoomStatusChangedListener: Handling room status change for roomId: {}", roomId);
 

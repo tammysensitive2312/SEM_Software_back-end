@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentDetailLocationRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -95,15 +98,6 @@ public class EquipmentDetailController {
         equipmentDetailService.updateEquipmentDetailLocation(requests.getEquipmentDetailIds(), roomId);
         return ResponseEntity.ok("Equipment detail location updated successfully");
     }
-
-//    @Operation(summary = "Get equipment details by equipment ID",
-//            description = "Get a list of equipment detail items by equipment ID.")
-//    @GetMapping("/equipment/{equipmentId}")
-//    public Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(@PathVariable Long equipmentId,
-//                                                                          @RequestParam(value = "page", defaultValue = "0") int page,
-//                                                                          @RequestParam(value = "size", defaultValue = "15") int size) {
-//        return equipmentDetailService.getEquipmentDetailsByEquipmentId(equipmentId, page, size);
-//    }
 
     @Operation(summary = "Get equipment details by room ID",
             description = "Get a list of equipment detail items by room ID.")
