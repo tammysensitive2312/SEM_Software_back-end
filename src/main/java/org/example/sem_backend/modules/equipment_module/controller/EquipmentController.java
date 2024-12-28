@@ -3,24 +3,17 @@ package org.example.sem_backend.modules.equipment_module.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentRequest;
-import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentResponse;
-import org.example.sem_backend.modules.equipment_module.enums.Category;
 import org.example.sem_backend.modules.equipment_module.service.EquipmentService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/equipment")
@@ -58,25 +51,29 @@ public class EquipmentController {
         return ResponseEntity.ok("Equipment updated successfully");
     }
 
-    @Operation(summary = "Get equipment by category",
-            description = "enter the category to get the equipment")
-    @GetMapping("/filter")
-    public ResponseEntity<Page<EquipmentResponse>> filterEquipment(
-            @RequestParam(required = false) Category category,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "15") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<EquipmentResponse> equipments = equipmentService.filterEquipment(category, pageable);
-        return ResponseEntity.ok(equipments);
-    }
+//    @Operation(summary = "Get equipment by category",
+//            description = "enter the category to get the equipment")
+//    @GetMapping("/filter")
+//    public ResponseEntity<Page<EquipmentResponse>> filterEquipment(
+//            @RequestParam(required = false) Category category,
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "15") int size) {
+//
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<EquipmentResponse> equipments = equipmentService.filterEquipment(category, pageable);
+//        return ResponseEntity.ok(equipments);
+//    }
 
     @Operation(summary = "Search equipment",
-            description = "Search for equipment items by keyword in name or code.")
+            description = "Search for equipment items by keyword in name or code or category.")
     @GetMapping("/search")
-    public ResponseEntity<List<EquipmentResponse>> searchEquipment(@RequestParam String keyword) {
-        List<EquipmentResponse> equipments = equipmentService.searchEquipments(keyword);
+    public ResponseEntity<Page<EquipmentResponse>> searchEquipment(@RequestParam(required = false) String category,
+                                                                   @RequestParam(required = false) String keyword,
+                                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "15") int size) {
+        Page<EquipmentResponse> equipments = equipmentService.searchEquipments(category, keyword, page, size);
         return ResponseEntity.ok(equipments);
     }
+
 
 }

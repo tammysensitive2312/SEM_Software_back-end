@@ -1,7 +1,6 @@
 package org.example.sem_backend.modules.equipment_module.service;
 
 import org.example.sem_backend.modules.equipment_module.domain.dto.request.EquipmentDetailRequest;
-import org.example.sem_backend.modules.equipment_module.domain.dto.request.UpdateEquipmentDetailLocationRequest;
 import org.example.sem_backend.modules.equipment_module.domain.dto.response.EquipmentDetailResponse;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
 import org.springframework.data.domain.Page;
@@ -16,11 +15,13 @@ public interface IEquipmentDetailService {
 
     void updateEquipmentDetail(Long id, EquipmentDetailRequest request);
 
-    Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
+//    Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
 
     Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable);
 
-    List<EquipmentDetailResponse> searchEquipmentDetail(String keyword);
+    Page<EquipmentDetailResponse> searchEquipmentDetail(String keyword, int page, int size);
+
+    Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, Pageable pageable);
 
     void deleteEquipmentDetail(Long id);
 
