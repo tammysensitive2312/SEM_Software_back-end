@@ -11,3 +11,6 @@ setup-dev-env:
 # Run Flyway migrations
 run-migration:
 	mvn flyway:migrate
+
+run_database:
+	docker exec -it sembackend-db-1 mysql -u root -p

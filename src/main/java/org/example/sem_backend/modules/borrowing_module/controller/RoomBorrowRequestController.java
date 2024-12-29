@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -95,11 +96,11 @@ public class RoomBorrowRequestController {
     @GetMapping("/user-request")
     public ResponseEntity<Page<GetRoomRequestDTO>> getUserRequests(
             @RequestParam Long userId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable
     ) {
-        Page<GetRoomRequestDTO> requests = service.getUserRequests(userId, startTime, endTime, pageable);
+        Page<GetRoomRequestDTO> requests = service.getUserRequests(userId, startDate, endDate, pageable);
         return ResponseEntity.ok(requests);
     }
 
@@ -117,11 +118,11 @@ public class RoomBorrowRequestController {
     @GetMapping("/admin-request")
     public ResponseEntity<Page<GetRoomRequestDTO>> getAdminRequests(
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable
     ) {
-        Page<GetRoomRequestDTO> requests = service.getAdminRequests(email, startTime, endTime, pageable);
+        Page<GetRoomRequestDTO> requests = service.getAdminRequests(email, startDate, endDate, pageable);
         return ResponseEntity.ok(requests);
     }
 }

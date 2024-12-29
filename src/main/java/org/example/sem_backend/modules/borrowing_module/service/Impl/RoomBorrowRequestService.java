@@ -25,8 +25,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -54,52 +56,35 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
     @Transactional
     @Async
     public void processRequest(RoomBorrowRequestDTO requestDto) {
-        log.info("Processing room borrow request for Room ID: {}", requestDto.getRoomId());
-
-        // Kiểm tra tính hợp lệ của yêu cầu mượn phòng
         validateRequest(requestDto);
 
-        // Tìm Room từ roomId
         Room room = roomRepository.findById(requestDto.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Room not found with ID: [%s]", requestDto.getRoomId()),
                         "BORROWING-MODULE"
                 ));
 
-        // Tìm User từ userId
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("User not found with ID: [%s]", requestDto.getUserId()),
                         "BORROWING-MODULE"
                 ));
 
-        // Tạo mới RoomBorrowRequest từ DTO
-        RoomBorrowRequest request = mapper.toEntity(requestDto);
+        RoomBorrowRequest request = new RoomBorrowRequest();
         request.setUser(user);
         request.setRoom(room);
         request.setComment(requestDto.getComment());
 
-        // Lưu yêu cầu mượn phòng vào cơ sở dữ liệu
         roomBorrowRequestRepository.save(request);
 
-        // Tạo lịch đặt phòng mới
-        try {
-            RoomSchedule schedule = new RoomSchedule();
-            schedule.setRoom(room);
-            schedule.setUser(user.getEmail());
-            schedule.setStartTime(requestDto.getStartTime());
-            schedule.setEndTime(requestDto.getEndTime());
+        RoomSchedule schedule = new RoomSchedule();
+        schedule.setRoom(room);
+        schedule.setUser(user.getEmail());
+        schedule.setStartTime(requestDto.getStartTime());
+        schedule.setEndTime(requestDto.getEndTime());
+        schedule.setRequest(request);
 
-            scheduleRepository.save(schedule);
-        } catch (OptimisticLockException e) {
-            throw new ResourceConflictException(
-                    String.format("Rejected booking - Room ID [%s] has already been booked for [%s] to [%s]",
-                            requestDto.getRoomId(),
-                            requestDto.getStartTime(),
-                            requestDto.getEndTime()),
-                    "BORROWING-MODULE"
-            );
-        }
+        scheduleRepository.save(schedule);
 
         TransactionsLog transactionsLog = new TransactionsLog();
         transactionsLog.setRoomRequest(request);
@@ -129,6 +114,40 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      */
     @Override
     public boolean validateRequest(RoomBorrowRequestDTO requestDto) {
+        try {
+            validateFutureRequest(requestDto);
+            validateConflictRequest(requestDto);
+            return true;
+        }
+        catch (Exception e) {
+            log.error("Failed to validate room borrowing request: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    private void validateConflictRequest(RoomBorrowRequestDTO requestDto) {
+        // Check for scheduling conflicts
+        List<RoomSchedule> conflictingSchedules = scheduleRepository
+                .findByRoomUniqueIdAndEndTimeAfterAndStartTimeBefore(
+                        requestDto.getRoomId(),
+                        requestDto.getStartTime(),
+                        requestDto.getEndTime()
+                )
+                .stream()
+                .filter(schedule -> !schedule.getRequest().getUniqueID().equals(requestDto.getUniqueId()))
+                .toList();
+
+
+        if (!conflictingSchedules.isEmpty()) {
+            throw new ResourceConflictException(
+                    String.format("Rejected booking - Room ID [%s] has conflicting bookings during [%s] to [%s]",
+                            requestDto.getRoomId(), requestDto.getStartTime(), requestDto.getEndTime()),
+                    "BORROWING-MODULE"
+            );
+        }
+    }
+
+    private void validateFutureRequest(RoomBorrowRequestDTO requestDto) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime maxAllowedStartTime = now.plusWeeks(2);
 
@@ -140,29 +159,11 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
                     "BORROWING-MODULE"
             );
         }
-
-        // Check for scheduling conflicts
-        List<RoomSchedule> conflictingSchedules = scheduleRepository
-                .findByRoomUniqueIdAndEndTimeAfterAndStartTimeBefore(
-                        requestDto.getRoomId(),
-                        requestDto.getStartTime(),
-                        requestDto.getEndTime()
-                );
-
-        if (!conflictingSchedules.isEmpty()) {
-            throw new ResourceConflictException(
-                    String.format("Rejected booking - Room ID [%s] has conflicting bookings during [%s] to [%s]",
-                            requestDto.getRoomId(), requestDto.getStartTime(), requestDto.getEndTime()),
-                    "BORROWING-MODULE"
-            );
-        }
-        return true;
     }
 
     @Override
     @Transactional
     public void updateRequest(RoomBorrowRequestDTO requestDto) {
-        validateRequest(requestDto);
 
         RoomBorrowRequest existingRequest = roomBorrowRequestRepository
                 .findById(requestDto.getUniqueId())
@@ -179,8 +180,17 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
                     "BORROWING-MODULE"
             );
         }
+        validateConflictRequest(requestDto);
 
         mapper.partialUpdate(requestDto, existingRequest);
+
+        // Data synchronize in RoomSchedule
+        RoomSchedule existingSchedule = existingRequest.getSchedule();
+        if (existingSchedule != null) {
+            existingSchedule.setStartTime(requestDto.getStartTime());
+            existingSchedule.setEndTime(requestDto.getEndTime());
+            scheduleRepository.save(existingSchedule);
+        }
         roomBorrowRequestRepository.save(existingRequest);
     }
 
@@ -194,7 +204,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
 
     /**
      * careful to use this feature
-     * under development
+     * Delete in batch requests and logs
      */
     @Override
     @Transactional
@@ -208,8 +218,16 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
             throw new ResourceNotFoundException("No Room Borrow Requests found for the given IDs", "BORROWING_MODULE");
         }
 
+//        List<Long> scheduleIds = requestsToDelete.stream()
+//                .map(request -> request.getSchedule() != null ? request.getSchedule().getUniqueId() : null)
+//                .filter(Objects::nonNull) // Lọc ra các scheduleIds không null
+//                .toList();
+//        if (!scheduleIds.isEmpty()) {
+//            scheduleRepository.deleteAllById(scheduleIds);
+//        }
+
         logRepository.deleteByRoomRequestIds(requestIds);
-        roomBorrowRequestRepository.deleteAllInBatch(requestsToDelete);
+        roomBorrowRequestRepository.deleteAll(requestsToDelete);
     }
 
     /**
@@ -218,7 +236,9 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      *
      * @return A paginated list of room borrow requests for the user.
      */
-    public Page<GetRoomRequestDTO> getUserRequests(Long userId, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+    public Page<GetRoomRequestDTO> getUserRequests(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endTime = endDate != null ? endDate.atStartOfDay() : null;
         return roomBorrowRequestRepository.
                 findRequestsWithSchedules(userId, null, startTime, endTime, pageable);
     }
@@ -229,7 +249,9 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      *
      * @return A paginated list of room borrow requests for administrative use.
      */
-    public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
+    public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endTime = endDate != null ? endDate.atStartOfDay() : null;
         return roomBorrowRequestRepository.
                 findRequestsWithSchedules(null, email, startTime, endTime, pageable);
     }

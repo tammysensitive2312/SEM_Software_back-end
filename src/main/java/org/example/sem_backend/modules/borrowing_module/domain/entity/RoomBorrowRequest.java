@@ -21,4 +21,7 @@ public class RoomBorrowRequest extends CommonRequest {
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
+
+    @OneToOne(mappedBy = "request", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private RoomSchedule schedule;
 }

@@ -24,6 +24,10 @@ public class RoomSchedule {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @OneToOne
+    @JoinColumn(name = "request_id", unique = true)
+    private RoomBorrowRequest request;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String user;

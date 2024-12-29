@@ -1,7 +1,9 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomBorrowRequest;
+import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
 import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowRequestRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +29,9 @@ class RoomBorrowRequestServiceTest {
     @Mock
     private TransactionsLogRepository transactionsLogRepository;
 
+    @Mock
+    private RoomScheduleRepository scheduleRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -51,6 +56,30 @@ class RoomBorrowRequestServiceTest {
         // Verify
         verify(transactionsLogRepository).deleteByRoomRequestIds(List.of(1L, 2L));
         verify(roomBorrowRequestRepository).deleteAllInBatch(List.of(request1, request2));
+    }
+
+    @Test
+    public void testDeleteRequestWithRelatedSchedule() {
+        // Tạo dữ liệu giả lập
+        Long requestId = 1L;
+        RoomBorrowRequest request = new RoomBorrowRequest();
+        request.setUniqueID(requestId);
+
+        RoomSchedule schedule = new RoomSchedule();
+        schedule.setUniqueId(1L);
+        schedule.setRequest(request);
+
+        request.setSchedule(schedule);
+
+        // Mock repository
+        when(roomBorrowRequestRepository.findAllById(anyList())).thenReturn(List.of(request));
+
+        // Thực hiện xóa
+        roomBorrowRequestService.deleteRequestsByIds(List.of(requestId));
+
+        // Kiểm tra hành vi
+        verify(scheduleRepository).deleteAllById(anyList());
+        verify(roomBorrowRequestRepository).deleteAllInBatch(anyList());
     }
 
 }
