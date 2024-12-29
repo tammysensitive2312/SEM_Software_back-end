@@ -93,8 +93,8 @@ public class EquipmentBorrowRequestController {
     }
 
     @Operation(
-            summary = "Lấy danh sách tất cả các đơn mượn thiết bị",
-            description = "Trả về danh sách các đơn mượn thiết bị. Có thể lọc theo tên người dùng nếu truyền tham số `filter`."
+            summary = "Retrieve all equipment borrow requests",
+            description = "Returns a list of all equipment borrow requests. Can be filtered by user name."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -122,8 +122,8 @@ public class EquipmentBorrowRequestController {
     }
 
     @Operation(
-            summary = "API để lọc các đơn mượn theo nhiều tiêu chí",
-            description = "Trả về danh sách các đơn mượn thiết bị. Có thể lọc theo nhiều loại như tên, id user, thời gian, trạng thái"
+            summary = "API to filter equipment borrow requests by many arguments",
+            description = "Returns a list of equipment borrow requests that match the filter criteria. Can be filtered by user name, status, and date range."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -150,8 +150,8 @@ public class EquipmentBorrowRequestController {
     }
 
     @Operation(
-            summary = "Lấy chi tiết của một đơn mượn thiết bị",
-            description = "Trả về chi tiết thông tin của một đơn mượn thiết bị cụ thể dựa trên `id`."
+            summary = "Retrieve detail of a borrow request",
+            description = "Returns detailed information of a borrow request by its ID."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -170,7 +170,7 @@ public class EquipmentBorrowRequestController {
     })
     @GetMapping("/list/{id}/details")
     public ResponseEntity<EquipmentBorrowRequestDetailsDTO> getRequestDetails(
-            @Parameter(description = "ID của đơn mượn cần lấy chi tiết")
+            @Parameter(description = "equipment borrow request ID")
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(requestService.getRequestDetails(id));
@@ -194,8 +194,8 @@ public class EquipmentBorrowRequestController {
     }
 
     @Operation(
-            summary = "Xóa danh sách các đơn mượn",
-            description = "API này cho phép xóa nhiều đơn mượn cùng lúc dựa trên danh sách ID được truyền vào. Chỉ các đơn mượn chưa được duyệt mới có thể bị xóa.",
+            summary = "Delete multiple borrow requests",
+            description = "Delete multiple borrow requests by their IDs. Only requests with PENDING status can be deleted.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Xóa thành công"),
                     @ApiResponse(responseCode = "400", description = "Danh sách ID không hợp lệ"),

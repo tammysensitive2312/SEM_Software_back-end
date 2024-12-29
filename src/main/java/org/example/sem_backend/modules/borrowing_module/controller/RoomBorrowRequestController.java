@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -68,7 +67,7 @@ public class RoomBorrowRequestController {
     }
 
     @Operation(
-            summary = "Xóa danh sách các đơn mượn",
+            summary = "Delete multiple requests by list ID",
             description = "API này đang được phát triển nhưng dự kiến không sử dụng",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Xóa thành công"),
