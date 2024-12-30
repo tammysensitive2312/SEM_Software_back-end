@@ -54,6 +54,7 @@ public class EquipmentBorrowedListener {
                 .flatMap(detail -> {
                     Equipment equipment = detail.getEquipment();
                     equipment.setInUseQuantity(equipment.getInUseQuantity() + detail.getQuantityBorrowed());
+                    equipment.setUsableQuantity(equipment.getUsableQuantity() - detail.getQuantityBorrowed());
 
                     return detail.getEquipmentDetails().stream()
                             .peek(equipmentDetail -> equipmentDetail.setStatus(EquipmentDetailStatus.OCCUPIED));
@@ -88,6 +89,7 @@ public class EquipmentBorrowedListener {
                 .flatMap(detail -> {
                     Equipment equipment = detail.getEquipment();
                     equipment.setInUseQuantity(equipment.getInUseQuantity() - detail.getQuantityBorrowed());
+                    equipment.setUsableQuantity(equipment.getUsableQuantity() + detail.getQuantityBorrowed());
 
                     return detail.getEquipmentDetails().stream()
                             .peek(equipmentDetail -> equipmentDetail.setStatus(EquipmentDetailStatus.USABLE));
