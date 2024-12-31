@@ -257,6 +257,8 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
 
+    @Transactional
+    @Override
     public void deleteRequestsByIds(List<Long> requestIds) {
         if (requestIds == null || requestIds.isEmpty()) {
             throw new IllegalArgumentException("Request IDs cannot be null or empty");
@@ -268,15 +270,13 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
             throw new ResourceNotFoundException("No Equipment Borrow Requests found for the given IDs", "BORROWING_MODULE");
         }
 
-        // Kiểm tra trạng thái của từng đơn mượn
         for (EquipmentBorrowRequest request : requestsToDelete) {
             if (request.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
                 throw new IllegalStateException(String.format(
                         "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
             }
 
-            // Xóa thủ công chi tiết mượn trước khi xóa đơn mượn (bỏ qua Cascade trong trường hợp này)
-            // Nếu bạn muốn xóa chi tiết mượn từ DB
+            // Xóa thủ công chi tiết mượn trước khi xóa đơn mượn (bỏ qua Cascade)
             // Hoặc sử dụng repository của detail để xóa nó
             borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
 
@@ -284,13 +284,9 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
             request.getBorrowRequestDetails().clear();
         }
 
-        // Gọi delete log nếu có liên quan đến đơn mượn
         logRepository.deleteByEquipmentRequestIds(requestIds);
-
-        // Xóa đơn mượn
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
-
 
     public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
         Specification<EquipmentBorrowRequest> spec = Specification.where(null);
