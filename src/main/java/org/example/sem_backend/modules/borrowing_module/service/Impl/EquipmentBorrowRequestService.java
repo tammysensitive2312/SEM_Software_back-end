@@ -257,6 +257,25 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
 
+    /**
+     * Deletes multiple equipment borrow requests by their IDs.
+     * This method performs the following steps:
+     * <ul>
+     *   <li>Validates the input list of request IDs</li>
+     *   <li>Retrieves the corresponding EquipmentBorrowRequest entities</li>
+     *   <li>Checks if each request is in a deletable state (NOT_BORROWED)</li>
+     *   <li>Manually deletes associated borrow request details</li>
+     *   <li>Deletes associated transaction logs</li>
+     *   <li>Deletes the borrow requests</li>
+     * </ul>
+     *
+     * @param requestIds A List of Long values representing the IDs of the equipment borrow requests to be deleted
+     * @throws IllegalArgumentException if the requestIds list is null or empty
+     * @throws ResourceNotFoundException if no EquipmentBorrowRequests are found for the given IDs
+     * @throws IllegalStateException if any of the requests to be deleted is not in the NOT_BORROWED state
+     */
+    @Transactional
+    @Override
     public void deleteRequestsByIds(List<Long> requestIds) {
         if (requestIds == null || requestIds.isEmpty()) {
             throw new IllegalArgumentException("Request IDs cannot be null or empty");
@@ -268,26 +287,17 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
             throw new ResourceNotFoundException("No Equipment Borrow Requests found for the given IDs", "BORROWING_MODULE");
         }
 
-        // Kiểm tra trạng thái của từng đơn mượn
         for (EquipmentBorrowRequest request : requestsToDelete) {
             if (request.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
                 throw new IllegalStateException(String.format(
                         "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
             }
 
-            // Xóa thủ công chi tiết mượn trước khi xóa đơn mượn (bỏ qua Cascade trong trường hợp này)
-            // Nếu bạn muốn xóa chi tiết mượn từ DB
-            // Hoặc sử dụng repository của detail để xóa nó
             borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
-
-            // Xóa chi tiết mượn khỏi list trong entity (bỏ qua Cascade)
             request.getBorrowRequestDetails().clear();
         }
 
-        // Gọi delete log nếu có liên quan đến đơn mượn
         logRepository.deleteByEquipmentRequestIds(requestIds);
-
-        // Xóa đơn mượn
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
 
