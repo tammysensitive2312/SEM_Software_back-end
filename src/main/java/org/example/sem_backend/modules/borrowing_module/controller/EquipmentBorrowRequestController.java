@@ -64,7 +64,6 @@ public class EquipmentBorrowRequestController {
         return ResponseEntity.accepted().build();
     }
 
-    @PutMapping("/{id}/approve")
     @Operation(
             summary = "Approve a borrow request",
             description = "Approve a borrow request by its ID. This action will validate the availability of equipment and assign specific items to the request."
@@ -87,6 +86,7 @@ public class EquipmentBorrowRequestController {
                     description = "Invalid request state"
             )
     })
+    @PutMapping("/{id}/approve")
     public ResponseEntity<?> approveBorrowRequest(@PathVariable Long id) {
         requestService.approveRequest(id);
         return ResponseEntity.ok("Borrow Request approved successfully");

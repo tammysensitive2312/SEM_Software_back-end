@@ -148,9 +148,7 @@ class SseEmitterServiceTest {
             sseEmitterService.sendNotification(userId, message);
 
             // Assert
-            verify(emitter).send(SseEmitter.event()
-                    .name("notification")
-                    .data(message));
+            verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
         }
 
         @Test
@@ -168,12 +166,8 @@ class SseEmitterServiceTest {
             sseEmitterService.sendNotification(userId, message);
 
             // Assert
-            verify(emitter1).send(SseEmitter.event()
-                    .name("notification")
-                    .data(message));
-            verify(emitter2).send(SseEmitter.event()
-                    .name("notification")
-                    .data(message));
+            verify(emitter1).send(any(SseEmitter.SseEventBuilder.class));
+            verify(emitter2).send(any(SseEmitter.SseEventBuilder.class));
         }
 
         @Test

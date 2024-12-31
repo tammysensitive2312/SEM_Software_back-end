@@ -20,7 +20,7 @@ public class EquipmentBorrowRequestDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long uniqueId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "borrow_request_id", nullable = false)
     @ToString.Exclude
     private EquipmentBorrowRequest borrowRequest;
