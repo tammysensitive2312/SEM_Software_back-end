@@ -240,8 +240,15 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
         LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : today;
-        return roomBorrowRequestRepository.
-                findRequestsWithSchedules(userId, null, startTime, endTime, pageable);
+
+        Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository.findRequestsWithSchedules(userId, null, startTime, endTime, pageable);
+
+        requestsPage.getContent().forEach(request -> {
+            boolean isCancelable = request.getStartTime().isAfter(LocalDateTime.now());
+            request.setCancelable(isCancelable);
+        });
+
+        return requestsPage;
     }
 
     /**
@@ -254,7 +261,14 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
         LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : today;
-        return roomBorrowRequestRepository.
-                findRequestsWithSchedules(null, email, startTime, endTime, pageable);
+
+        Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository.findRequestsWithSchedules(null, email, startTime, endTime, pageable);
+
+        requestsPage.getContent().forEach(request -> {
+            boolean isCancelable = request.getStartTime().isAfter(LocalDateTime.now());
+            request.setCancelable(isCancelable);
+        });
+
+        return requestsPage;
     }
 }

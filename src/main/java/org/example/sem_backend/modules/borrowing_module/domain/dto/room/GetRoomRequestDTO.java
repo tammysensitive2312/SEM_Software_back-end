@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object for retrieving room booking requests with associated schedules.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,4 +18,5 @@ public class GetRoomRequestDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String comment;
+    private boolean isCancelable;
 }
