@@ -33,7 +33,7 @@ public class EquipmentBorrowRequest extends CommonRequest {
     @Column(name = "status")
     private Status status;
 
-    @OneToMany(mappedBy = "borrowRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "borrowRequest", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @ToString.Exclude
     private List<EquipmentBorrowRequestDetail> borrowRequestDetails = new ArrayList<>();
 }

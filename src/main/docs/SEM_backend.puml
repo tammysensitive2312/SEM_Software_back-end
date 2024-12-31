@@ -37,3 +37,82 @@ main_service .> common_module
 main_service .-> modules
 modules .-> common_module
 @enduml
+
+@startuml
+participant "Client" as C
+participant "Server" as S
+
+== Sign Up ==
+C -> S: <b>1.</b> POST api/auth/signup\n{username, email, role, password}
+S -> S: <b>2.</b> Check existing user\nand save to database
+S -> C: <b>3.</b> Return message:\n"Registered successfully!"
+
+== Log In ==
+C -> S: <b>1.</b> POST api/auth/signin : {username, password}
+S -> S: <b>2.</b> Authenticate and\ngenerate JWT with secret
+S -> C: <b>3.</b> Return JWT in\nHttpOnly Cookie + {user info}
+
+== Log Out ==
+C -> S: <b>1.</b> POST api/auth/signout
+S -> S: <b>2.</b> Remove JWT token\nfrom HttpOnly Cookie
+@enduml
+
+@startuml signup
+boundary "AuthController" as controller
+control "AuthService" as service
+control "UserRepository" as repository
+participant "MySQL Server" as db
+
+activate controller
+controller -> service: registerUser(SignUpRequest)
+activate service
+alt checkExistingUser(String email) = true
+activate repository
+service -> repository: checkExistingUser(String email)
+service <-- repository: true
+controller <-- service: "throw new RuntimeException"
+else
+service -> repository: saveUser(User user)
+controller <-- service: "return ResponseEntity.ok"
+end
+activate db
+repository -> db: insert into users
+deactivate db
+deactivate repository
+@enduml
+
+@startuml log in
+boundary "Client" as C
+boundary "Controller\n(AuthController)" as Ctrl
+control "Service\n(AuthService)" as Srv
+control "Authentication\nManager" as AM
+control "UserRepository" as Repo
+control "SecurityContext" as SC
+control "JwtUtils" as Jwt
+control "RefreshTokenService" as RT
+
+C -> Ctrl: POST /sign-in (LoginRequest)
+Ctrl -> Srv: authenticateUser(LoginRequest)
+
+alt User email does not exist
+    Srv -> Repo: existsByEmail(loginRequest.getEmail())
+    Repo --> Srv: false
+    Srv --> Ctrl: throw ResourceNotFoundException
+else User email exists
+    Srv -> Repo: existsByEmail(loginRequest.getEmail())
+    Repo --> Srv: true
+    Srv -> AM: authenticate(email, password)
+    AM --> Srv: Authentication object
+    Srv -> SC: setAuthentication(Authentication)
+    Srv -> Jwt: generateJwtCookie(username, email, userId)
+    Jwt --> Srv: JWT Cookie
+    Srv -> RT: createRefreshToken(userId)
+    RT --> Srv: Refresh token
+    Srv -> Jwt: generateRefreshJwtCookie(refreshToken)
+    Jwt --> Srv: Refresh JWT Cookie
+    Srv --> Ctrl: AuthResponse (JWT Cookie, Refresh Cookie, User Info)
+end
+
+Ctrl --> C: ResponseEntity (JWT Cookie + Refresh Cookie + User Info)
+@enduml
+
