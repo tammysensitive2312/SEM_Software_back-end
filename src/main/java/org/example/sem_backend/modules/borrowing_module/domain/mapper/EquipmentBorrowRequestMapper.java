@@ -23,7 +23,6 @@ public interface EquipmentBorrowRequestMapper {
     @Mapping(source = "uniqueID", target = "uniqueID")
     @Mapping(source = "user.username", target = "userName")
     @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "comment", target = "comment")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "expectedReturnDate", target = "expectedReturnDate")
     @Mapping(source = "createAt", target = "createdAt")

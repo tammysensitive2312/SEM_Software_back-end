@@ -17,6 +17,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentB
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestSpecification;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
+import org.example.sem_backend.modules.borrowing_module.repository.detail.EquipmentBorrowRequestDetailRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.equipment_module.domain.entity.Equipment;
 import org.example.sem_backend.modules.equipment_module.domain.entity.EquipmentDetail;
@@ -43,6 +44,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
     private final UserRepository userRepository;
     private final EquipmentBorrowRequestRepository requestRepository;
     private final EquipmentDetailRepository equipmentDetailRepository;
+    private final EquipmentBorrowRequestDetailRepository borrowRequestDetailRepository;
     private final EquipmentRepository equipmentRepository;
     private final TransactionsLogRepository logRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -255,14 +257,11 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
     }
 
-    @Override
-    @Transactional
     public void deleteRequestsByIds(List<Long> requestIds) {
         if (requestIds == null || requestIds.isEmpty()) {
             throw new IllegalArgumentException("Request IDs cannot be null or empty");
         }
 
-        // Tìm các đơn mượn cần xóa
         List<EquipmentBorrowRequest> requestsToDelete = requestRepository.findAllById(requestIds);
 
         if (requestsToDelete.isEmpty()) {
@@ -276,17 +275,22 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                         "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
             }
 
-            // Clear details manually
-            for (EquipmentBorrowRequestDetail detail : request.getBorrowRequestDetails()) {
-                detail.getEquipmentDetails().clear();
-            }
+            // Xóa thủ công chi tiết mượn trước khi xóa đơn mượn (bỏ qua Cascade trong trường hợp này)
+            // Nếu bạn muốn xóa chi tiết mượn từ DB
+            // Hoặc sử dụng repository của detail để xóa nó
+            borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
+
+            // Xóa chi tiết mượn khỏi list trong entity (bỏ qua Cascade)
             request.getBorrowRequestDetails().clear();
         }
 
+        // Gọi delete log nếu có liên quan đến đơn mượn
         logRepository.deleteByEquipmentRequestIds(requestIds);
-        // Xóa danh sách các đơn mượn
+
+        // Xóa đơn mượn
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
+
 
     public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
         Specification<EquipmentBorrowRequest> spec = Specification.where(null);
