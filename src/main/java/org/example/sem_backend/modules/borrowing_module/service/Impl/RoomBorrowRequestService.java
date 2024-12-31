@@ -237,8 +237,9 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      * @return A paginated list of room borrow requests for the user.
      */
     public Page<GetRoomRequestDTO> getUserRequests(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
         LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
-        LocalDateTime endTime = endDate != null ? endDate.atStartOfDay() : null;
+        LocalDateTime endTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : today;
         return roomBorrowRequestRepository.
                 findRequestsWithSchedules(userId, null, startTime, endTime, pageable);
     }
@@ -250,8 +251,9 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      * @return A paginated list of room borrow requests for administrative use.
      */
     public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
         LocalDateTime startTime = startDate != null ? startDate.atStartOfDay() : null;
-        LocalDateTime endTime = endDate != null ? endDate.atStartOfDay() : null;
+        LocalDateTime endTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : today;
         return roomBorrowRequestRepository.
                 findRequestsWithSchedules(null, email, startTime, endTime, pageable);
     }

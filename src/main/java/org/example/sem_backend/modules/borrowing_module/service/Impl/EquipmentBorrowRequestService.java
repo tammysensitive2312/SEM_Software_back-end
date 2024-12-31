@@ -274,7 +274,7 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      * @throws ResourceNotFoundException if no EquipmentBorrowRequests are found for the given IDs
      * @throws IllegalStateException if any of the requests to be deleted is not in the NOT_BORROWED state
      */
-    @Transactional
+//    @Transactional
     @Override
     public void deleteRequestsByIds(List<Long> requestIds) {
         if (requestIds == null || requestIds.isEmpty()) {
@@ -292,7 +292,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
                 throw new IllegalStateException(String.format(
                         "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
             }
-
             borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
             request.getBorrowRequestDetails().clear();
         }
