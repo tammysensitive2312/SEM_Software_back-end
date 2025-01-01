@@ -35,8 +35,6 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
     })
     List<EquipmentDetail> findAvailableByEquipmentId(@Param("equipmentId") Long equipmentId, Pageable pageable);
 
-//    Page<EquipmentDetail> findByEquipmentId(Long equipmentId, Pageable pageable);
-
     @Query("SELECT ed FROM equipment_details ed " +
             "JOIN FETCH ed.equipment eq " +
             "JOIN FETCH ed.room r " +
@@ -65,9 +63,9 @@ Page<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword, Pa
 @Query(value = "SELECT ed.* FROM sem_db.equipment_details ed " +
         "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
         "WHERE ed.equipment_id = :equipmentId " +
-        "AND (:keyword IS NULL OR LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-        "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-        "AND (:status IS NULL OR ed.status = :status)",
+        "AND (:keyword IS NULL OR :keyword = '' OR " +
+        "LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+        "AND (:status IS NULL OR :status = '' OR ed.status = :status)",
         countQuery = "SELECT COUNT(*) FROM sem_db.equipment_details ed " +
                 "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
                 "WHERE ed.equipment_id = :equipmentId " +
