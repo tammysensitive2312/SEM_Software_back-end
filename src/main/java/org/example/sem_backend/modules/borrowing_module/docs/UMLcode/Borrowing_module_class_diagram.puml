@@ -85,6 +85,7 @@ entity EquipmentBorrowRequestDetail {
 entity RoomBorrowRequest extends CommonRequest{
     -Room room
     -User user
+    -RoomSchedule schedule
 }
 entity RoomSchedule {
     -Long uniqueId
