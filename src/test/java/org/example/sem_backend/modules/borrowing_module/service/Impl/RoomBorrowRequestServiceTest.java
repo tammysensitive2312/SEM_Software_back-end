@@ -57,8 +57,6 @@ class RoomBorrowRequestServiceTest {
     private RoomBorrowRequestDTO validRequestDto;
     private User testUser;
     private Room testRoom;
-    private RoomBorrowRequest testRequest;
-    private RoomSchedule testSchedule;
 
     @BeforeEach
     void setUp() {
@@ -253,8 +251,10 @@ class RoomBorrowRequestServiceTest {
         @Test
         @DisplayName("Should successfully get user requests")
         void getUserRequests() {
+            GetRoomRequestDTO mockRequest = new GetRoomRequestDTO();
+            mockRequest.setStartTime(LocalDateTime.now().plusDays(2));
             // Arrange
-            Page<GetRoomRequestDTO> expectedPage = new PageImpl<>(List.of(new GetRoomRequestDTO()));
+            Page<GetRoomRequestDTO> expectedPage = new PageImpl<>(List.of(mockRequest));
             when(roomBorrowRequestRepository.findRequestsWithSchedules(
                     anyLong(), isNull(), any(), any(), any(Pageable.class)))
                     .thenReturn(expectedPage);
@@ -266,13 +266,16 @@ class RoomBorrowRequestServiceTest {
             // Assert
             assertNotNull(result);
             assertEquals(1, result.getContent().size());
+            assertTrue(result.getContent().getFirst().isCancelable());
         }
 
         @Test
         @DisplayName("Should successfully get admin requests")
         void getAdminRequests() {
+            GetRoomRequestDTO mockRequest = new GetRoomRequestDTO();
+            mockRequest.setStartTime(LocalDateTime.now().plusDays(2));
             // Arrange
-            Page<GetRoomRequestDTO> expectedPage = new PageImpl<>(List.of(new GetRoomRequestDTO()));
+            Page<GetRoomRequestDTO> expectedPage = new PageImpl<>(List.of(mockRequest));
             when(roomBorrowRequestRepository.findRequestsWithSchedules(
                     isNull(), anyString(), any(), any(), any(Pageable.class)))
                     .thenReturn(expectedPage);
