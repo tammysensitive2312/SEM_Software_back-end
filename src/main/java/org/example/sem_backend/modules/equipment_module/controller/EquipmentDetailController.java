@@ -124,13 +124,13 @@ public class EquipmentDetailController {
     @Operation(summary = "Get equipment detail by equipment ID",
             description = "Get a list of equipment detail items by equipment ID and keyword.")
     @GetMapping("/equipment/{equipmentId}/search")
-    public Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(@PathVariable Long equipmentId,
+    public ResponseEntity<Page<EquipmentDetailResponse>> getEquipmentDetailByEquipmentId(@PathVariable Long equipmentId,
                                                                         @RequestParam(required = false) String keyword,
                                                                         @RequestParam(required = false) String status,
                                                                         @RequestParam(value = "page", defaultValue = "0") int page,
                                                                         @RequestParam(value = "size", defaultValue = "15") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return equipmentDetailService.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, pageable);
+        Page<EquipmentDetailResponse> equipmentDetailResponses = equipmentDetailService.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, page, size);
+        return ResponseEntity.ok(equipmentDetailResponses);
     }
 
     @Operation(summary = "Delete equipment detail",
