@@ -14,13 +14,11 @@ public interface IEquipmentDetailService {
 
     void updateEquipmentDetail(Long id, EquipmentDetailRequest request);
 
-//    Page<EquipmentDetailResponse> getEquipmentDetailsByEquipmentId(Long equipmentId, int page, int size);
-
     Page<EquipmentDetailResponse> getEquipmentDetailsByRoomId(Integer roomId, Pageable pageable);
 
     Page<EquipmentDetailResponse> searchEquipmentDetail(String keyword, int page, int size);
 
-    Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, Pageable pageable);
+    Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, int page, int size);
 
     void deleteEquipmentDetail(Long id);
 }

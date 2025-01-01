@@ -121,12 +121,13 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     }
 
     @Override
-    public Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, Pageable pageable) {
+    public Page<EquipmentDetailResponse> getEquipmentDetailByEquipmentId(Long equipmentId, String keyword, String status, int page, int size) {
 
         if (equipmentId == null) {
             throw new IllegalArgumentException("Equipment ID is required.");
         }
 
+        Pageable pageable = PageRequest.of(page, size);
         Page<EquipmentDetail> equipmentDetails = equipmentDetailRepository.getEquipmentDetailByEquipmentId(equipmentId, keyword, status, pageable);
         return equipmentDetails.map(equipmentDetailMapper::toResponse);
     }
