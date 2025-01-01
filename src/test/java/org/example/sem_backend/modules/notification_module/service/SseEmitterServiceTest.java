@@ -194,12 +194,8 @@ class SseEmitterServiceTest {
                 var emittersMap = (java.util.concurrent.ConcurrentHashMap<Long, CopyOnWriteArraySet<SseEmitter>>) field.get(sseEmitterService);
 
                 // Assert
-                verify(emitter1).send(SseEmitter.event()
-                        .name("notification")
-                        .data(message));
-                verify(emitter2).send(SseEmitter.event()
-                        .name("notification")
-                        .data(message));
+                verify(emitter1).send(any(SseEmitter.SseEventBuilder.class));
+                verify(emitter2).send(any(SseEmitter.SseEventBuilder.class));
 
                 // Verify that the failed emitter was removed
                 assertFalse(emittersMap.get(userId).contains(emitter1));

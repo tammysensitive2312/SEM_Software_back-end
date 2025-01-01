@@ -22,7 +22,8 @@ public interface RoomBorrowRequestRepository extends JpaRepository<RoomBorrowReq
         u.email,
         rs.startTime,
         rs.endTime,
-        r.comment
+        r.comment,
+        false
     )
     FROM RoomBorrowRequest r
     LEFT JOIN r.user u
