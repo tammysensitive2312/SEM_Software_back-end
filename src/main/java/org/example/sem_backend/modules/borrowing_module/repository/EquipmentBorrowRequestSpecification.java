@@ -27,12 +27,12 @@ public class EquipmentBorrowRequestSpecification {
 
     public static Specification<EquipmentBorrowRequest> expectedReturnDateBefore(LocalDate date) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.lessThan(root.get("expectedReturnDate"), date);
+                criteriaBuilder.lessThanOrEqualTo(root.get("expectedReturnDate"), date);
     }
 
     public static Specification<EquipmentBorrowRequest> expectedReturnDateAfter(LocalDate date) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThan(root.get("expectedReturnDate"), date);
+                criteriaBuilder.greaterThanOrEqualTo(root.get("expectedReturnDate"), date);
     }
 
     public static Specification<EquipmentBorrowRequest> userUsernameContains(String username) {
