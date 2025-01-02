@@ -12,6 +12,7 @@ import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowReq
 import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
+import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
@@ -122,6 +123,31 @@ class RoomBorrowRequestServiceTest {
             // Act & Assert
             assertThrows(ResourceNotFoundException.class,
                     () -> roomBorrowRequestService.processRequest(validRequestDto));
+        }
+
+        @Test
+        @DisplayName("Should throw ResourceConflictException when room status is BROKEN")
+        void processRequestRoomBroken() {
+            // Arrange
+            RoomBorrowRequestDTO requestDto = new RoomBorrowRequestDTO();
+            requestDto.setRoomId(1L);
+            requestDto.setUserId(1L);
+            requestDto.setStartTime(LocalDateTime.now().plusHours(1));
+            requestDto.setEndTime(LocalDateTime.now().plusHours(2));
+
+            Room brokenRoom = new Room();
+            brokenRoom.setStatus(RoomStatus.BROKEN);
+
+            when(roomRepository.findById(1L)).thenReturn(Optional.of(brokenRoom));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+            // Act & Assert
+            assertThrows(ResourceConflictException.class,
+                    () -> roomBorrowRequestService.processRequest(requestDto));
+
+            verify(roomBorrowRequestRepository, never()).save(any(RoomBorrowRequest.class));
+            verify(scheduleRepository, never()).save(any(RoomSchedule.class));
+            verify(logRepository, never()).save(any(TransactionsLog.class));
         }
     }
 

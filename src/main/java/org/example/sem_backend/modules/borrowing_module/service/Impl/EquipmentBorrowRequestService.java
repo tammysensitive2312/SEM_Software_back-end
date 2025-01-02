@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentRequestDeniedEvent;
 import org.example.sem_backend.common_module.common.event.EquipmentReturnedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
@@ -385,6 +386,32 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         requestRepository.saveAll(borrowRequests);
 
         eventPublisher.publishEvent(new EquipmentReturnedEvent(this, equipmentBorrowRequestIds));
+    }
+    
+
+    /**
+     * Denies an equipment borrow request and updates its status to REJECTED.
+     * This method also publishes an EquipmentRequestDeniedEvent
+     *
+     * @param denyDto An EquipmentBorrowRequestDenyDto object containing the request ID and denial reason.
+     * @throws ResourceNotFoundException if the request with the given ID is not found.
+     * @throws ResourceConflictException if the request is not in a state that can be rejected (i.e., not in NOT_BORROWED status).
+     */
+    public void denyRequest(EquipmentBorrowRequestDenyDto denyDto) {
+        EquipmentBorrowRequest request = requestRepository.findById(denyDto.getRequestId())
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found", "BORROWING_MODULE"));
+
+        if (request.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
+            throw new ResourceConflictException("request is not in a state that can be REJECTED", "BORROWING_MODULE");
+        }
+
+        request.setStatus(EquipmentBorrowRequest.Status.REJECTED);
+        requestRepository.save(request);
+
+        Long userId = request.getUser().getId();
+        String reason = denyDto.getReason();
+
+        eventPublisher.publishEvent(new EquipmentRequestDeniedEvent(this, request.getUniqueID(), userId, reason));
     }
 
 }
