@@ -2,6 +2,7 @@ package org.example.sem_backend.modules.notification_module.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentRequestDeniedEvent;
 import org.example.sem_backend.common_module.common.event.GenericEvent;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
@@ -47,6 +48,12 @@ public class NotificationService {
         List<Long> userIds = event.getData();
         String message = "Phòng hiện đang gặp sự cố, admin đang xử lý";
         createAndSendNotification(userIds, message, true);
+    }
+
+    @EventListener
+    public void handleEquipmentRequestDeniedEvent(EquipmentRequestDeniedEvent event) {
+        String message = "Đơn mượn #" + event.getRequestId() + " của bạn đã bị từ chối với lý do: " + event.getReason();
+        createAndSendNotification(event.getUserId(), message, true);
     }
 
     /**

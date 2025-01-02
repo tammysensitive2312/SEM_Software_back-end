@@ -1,8 +1,8 @@
 package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO;
@@ -15,6 +15,7 @@ import org.example.sem_backend.modules.borrowing_module.repository.TransactionsL
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
+import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.repository.RoomRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleRepository;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
@@ -28,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +63,13 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
                         String.format("Room not found with ID: [%s]", requestDto.getRoomId()),
                         "BORROWING-MODULE"
                 ));
+
+        if (room.getStatus() == RoomStatus.BROKEN) {
+            throw new ResourceConflictException(
+                    String.format("Room ID [%s] is not available for booking", requestDto.getRoomId()),
+                    "BORROWING-MODULE"
+            );
+        }
 
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(
