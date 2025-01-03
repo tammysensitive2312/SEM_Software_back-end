@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.main_service.middleware.auth.service.UserDetailsImpl;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
+import org.example.sem_backend.modules.notification_module.domain.dto.NotificationResponse;
 import org.example.sem_backend.modules.notification_module.service.NotificationService;
 import org.example.sem_backend.modules.notification_module.service.SseEmitterService;
 import org.springframework.data.domain.Page;
@@ -69,7 +70,7 @@ public class NotificationController {
                     )
             }
     )
-    public List<NotificationRequest> getUnreadNotifications(
+    public List<NotificationResponse> getUnreadNotifications(
             @Parameter(hidden = true)
             @AuthenticationPrincipal UserDetailsImpl userInfo
     ) {
@@ -87,14 +88,14 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<Page<NotificationRequest>> getAllNotifications(
+    public ResponseEntity<Page<NotificationResponse>> getAllNotifications(
             @Parameter(hidden = true)
             @AuthenticationPrincipal UserDetailsImpl userInfo,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "15") int size) {
         Long userId = userInfo.getId();
         Pageable pageable = PageRequest.of(page, size);
-        Page<NotificationRequest> messages = notificationService.getAllNotifications(userId, pageable);
+        Page<NotificationResponse> messages = notificationService.getAllNotifications(userId, pageable);
 
         return ResponseEntity.ok(messages);
     }

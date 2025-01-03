@@ -13,10 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDetailsDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestFilterDTO;
-import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestSummaryDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.*;
 import org.example.sem_backend.modules.borrowing_module.service.Impl.EquipmentBorrowRequestService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -244,5 +241,42 @@ public class EquipmentBorrowRequestController {
             List<@NotNull(message = "Request ID cannot be null") Long> requestIds
     ) throws BadRequestException {
         requestService.returnEquipment(requestIds);
+    }
+
+    @Operation(
+            summary = "Denied borrowed equipment request",
+            description = "Update status of one borrow requests to REJECTED. Only requests with BORROWED status can be processed."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Request was accepted successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No borrow requests found with provided ID",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "requests is not in NOT_BORROWED status",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            )
+    })
+    @PatchMapping("/deny")
+    @ResponseStatus(HttpStatus.OK)
+    public void denyRequest(
+            @Parameter(
+                    description = "ID of request & reason",
+                    required = true
+            )
+            @RequestBody
+            EquipmentBorrowRequestDenyDto request
+    ) {
+        requestService.denyRequest(request);
     }
 }

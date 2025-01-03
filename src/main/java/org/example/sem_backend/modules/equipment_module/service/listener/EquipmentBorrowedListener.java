@@ -34,6 +34,7 @@ public class EquipmentBorrowedListener {
     @Transactional
     public void onEquipmentBorrowed(EquipmentBorrowedEvent event) {
         try {
+            log.info("Processing equipment borrow request - Request ID: {}", event.getRequestId());
             EquipmentBorrowRequest request = borrowRequestRepository.findById(event.getRequestId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "not found request with id : " + event.getRequestId(), "Equipment-Module")

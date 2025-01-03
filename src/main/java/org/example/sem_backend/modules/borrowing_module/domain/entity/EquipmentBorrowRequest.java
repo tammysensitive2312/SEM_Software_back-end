@@ -19,7 +19,7 @@ import java.util.List;
 @ToString
 public class EquipmentBorrowRequest extends CommonRequest {
     public enum Status {
-        NOT_BORROWED, BORROWED, RETURNED, PARTIALLY_RETURNED
+        NOT_BORROWED, BORROWED, RETURNED, PARTIALLY_RETURNED, REJECTED
     }
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -2,6 +2,7 @@ package org.example.sem_backend.modules.notification_module.service;
 
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
+import org.example.sem_backend.modules.notification_module.domain.dto.NotificationResponse;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
@@ -69,21 +70,22 @@ class NotificationServiceTest {
         notification.setRecipients(new HashSet<>(Collections.singletonList(userId)));
         notification.setRead(false);
 
-        NotificationRequest request = new NotificationRequest(
+        NotificationResponse response = new NotificationResponse(
                 notification.getMessage(),
+                any(),
                 false);
 
         when(notificationRepository.findByRecipientsContainingAndIsReadFalse(userId))
                 .thenReturn(List.of(notification));
 
-        when(mapper.toDto(notification)).thenReturn(request);
+        when(mapper.toDtoResponse(notification)).thenReturn(response);
         // Act
-        List<NotificationRequest> unreadNotifications = notificationService.getUnreadNotifications(userId);
+        List<NotificationResponse> unreadNotifications = notificationService.getUnreadNotifications(userId);
 
         // Assert
         assertNotNull(unreadNotifications);
         assertEquals(1, unreadNotifications.size());
-        assertEquals(request, unreadNotifications.getFirst());
+        assertEquals(response, unreadNotifications.getFirst());
     }
 
     @Test

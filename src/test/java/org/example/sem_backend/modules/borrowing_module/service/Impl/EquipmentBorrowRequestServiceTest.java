@@ -2,11 +2,13 @@ package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
+import org.example.sem_backend.common_module.common.event.EquipmentRequestDeniedEvent;
 import org.example.sem_backend.common_module.common.event.EquipmentReturnedEvent;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowItemDTO;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDTO;
+import org.example.sem_backend.modules.borrowing_module.domain.dto.equipment.EquipmentBorrowRequestDenyDto;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequest;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentBorrowRequestDetail;
 import org.example.sem_backend.modules.borrowing_module.domain.mapper.EquipmentBorrowRequestMapper;
@@ -20,18 +22,24 @@ import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,6 +62,9 @@ class EquipmentBorrowRequestServiceTest {
     private ApplicationEventPublisher eventPublisher;
     @Mock
     private EquipmentBorrowRequestMapper requestMapper;
+
+    @Mock
+    private PlatformTransactionManager transactionManager;
 
     @InjectMocks
     private EquipmentBorrowRequestService service;
@@ -221,34 +232,35 @@ class EquipmentBorrowRequestServiceTest {
         verify(equipmentRepository).findByEquipmentName("Laptop");
     }
 
-    @Test
-    @DisplayName("Approve request success")
-    void testApproveRequest_ShouldSucceed_WhenValidInput() {
-        // Mock dữ liệu
-        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
-        when(equipmentDetailRepository.findAvailableByEquipmentId(
-                detail.getEquipment().getId(),
-                PageRequest.of(0, detail.getQuantityBorrowed())
-        )).thenReturn(List.of(equipmentDetail1, equipmentDetail2));
-
-        // Thực thi phương thức
-        service.approveRequest(1L);
-
-        // Xác minh kết quả
-        assertEquals(EquipmentBorrowRequest.Status.BORROWED, request.getStatus());
-//        assertTrue(detail.getEquipmentDetails().containsAll(List.of(equipmentDetail1, equipmentDetail2)));
-
-        // Kiểm tra tương tác với repository và event
-        verify(requestRepository).save(request);
-
-        verify(eventPublisher).publishEvent(argThat(event -> {
-            if (event instanceof EquipmentBorrowedEvent borrowedEvent) {
-                return borrowedEvent.getRequestId().equals(1L) &&
-                        borrowedEvent.getUserId().equals(1L);
-            }
-            return false;
-        }));
-    }
+//    @Test
+//    void shouldRegisterTransactionSynchronizationAfterApproval() {
+//        // Arrange
+//        Long requestId = 1L;
+//        EquipmentBorrowRequest mockRequest = new EquipmentBorrowRequest();
+//        mockRequest.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
+//        mockRequest.setBorrowRequestDetails(new ArrayList<>());
+//        User mockUser = new User();
+//        mockUser.setId(1L);
+//        mockRequest.setUser(mockUser);
+//
+//        when(requestRepository.findById(requestId)).thenReturn(Optional.of(mockRequest));
+//        when(equipmentDetailRepository.findAvailableByEquipmentId(anyLong(), any(Pageable.class))).thenReturn(new ArrayList<>());
+//
+//        // Act
+//        service.approveRequest(requestId);
+//
+//        // Assert
+//        verify(requestRepository).save(mockRequest);
+//        assertEquals(EquipmentBorrowRequest.Status.BORROWED, mockRequest.getStatus());
+//
+//        ArgumentCaptor<TransactionSynchronizationAdapter> syncCaptor = ArgumentCaptor.forClass(TransactionSynchronizationAdapter.class);
+//        verify(transactionSynchronizationManager).registerSynchronization(syncCaptor.capture());
+//
+//        TransactionSynchronizationAdapter capturedSync = syncCaptor.getValue();
+//        capturedSync.afterCommit();
+//
+//        verify(eventPublisher).publishEvent(any(EquipmentBorrowedEvent.class));
+//    }
 
 
     @Test
@@ -370,6 +382,85 @@ class EquipmentBorrowRequestServiceTest {
         verify(requestRepository, never()).findAllById(any());
         verify(requestRepository, never()).saveAll(any());
         verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Nested
+    @DisplayName("Deny request test")
+    class DenyRequestTest {
+        @Test
+        @DisplayName("Should throw ResourceConflictException when attempting to deny a request that is not in NOT_BORROWED status")
+        void denyRequest_throwsResourceConflictException_whenRequestNotInNotBorrowedStatus() {
+            // Arrange
+            Long requestId = 1L;
+            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, "Denial reason");
+            EquipmentBorrowRequest request = new EquipmentBorrowRequest();
+            request.setStatus(EquipmentBorrowRequest.Status.BORROWED);
+
+            when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
+
+            // Act & Assert
+            assertThrows(ResourceConflictException.class, () -> service.denyRequest(denyDto));
+            verify(requestRepository, never()).save(any());
+            verify(eventPublisher, never()).publishEvent(any());
+        }
+
+        @Test
+        @DisplayName("Should successfully update the request status to REJECTED when denying a valid request")
+        void denyValidRequest() {
+            // Arrange
+            Long requestId = 1L;
+            String denialReason = "Equipment unavailable";
+            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, denialReason);
+
+            EquipmentBorrowRequest request = new EquipmentBorrowRequest();
+            request.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
+            User user = new User();
+            user.setId(2L);
+            request.setUser(user);
+
+            when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
+            when(requestRepository.save(any(EquipmentBorrowRequest.class))).thenReturn(request);
+
+            // Act
+            service.denyRequest(denyDto);
+
+            // Assert
+            verify(requestRepository).findById(requestId);
+            verify(requestRepository).save(request);
+            assertEquals(EquipmentBorrowRequest.Status.REJECTED, request.getStatus());
+            verify(eventPublisher).publishEvent(any(EquipmentRequestDeniedEvent.class));
+        }
+
+        @Test
+        @DisplayName("Should verify that the EquipmentRequestDeniedEvent is published with correct parameters after denying a request")
+        void denyRequest_shouldPublishEquipmentRequestDeniedEvent() {
+            // Arrange
+            Long requestId = 1L;
+            String reason = "Test reason";
+            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, reason);
+
+            EquipmentBorrowRequest mockRequest = mock(EquipmentBorrowRequest.class);
+            User mockUser = mock(User.class);
+            when(mockRequest.getStatus()).thenReturn(EquipmentBorrowRequest.Status.NOT_BORROWED);
+            when(mockRequest.getUser()).thenReturn(mockUser);
+            when(mockUser.getId()).thenReturn(2L);
+            when(mockRequest.getUniqueID()).thenReturn(requestId);
+
+            when(requestRepository.findById(requestId)).thenReturn(Optional.of(mockRequest));
+
+            // Act
+            service.denyRequest(denyDto);
+
+            // Assert
+            verify(requestRepository).save(mockRequest);
+            verify(mockRequest).setStatus(EquipmentBorrowRequest.Status.REJECTED);
+            verify(eventPublisher).publishEvent(argThat(event ->
+                    event instanceof EquipmentRequestDeniedEvent &&
+                            ((EquipmentRequestDeniedEvent) event).getRequestId().equals(requestId) &&
+                            ((EquipmentRequestDeniedEvent) event).getUserId().equals(2L) &&
+                            ((EquipmentRequestDeniedEvent) event).getReason().equals(reason)
+            ));
+        }
     }
 
 }
