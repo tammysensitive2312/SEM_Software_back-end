@@ -71,6 +71,7 @@ class NotificationServiceTest {
         notification.setRead(false);
 
         NotificationResponse response = new NotificationResponse(
+                1L,
                 notification.getMessage(),
                 any(),
                 false);

@@ -30,7 +30,7 @@ public class Notification extends BaseEntity {
     @Column(name = "recipient_id")
     private Set<Long> recipients = new HashSet<>();
 
-    private boolean isRead = false;
+    private boolean isRead;
     private LocalDateTime readAt;
 
     @Override

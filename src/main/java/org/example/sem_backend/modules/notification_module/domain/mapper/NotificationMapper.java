@@ -16,6 +16,9 @@ public interface NotificationMapper {
     NotificationRequest toDto(Notification notification);
 
     @Mapping(target = "time", source = "createAt", qualifiedByName = "formatLocalDateTime")
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "message", source = "message")
+    @Mapping(target = "isRead", source = "read")
     NotificationResponse toDtoResponse(Notification notification);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -14,8 +14,6 @@ import org.example.sem_backend.modules.notification_module.service.stragery.Noti
 import org.example.sem_backend.modules.user_module.domain.entity.ERole;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,9 +141,12 @@ public class NotificationService {
         return notifications;
     }
 
-    public Page<NotificationResponse> getAllNotifications(Long userId, Pageable pageable) {
-        Page<NotificationResponse> notifications = notificationRepository.findByRecipientsContaining(userId, pageable)
-                .map(mapper::toDtoResponse);
+    public List<NotificationResponse> getAllNotifications(Long userId) {
+        List<NotificationResponse> notifications = notificationRepository.findByRecipientsContaining(userId)
+                .stream()
+                .map(mapper::toDtoResponse)
+                .collect(Collectors.toList())
+                .reversed();
 
         return notifications;
     }

@@ -88,14 +88,12 @@ public class NotificationController {
                     )
             }
     )
-    public ResponseEntity<Page<NotificationResponse>> getAllNotifications(
+    public ResponseEntity<List<NotificationResponse>> getAllNotifications(
             @Parameter(hidden = true)
-            @AuthenticationPrincipal UserDetailsImpl userInfo,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "15") int size) {
+            @AuthenticationPrincipal UserDetailsImpl userInfo
+            ) {
         Long userId = userInfo.getId();
-        Pageable pageable = PageRequest.of(page, size);
-        Page<NotificationResponse> messages = notificationService.getAllNotifications(userId, pageable);
+        List<NotificationResponse> messages = notificationService.getAllNotifications(userId);
 
         return ResponseEntity.ok(messages);
     }
