@@ -70,6 +70,7 @@ public class EquipmentDetailService implements IEquipmentDetailService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
         equipmentDetail.setDescription(request.getDescription());
         equipmentDetail.setPurchaseDate(request.getPurchaseDate());
+        equipmentDetail.setStatus(request.getStatus());
         equipmentDetail.setRoom(room);
         equipmentDetail.setEquipment(equipment);
         equipmentDetailRepository.save(equipmentDetail);
