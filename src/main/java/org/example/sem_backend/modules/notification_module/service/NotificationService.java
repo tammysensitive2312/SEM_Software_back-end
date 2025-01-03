@@ -5,6 +5,7 @@ import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent
 import org.example.sem_backend.common_module.common.event.EquipmentRequestDeniedEvent;
 import org.example.sem_backend.common_module.common.event.GenericEvent;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
+import org.example.sem_backend.modules.notification_module.domain.dto.NotificationResponse;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.domain.enums.NotificationType;
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
@@ -133,18 +134,18 @@ public class NotificationService {
         createAndSendNotification(receipientIds, message, true);
     }
 
-    public List<NotificationRequest> getUnreadNotifications(Long userId) {
+    public List<NotificationResponse> getUnreadNotifications(Long userId) {
 
-        List<NotificationRequest> notifications = notificationRepository.findByRecipientsContainingAndIsReadFalse(userId)
+        List<NotificationResponse> notifications = notificationRepository.findByRecipientsContainingAndIsReadFalse(userId)
                 .stream()
-                .map(mapper::toDto)
+                .map(mapper::toDtoResponse)
                 .collect(Collectors.toList());
         return notifications;
     }
 
-    public Page<NotificationRequest> getAllNotifications(Long userId, Pageable pageable) {
-        Page<NotificationRequest> notifications = notificationRepository.findByRecipientsContaining(userId, pageable)
-                .map(mapper::toDto);
+    public Page<NotificationResponse> getAllNotifications(Long userId, Pageable pageable) {
+        Page<NotificationResponse> notifications = notificationRepository.findByRecipientsContaining(userId, pageable)
+                .map(mapper::toDtoResponse);
 
         return notifications;
     }
