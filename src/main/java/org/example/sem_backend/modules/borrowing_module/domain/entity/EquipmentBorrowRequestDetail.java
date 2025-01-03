@@ -29,7 +29,7 @@ public class EquipmentBorrowRequestDetail {
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "borrow_detail_equipment",
             joinColumns = @JoinColumn(name = "borrow_request_detail_id"),

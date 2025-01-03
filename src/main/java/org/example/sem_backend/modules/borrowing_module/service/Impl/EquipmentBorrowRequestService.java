@@ -33,6 +33,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -255,7 +257,12 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         request.setStatus(EquipmentBorrowRequest.Status.BORROWED);
         requestRepository.save(request);
 
-        eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCommit() {
+                eventPublisher.publishEvent(new EquipmentBorrowedEvent(this, request.getUniqueID(), request.getUser().getId()));
+            }
+        });
     }
 
     /**
