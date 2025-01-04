@@ -220,7 +220,7 @@ public class EquipmentDetailService implements IEquipmentDetailService {
         }
     }
 
-    public int countUsableEquipmentInWarehouse() {
-        return equipmentDetailRepository.countUsableEquipmentInWarehouse();
+    public int countUsableEquipmentInWarehouseByEquipmentId(Long equipmentId) {
+        return equipmentDetailRepository.countUsableEquipmentInWarehouseByEquipmentId(equipmentId);
     }
 }

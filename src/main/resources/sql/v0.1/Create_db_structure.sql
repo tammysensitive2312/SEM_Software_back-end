@@ -66,7 +66,7 @@ create table if not exists rooms
 (
     unique_id bigint auto_increment
         primary key,
-    capacity  int                                                                     not null,
+    capacity  int                                                                   null,
     room_name varchar(255)                                                            not null,
     status    enum ('AVAILABLE', 'BROKEN', 'IN_USE')                                  null,
     type      enum ('CLASSROOM', 'LABORATORY', 'MEETING_ROOM', 'OFFICE', 'WAREHOUSE') null,
