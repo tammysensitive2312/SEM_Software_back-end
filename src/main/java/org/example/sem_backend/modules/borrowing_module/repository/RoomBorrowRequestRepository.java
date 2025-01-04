@@ -16,15 +16,16 @@ import java.util.List;
 @Repository
 public interface RoomBorrowRequestRepository extends JpaRepository<RoomBorrowRequest, Long> {
     @Query("""
-          SELECT new org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO(
-          r.uniqueID,
-          rm.roomName,
-          u.username,
-          u.email,
-          rs.startTime,
-          rs.endTime,
-          r.comment,
-          false
+
+            SELECT new org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO(
+              r.uniqueID,
+              rm.roomName,
+              u.username,
+              u.email,
+              rs.startTime,
+              rs.endTime,
+              r.comment,
+              false
           )
           FROM RoomBorrowRequest r
           LEFT JOIN r.user u
@@ -33,9 +34,10 @@ public interface RoomBorrowRequestRepository extends JpaRepository<RoomBorrowReq
           WHERE (:userId IS NULL OR u.id = :userId)
           AND (:email IS NULL OR u.email LIKE %:email%)
           AND (
-               :startDate IS NULL OR 
-               :endDate IS NULL OR 
-               DATE(rs.startTime) BETWEEN :startDate AND :endDate
+              (:startDate IS NULL AND :endDate IS NULL) OR
+              (:startDate IS NULL AND DATE(rs.startTime) <= :endDate) OR
+              (:endDate IS NULL AND DATE(rs.startTime) >= :startDate) OR
+              (DATE(rs.startTime) BETWEEN :startDate AND :endDate)
           )
           """)
     Page<GetRoomRequestDTO> findRequestsWithSchedules(

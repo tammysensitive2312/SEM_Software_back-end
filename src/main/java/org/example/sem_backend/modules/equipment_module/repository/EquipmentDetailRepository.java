@@ -24,7 +24,8 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
 
     @Query("SELECT DISTINCT ed FROM equipment_details ed " +
             "JOIN fetch ed.equipment e " +
-            "WHERE e.id = :equipmentId AND ed.status = 'USABLE'")
+            "JOIN fetch ed.room r " +
+            "WHERE r.type = 'WAREHOUSE' AND e.id = :equipmentId AND ed.status = 'USABLE'")
     @QueryHints({
             @QueryHint(name = "org.hibernate.timeout", value = "3"),
             @QueryHint(name = "org.hibernate.readOnly", value = "true"),
