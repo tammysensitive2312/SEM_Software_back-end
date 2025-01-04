@@ -308,7 +308,6 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
         requestRepository.deleteAllInBatch(requestsToDelete);
     }
 
-
     public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
         Specification<EquipmentBorrowRequest> spec = Specification.where(null);
 
