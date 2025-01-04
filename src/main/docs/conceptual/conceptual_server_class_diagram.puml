@@ -1,0 +1,132 @@
+@startuml
+
+package "domain" {
+    class Device {
+        - id: Long
+        - name: String
+        - serialNumber: String
+        - status: DeviceStatus
+        - purchaseDate: Date
+        + update()
+        + delete()
+        + changeStatus()
+    }
+
+    enum DeviceStatus {
+        AVAILABLE
+        IN_USE
+        BROKEN
+    }
+
+    enum Category {
+        name: String
+        description: String
+    }
+
+    class Location {
+        - id: Long
+        - name: String
+        - building: String
+        - floor: String
+        - roomNumber: String
+        + assignDevice()
+        + removeDevice()
+    }
+
+    class Borrowing {
+        - id: Long
+        - borrowDate: Date
+        - returnDate: Date
+        - status: BorrowingStatus
+        + approve()
+        + reject()
+        + return()
+    }
+
+    enum BorrowingStatus {
+        PENDING
+        APPROVED
+        REJECTED
+        RETURNED
+    }
+
+    class User {
+        - id: Long
+        - username: String
+        - password: String
+        - email: String
+        - role: String
+        + borrowDevice()
+        + returnDevice()
+    }
+
+
+    class Maintenance {
+        - id: Long
+        - startDate: Date
+        - endDate: Date
+        - description: String
+        - cost: Double
+        + create()
+        + update()
+        + complete()
+    }
+}
+
+package "service" {
+    interface DeviceService {
+        + findAll()
+        + findById()
+        + create()
+        + update()
+        + delete()
+    }
+
+    interface BorrowingService {
+        + createBorrowing()
+        + approveBorrowing()
+        + rejectBorrowing()
+        + returnDevice()
+    }
+
+    interface MaintenanceService {
+        + scheduleMaintenace()
+        + completeMaintenace()
+        + getMaintenanceHistory()
+    }
+}
+
+package "repository" {
+    interface DeviceRepository {
+        + findAll()
+        + findById()
+        + save()
+        + delete()
+    }
+
+    interface BorrowingRepository {
+        + save()
+        + findByUser()
+        + findByDevice()
+    }
+
+    interface MaintenanceRepository {
+        + save()
+        + findByDevice()
+    }
+}
+
+' Relationships
+Device "1" *-- "1" DeviceStatus
+Device "1" *-- "1" Category
+Device "1" *-- "1" Location
+Borrowing "1" *-- "1" BorrowingStatus
+Borrowing "1" *-- "1" Device
+Borrowing "1" *-- "1" User
+Maintenance "1" *-- "1" Device
+
+DeviceService ..> DeviceRepository
+BorrowingService ..> BorrowingRepository
+MaintenanceService ..> MaintenanceRepository
+
+@enduml

@@ -1,0 +1,259 @@
+@startuml
+actor User
+participant "BorrowingController" as BC
+participant "BorrowingService" as BS
+participant "DeviceService" as DS
+participant "BorrowingRepository" as BR
+participant "DeviceRepository" as DR
+database "Database" as DB
+
+User -> BC: requestBorrowDevice(deviceId, userId)
+activate BC
+
+BC -> BS: createBorrowing(deviceId, userId)
+activate BS
+
+BS -> DS: findById(deviceId)
+activate DS
+DS -> DR: findById(deviceId)
+activate DR
+DR -> DB: select
+DB --> DR: device
+DR --> DS: device
+deactivate DR
+DS --> BS: device
+deactivate DS
+
+alt device status is AVAILABLE
+    BS -> BS: createBorrowingRequest()
+    BS -> BR: save(borrowing)
+    activate BR
+    BR -> DB: insert
+    DB --> BR: borrowing
+    BR --> BS: borrowing
+    deactivate BR
+
+    BS -> DS: updateDeviceStatus(deviceId, IN_USE)
+    activate DS
+    DS -> DR: save(device)
+    activate DR
+    DR -> DB: update
+    DB --> DR: updated
+    DR --> DS: success
+    deactivate DR
+    DS --> BS: success
+    deactivate DS
+
+    BS --> BC: borrowingCreated
+    BC --> User: requestSuccess
+
+else device not AVAILABLE
+    BS --> BC: deviceNotAvailable
+    BC --> User: errorMessage
+end
+
+deactivate BS
+deactivate BC
+
+@enduml
+
+@startuml
+' Sequence 1: Trả thiết bị
+title Trả thiết bị
+
+actor User
+participant "BorrowingController" as BC
+participant "BorrowingService" as BS
+participant "DeviceService" as DS
+participant "BorrowingRepository" as BR
+participant "DeviceRepository" as DR
+database "Database" as DB
+
+User -> BC: returnDevice(borrowId)
+activate BC
+
+BC -> BS: processReturn(borrowId)
+activate BS
+
+BS -> BR: findById(borrowId)
+activate BR
+BR -> DB: select
+DB --> BR: borrowing
+BR --> BS: borrowing
+deactivate BR
+
+BS -> DS: updateDeviceStatus(deviceId, AVAILABLE)
+activate DS
+DS -> DR: save(device)
+DR -> DB: update
+DB --> DR: updated
+DR --> DS: success
+deactivate DS
+
+BS -> BR: updateBorrowingStatus(RETURNED)
+activate BR
+BR -> DB: update
+DB --> BR: updated
+BR --> BS: success
+deactivate BR
+
+BS --> BC: returnProcessed
+BC --> User: returnSuccess
+
+deactivate BS
+deactivate BC
+
+@enduml
+
+@startuml
+' Sequence 2: Báo hỏng thiết bị
+title Báo hỏng thiết bị
+
+actor User
+participant "MaintenanceController" as MC
+participant "MaintenanceService" as MS
+participant "DeviceService" as DS
+participant "MaintenanceRepository" as MR
+participant "DeviceRepository" as DR
+database "Database" as DB
+
+User -> MC: reportBroken(deviceId, description)
+activate MC
+
+MC -> MS: createMaintenance(deviceId, description)
+activate MS
+
+MS -> DS: findById(deviceId)
+activate DS
+DS -> DR: findById(deviceId)
+DR -> DB: select
+DB --> DR: device
+DR --> DS: device
+deactivate DS
+
+MS -> MS: createMaintenanceRecord()
+MS -> MR: save(maintenance)
+activate MR
+MR -> DB: insert
+DB --> MR: maintenance
+MR --> MS: maintenance
+deactivate MR
+
+MS -> DS: updateDeviceStatus(deviceId, BROKEN)
+activate DS
+DS -> DR: save(device)
+DR -> DB: update
+DB --> DR: updated
+DR --> DS: success
+deactivate DS
+
+MS --> MC: maintenanceCreated
+MC --> User: reportSuccess
+
+deactivate MS
+deactivate MC
+
+@enduml
+
+@startuml
+' Sequence 3: Thêm thiết bị mới
+title Thêm thiết bị mới
+
+actor Admin
+participant "DeviceController" as DC
+participant "DeviceService" as DS
+participant "LocationService" as LS
+participant "DeviceRepository" as DR
+participant "LocationRepository" as LR
+database "Database" as DB
+
+Admin -> DC: addDevice(deviceInfo)
+activate DC
+
+DC -> DS: createDevice(deviceInfo)
+activate DS
+
+DS -> LS: validateLocation(locationId)
+activate LS
+LS -> LR: findById(locationId)
+LR -> DB: select
+DB --> LR: location
+LR --> LS: location
+deactivate LS
+
+DS -> DS: validateDeviceInfo()
+DS -> DR: save(device)
+activate DR
+DR -> DB: insert
+DB --> DR: device
+DR --> DS: device
+deactivate DR
+
+DS --> DC: deviceCreated
+DC --> Admin: createSuccess
+
+deactivate DS
+deactivate DC
+
+@enduml
+
+@startuml
+' Sequence 4: Phê duyệt yêu cầu mượn
+title Phê duyệt yêu cầu mượn
+
+actor Admin
+participant "BorrowingController" as BC
+participant "BorrowingService" as BS
+participant "DeviceService" as DS
+participant "BorrowingRepository" as BR
+participant "DeviceRepository" as DR
+database "Database" as DB
+
+Admin -> BC: approveBorrowing(borrowId)
+activate BC
+
+BC -> BS: processBorrowingApproval(borrowId)
+activate BS
+
+BS -> BR: findById(borrowId)
+activate BR
+BR -> DB: select
+DB --> BR: borrowing
+BR --> BS: borrowing
+deactivate BR
+
+BS -> DS: checkDeviceAvailability(deviceId)
+activate DS
+DS -> DR: findById(deviceId)
+DR -> DB: select
+DB --> DR: device
+DR --> DS: device
+deactivate DS
+
+alt device is available
+    BS -> BR: updateBorrowingStatus(APPROVED)
+    activate BR
+    BR -> DB: update
+    DB --> BR: updated
+    BR --> BS: success
+    deactivate BR
+
+    BS -> DS: updateDeviceStatus(deviceId, OCCUPIED)
+    activate DS
+    DS -> DR: save(device)
+    DR -> DB: update
+    DB --> DR: updated
+    DR --> DS: success
+    deactivate DS
+
+    BS --> BC: approvalSuccess
+    BC --> Admin: approveSuccess
+else
+    BS --> BC: deviceNotAvailable
+    BC --> Admin: approvalFailed
+end
+
+deactivate BS
+deactivate BC
+
+@enduml
