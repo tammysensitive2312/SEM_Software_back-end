@@ -80,13 +80,13 @@ Page<EquipmentDetail> getEquipmentDetailByEquipmentId(@Param("equipmentId") Long
                                             Pageable pageable);
 
 
-
     boolean existsBySerialNumber(String serialNumber);
 
-    @Query(value = "SELECT COUNT(ed.id) FROM sem_db.equipment_details ed " +
-            "JOIN sem_db.rooms r ON ed.room_id = r.unique_id " +
-            "WHERE ed.status = 'USABLE' AND r.type = 'WAREHOUSE'",
+    @Query(value = "SELECT COUNT(ed.id) FROM equipment_details ed " +
+            "JOIN rooms r ON ed.room_id = r.unique_id " +
+            "WHERE ed.equipment_id = :equipmentId " +
+            "AND ed.status = 'USABLE' AND r.type = 'WAREHOUSE'",
             nativeQuery = true)
-    int countUsableEquipmentInWarehouse();
+    int countUsableEquipmentInWarehouseByEquipmentId(@Param("equipmentId") Long equipmentId);
 
 }

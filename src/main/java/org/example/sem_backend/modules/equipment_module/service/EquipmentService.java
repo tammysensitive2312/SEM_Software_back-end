@@ -46,19 +46,23 @@ public class EquipmentService implements IEquipmentService {
 
     @Override
     public Page<EquipmentResponse> searchEquipments(String category, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ page và size
+        Pageable pageable = PageRequest.of(page, size);
         Page<Equipment> equipments = equipmentRepository.searchEquipment(category, keyword, pageable);
-        return equipments.map(equipment -> EquipmentResponse.builder()
-                .id(equipment.getId())
-                .equipmentName(equipment.getEquipmentName())
-                .code(equipment.getCode())
-                .category(equipment.getCategory().getDescription())
-                .totalQuantity(equipment.getTotalQuantity())
-                .usableQuantity(equipment.getUsableQuantity())
-                .brokenQuantity(equipment.getBrokenQuantity())
-                .inUseQuantity(equipment.getInUseQuantity())
-                .totalQuantityHasUsableInWarehouse(equipmentDetailService.countUsableEquipmentInWarehouse())
-                .build());
+
+        return equipments.map(equipment -> {
+            int totalUsableInWarehouse = (int) equipmentDetailService.countUsableEquipmentInWarehouseByEquipmentId(equipment.getId());
+            return EquipmentResponse.builder()
+                    .id(equipment.getId())
+                    .equipmentName(equipment.getEquipmentName())
+                    .code(equipment.getCode())
+                    .category(equipment.getCategory().getDescription())
+                    .totalQuantity(equipment.getTotalQuantity())
+                    .usableQuantity(equipment.getUsableQuantity())
+                    .brokenQuantity(equipment.getBrokenQuantity())
+                    .inUseQuantity(equipment.getInUseQuantity())
+                    .totalQuantityHasUsableInWarehouse(totalUsableInWarehouse)
+                    .build();
+        });
     }
 
 }
