@@ -9,35 +9,40 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface RoomBorrowRequestRepository extends JpaRepository<RoomBorrowRequest, Long> {
     @Query("""
-    SELECT new org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO(
-        r.uniqueID,
-        rm.roomName,
-        u.username,
-        u.email,
-        rs.startTime,
-        rs.endTime,
-        r.comment,
-        false
-    )
-    FROM RoomBorrowRequest r
-    LEFT JOIN r.user u
-    LEFT JOIN r.room rm
-    LEFT JOIN r.schedule rs
-    WHERE (:userId IS NULL OR u.id = :userId)
-      AND (:email IS NULL OR u.email LIKE %:email%)
-      AND (:startTime IS NULL OR (rs.startTime >= :startTime AND rs.endTime <= :endTime))
-    """)
+          SELECT new org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO(
+          r.uniqueID,
+          rm.roomName,
+          u.username,
+          u.email,
+          rs.startTime,
+          rs.endTime,
+          r.comment,
+          false
+          )
+          FROM RoomBorrowRequest r
+          LEFT JOIN r.user u
+          LEFT JOIN r.room rm
+          LEFT JOIN r.schedule rs
+          WHERE (:userId IS NULL OR u.id = :userId)
+          AND (:email IS NULL OR u.email LIKE %:email%)
+          AND (
+               :startDate IS NULL OR 
+               :endDate IS NULL OR 
+               DATE(rs.startTime) BETWEEN :startDate AND :endDate
+          )
+          """)
     Page<GetRoomRequestDTO> findRequestsWithSchedules(
             @Param("userId") Long userId,
             @Param("email") String email,
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
             Pageable pageable
     );
 
