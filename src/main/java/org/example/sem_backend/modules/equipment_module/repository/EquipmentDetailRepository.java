@@ -49,14 +49,17 @@ public interface EquipmentDetailRepository extends JpaRepository<EquipmentDetail
         "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
         "WHERE (:keyword IS NULL OR :keyword = '' " +
         "OR LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-        "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+        "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+        "AND ed.status = 'USABLE'",
         countQuery = "SELECT COUNT(*) FROM sem_db.equipment_details ed " +
                 "JOIN sem_db.equipments e ON ed.equipment_id = e.id " +
                 "WHERE (:keyword IS NULL OR :keyword = '' " +
                 "OR LOWER(e.equipment_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-                "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%')))",
+                "OR LOWER(ed.serial_number) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+                "AND ed.status = 'USABLE'",
         nativeQuery = true)
 Page<EquipmentDetail> searchEquipmentDetail(@Param("keyword") String keyword, Pageable pageable);
+
 
 
     //    Lấy chi tiết thiết bị theo id của thiết bị và từ khóa tìm kiếm.
@@ -79,4 +82,11 @@ Page<EquipmentDetail> getEquipmentDetailByEquipmentId(@Param("equipmentId") Long
 
 
     boolean existsBySerialNumber(String serialNumber);
+
+    @Query(value = "SELECT COUNT(ed.id) FROM sem_db.equipment_details ed " +
+            "JOIN sem_db.rooms r ON ed.room_id = r.unique_id " +
+            "WHERE ed.status = 'USABLE' AND r.type = 'WAREHOUSE'",
+            nativeQuery = true)
+    int countUsableEquipmentInWarehouse();
+
 }

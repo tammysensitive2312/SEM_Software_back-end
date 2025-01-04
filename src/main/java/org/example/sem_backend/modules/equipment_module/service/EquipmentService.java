@@ -20,6 +20,7 @@ public class EquipmentService implements IEquipmentService {
 
     private final EquipmentRepository equipmentRepository;
     private final EquipmentMapper equipmentMapper;
+    private final EquipmentDetailService equipmentDetailService;
 
     @Override
     @Transactional
@@ -47,7 +48,17 @@ public class EquipmentService implements IEquipmentService {
     public Page<EquipmentResponse> searchEquipments(String category, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable từ page và size
         Page<Equipment> equipments = equipmentRepository.searchEquipment(category, keyword, pageable);
-        return equipments.map(equipmentMapper::toEquipmentResponse);
+        return equipments.map(equipment -> EquipmentResponse.builder()
+                .id(equipment.getId())
+                .equipmentName(equipment.getEquipmentName())
+                .code(equipment.getCode())
+                .category(equipment.getCategory().getDescription())
+                .totalQuantity(equipment.getTotalQuantity())
+                .usableQuantity(equipment.getUsableQuantity())
+                .brokenQuantity(equipment.getBrokenQuantity())
+                .inUseQuantity(equipment.getInUseQuantity())
+                .totalQuantityHasUsableInWarehouse(equipmentDetailService.countUsableEquipmentInWarehouse())
+                .build());
     }
 
 }

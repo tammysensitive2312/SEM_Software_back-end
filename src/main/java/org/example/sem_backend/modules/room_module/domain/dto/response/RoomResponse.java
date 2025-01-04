@@ -10,5 +10,5 @@ public class RoomResponse {
     private String roomName;
     private String type;
     private String status;
-    private int capacity;
+    private Integer capacity;
 }

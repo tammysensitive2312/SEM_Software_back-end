@@ -26,9 +26,12 @@ public class Room {
     @NotBlank(message = "Tên phòng không được để trống")
     @Column(unique = true)
     private String roomName;
+
     @Enumerated(EnumType.STRING)
     private RoomType type;
-    private int capacity;
+
+    private Integer capacity;
+
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
 

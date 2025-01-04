@@ -219,4 +219,8 @@ public class EquipmentDetailService implements IEquipmentDetailService {
             equipmentRepository.save(existingEquipment);
         }
     }
+
+    public int countUsableEquipmentInWarehouse() {
+        return equipmentDetailRepository.countUsableEquipmentInWarehouse();
+    }
 }
