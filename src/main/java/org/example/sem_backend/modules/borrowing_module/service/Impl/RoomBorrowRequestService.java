@@ -248,7 +248,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         LocalDate effectiveEndDate = endDate != null ? endDate : today;
 
         Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository
-                .findRequestsWithSchedules(userId, null, startDate, effectiveEndDate, pageable);
+                .findRequestsWithSchedules(userId, null, startDate, endDate, pageable);
 
         LocalDateTime currentDateTime = LocalDateTime.now();
         requestsPage.getContent().forEach(request -> {
@@ -269,7 +269,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         LocalDate today = LocalDate.now();
         LocalDate effectiveEndDate = endDate != null ? endDate : today;
 
-        Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository.findRequestsWithSchedules(null, email, startDate, effectiveEndDate, pageable);
+        Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository.findRequestsWithSchedules(null, email, startDate, endDate, pageable);
 
         requestsPage.getContent().forEach(request -> {
             boolean isCancelable = request.getStartTime().isAfter(LocalDateTime.now());
