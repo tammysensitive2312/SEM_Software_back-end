@@ -2,7 +2,7 @@
 <html xmlns:str="http://exslt.org/strings" xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Test Results &mdash; modules in SEM_backend</title>
+        <title>Test Results &mdash; integrationtest in SEM_backend</title>
         <style type="text/css">
           html {
             height: 100%
@@ -572,9 +572,9 @@ jQuery.cookie = function(name, value, options) {
     <body>
         <div id="container">
             <div id="header">
-                <div class="time" xmlns="">1.90 s</div>
+                <div class="time" xmlns="">2.17 s</div>
                 <h1>
-                    modules in SEM_backend: <strong><span class="total" xmlns="http://www.w3.org/1999/xhtml">55 total, </span><span class="failed">3 failed, </span><span class="passed">52 passed</span></strong>
+                    integrationtest in SEM_backend: <strong><span class="total" xmlns="http://www.w3.org/1999/xhtml">4 total, </span><span class="failed">4 failed</span></strong>
                 </h1>
                 <div id="treecontrol">
                     <ul>
@@ -593,481 +593,173 @@ jQuery.cookie = function(name, value, options) {
                 <ul id="tree">
                     <li xmlns="" class="level top failed open">
                         <span><em class="time">
-                                <div class="time">955 ms</div>
-                            </em>SseEmitterServiceTest</span>
+                                <div class="time">2.17 s</div>
+                            </em>EquipmentBorrowRequestIntegrationTest</span>
                         <ul>
-                            <li class="level suite failed open">
+                            <li class="level test failed open">
                                 <span><em class="time">
-                                        <div class="time">950 ms</div>
-                                    </em>Notification Sending Tests</span>
+                                        <div class="time">1.80 s</div>
+                                    </em><em class="status">failed</em>Should successfully approve borrow request when enough equipment available</span>
                                 <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">17 ms</div>
-                                            </em><em class="status">passed</em>Send notification to non-existent user</span>
+                                    <li class="text">
+                                        <span class="stderr">WARNING: A Java agent has been loaded dynamically (C:\Users\ACER\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)<br/>WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning<br/>WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information<br/>WARNING: Dynamic loading of agents will be disallowed by default in a future release<br/>Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended<br/></span>
                                     </li>
-                                    <li class="level test failed open">
-                                        <span><em class="time">
-                                                <div class="time">918 ms</div>
-                                            </em><em class="status">failed</em>Send notification to multiple emitters</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stderr">WARNING: A Java agent has been loaded dynamically (C:\Users\ACER\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)<br/>WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning<br/>WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information<br/>WARNING: Dynamic loading of agents will be disallowed by default in a future release<br/>Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended<br/>Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@ccd1bc3<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@2571066a<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>Comparison Failure: Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@ccd1bc3<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@2571066a<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>
-<br/>	at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)
-<br/>	at org.example.sem_backend.modules.notification_module.service.SseEmitterServiceTest$NotificationSendingTests.testSendNotificationToMultipleEmitters(SseEmitterServiceTest.java:171)
+                                    <li class="text">
+                                        <span class="stdout">Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id <br/>    from<br/>        equipment_borrow_requests ebr1_0<br/>Hibernate: <br/>    select<br/>        ed1_0.id,<br/>        ed1_0.create_at,<br/>        ed1_0.description,<br/>        ed1_0.equipment_id,<br/>        ed1_0.purchase_date,<br/>        ed1_0.room_id,<br/>        ed1_0.serial_number,<br/>        ed1_0.status,<br/>        ed1_0.updated_at <br/>    from<br/>        equipment_details ed1_0<br/>Hibernate: <br/>    select<br/>        e1_0.id,<br/>        e1_0.broken_quantity,<br/>        e1_0.category,<br/>        e1_0.code,<br/>        e1_0.create_at,<br/>        e1_0.equipment_name,<br/>        e1_0.in_use_quantity,<br/>        e1_0.total_quantity,<br/>        e1_0.updated_at,<br/>        e1_0.usable_quantity,<br/>        e1_0.version <br/>    from<br/>        equipments e1_0<br/>Hibernate: <br/>    select<br/>        u1_0.id,<br/>        u1_0.create_at,<br/>        u1_0.email,<br/>        u1_0.password,<br/>        u1_0.role,<br/>        u1_0.updated_at,<br/>        u1_0.username <br/>    from<br/>        users u1_0<br/>Hibernate: <br/>    insert <br/>    into<br/>        users<br/>        (create_at, email, password, role, updated_at, username) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipments<br/>        (broken_quantity, category, code, create_at, equipment_name, in_use_quantity, total_quantity, updated_at, usable_quantity, version) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id,<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_requests ebr1_0 <br/>    left join<br/>        equipment_borrow_request_details brd1_0 <br/>            on ebr1_0.uniqueid=brd1_0.borrow_request_id <br/>    where<br/>        ebr1_0.uniqueid=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_requests<br/>        (comment, create_at, expected_return_date, status, updated_at, user_id) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_request_details<br/>        (borrow_request_id, condition_before_borrow, equipment_id, quantity_borrowed) <br/>    values<br/>        (?, ?, ?, ?)<br/>2025-01-04T13:51:35.905+07:00  INFO 2452 --- [SEM backend] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'<br/>2025-01-04T13:51:35.906+07:00  INFO 2452 --- [SEM backend] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'<br/>2025-01-04T13:51:35.907+07:00  INFO 2452 --- [SEM backend] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms<br/>2025-01-04T13:51:35.948+07:00 ERROR 2452 --- [SEM backend] [o-auto-1-exec-1] o.e.s.m.m.auth.jwt.AuthEntryPointJwt     : Unauthorized error: Full authentication is required to access this resource<br/></span>
+                                    </li>
+                                    <li class="text">
+                                        <span class="stderr">java.lang.AssertionError: 1 expectation failed.<br/>Expected status code <200> but was <401>.<br/>
+<br/>	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+<br/>	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+<br/>	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+<br/>	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallConstructor(CallSiteArray.java:57)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:263)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+<br/>	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:139)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+<br/>	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+<br/>	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+<br/>	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+<br/>	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+<br/>	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+<br/>	at org.example.sem_backend.integrationtest.modules.EquipmentBorrowRequestIntegrationTest.testApproveBorrowRequest_Success(EquipmentBorrowRequestIntegrationTest.java:98)
 <br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/></span>
-                                            </li>
-                                        </ul>
                                     </li>
-                                    <li class="level test failed open">
-                                        <span><em class="time">
-                                                <div class="time">5 ms</div>
-                                            </em><em class="status">failed</em>Send notification to a single emitter</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stderr">Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@70e3f36f<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@49601f82<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>Comparison Failure: Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@70e3f36f<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@49601f82<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>
-<br/>	at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)
-<br/>	at org.example.sem_backend.modules.notification_module.service.SseEmitterServiceTest$NotificationSendingTests.testSendNotificationToSingleEmitter(SseEmitterServiceTest.java:151)
+                                </ul>
+                            </li>
+                            <li class="level test failed open">
+                                <span><em class="time">
+                                        <div class="time">122 ms</div>
+                                    </em><em class="status">failed</em>Should return 404 when request not found</span>
+                                <ul>
+                                    <li class="text">
+                                        <span class="stdout">Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id <br/>    from<br/>        equipment_borrow_requests ebr1_0<br/>Hibernate: <br/>    select<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_request_details brd1_0 <br/>    where<br/>        brd1_0.borrow_request_id=?<br/>Hibernate: <br/>    select<br/>        ed1_0.borrow_request_detail_id,<br/>        ed1_1.id,<br/>        ed1_1.create_at,<br/>        ed1_1.description,<br/>        ed1_1.equipment_id,<br/>        ed1_1.purchase_date,<br/>        ed1_1.room_id,<br/>        ed1_1.serial_number,<br/>        ed1_1.status,<br/>        ed1_1.updated_at <br/>    from<br/>        borrow_detail_equipment ed1_0 <br/>    join<br/>        equipment_details ed1_1 <br/>            on ed1_1.id=ed1_0.equipment_detail_id <br/>    where<br/>        ed1_0.borrow_request_detail_id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_borrow_request_details <br/>    where<br/>        unique_id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_borrow_requests <br/>    where<br/>        uniqueid=?<br/>Hibernate: <br/>    select<br/>        ed1_0.id,<br/>        ed1_0.create_at,<br/>        ed1_0.description,<br/>        ed1_0.equipment_id,<br/>        ed1_0.purchase_date,<br/>        ed1_0.room_id,<br/>        ed1_0.serial_number,<br/>        ed1_0.status,<br/>        ed1_0.updated_at <br/>    from<br/>        equipment_details ed1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    select<br/>        e1_0.id,<br/>        e1_0.broken_quantity,<br/>        e1_0.category,<br/>        e1_0.code,<br/>        e1_0.create_at,<br/>        e1_0.equipment_name,<br/>        e1_0.in_use_quantity,<br/>        e1_0.total_quantity,<br/>        e1_0.updated_at,<br/>        e1_0.usable_quantity,<br/>        e1_0.version <br/>    from<br/>        equipments e1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipments <br/>    where<br/>        id=? <br/>        and version=?<br/>Hibernate: <br/>    select<br/>        u1_0.id,<br/>        u1_0.create_at,<br/>        u1_0.email,<br/>        u1_0.password,<br/>        u1_0.role,<br/>        u1_0.updated_at,<br/>        u1_0.username <br/>    from<br/>        users u1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        users <br/>    where<br/>        id=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        users<br/>        (create_at, email, password, role, updated_at, username) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipments<br/>        (broken_quantity, category, code, create_at, equipment_name, in_use_quantity, total_quantity, updated_at, usable_quantity, version) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)<br/>2025-01-04T13:51:36.134+07:00 ERROR 2452 --- [SEM backend] [o-auto-1-exec-2] o.e.s.m.m.auth.jwt.AuthEntryPointJwt     : Unauthorized error: Full authentication is required to access this resource<br/></span>
+                                    </li>
+                                    <li class="text">
+                                        <span class="stderr">java.lang.AssertionError: 1 expectation failed.<br/>Expected status code <404> but was <401>.<br/>
+<br/>	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+<br/>	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+<br/>	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+<br/>	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+<br/>	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+<br/>	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+<br/>	at org.example.sem_backend.integrationtest.modules.EquipmentBorrowRequestIntegrationTest.testApproveBorrowRequest_RequestNotFound(EquipmentBorrowRequestIntegrationTest.java:131)
 <br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/></span>
-                                            </li>
-                                        </ul>
                                     </li>
-                                    <li class="level test failed open">
-                                        <span><em class="time">
-                                                <div class="time">10 ms</div>
-                                            </em><em class="status">failed</em>Handle IO exception when sending notification</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stderr">Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@6124287a<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@19569ebd<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>Comparison Failure: Argument(s) are different! Wanted:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@6124287a<br/>);<br/>-> at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)<br/>Actual invocations have different arguments:<br/>sseEmitter.send(<br/>    org.springframework.web.servlet.mvc.method.annotation.SseEmitter$SseEventBuilderImpl@19569ebd<br/>);<br/>-> at org.example.sem_backend.modules.notification_module.service.SseEmitterService.sendNotification(SseEmitterService.java:87)<br/>
-<br/>	at org.springframework.web.servlet.mvc.method.annotation.SseEmitter.send(SseEmitter.java:132)
-<br/>	at org.example.sem_backend.modules.notification_module.service.SseEmitterServiceTest$NotificationSendingTests.testSendNotificationWithIOException(SseEmitterServiceTest.java:203)
+                                </ul>
+                            </li>
+                            <li class="level test failed open">
+                                <span><em class="time">
+                                        <div class="time">95 ms</div>
+                                    </em><em class="status">failed</em>Should return 409 when not enough equipment available</span>
+                                <ul>
+                                    <li class="text">
+                                        <span class="stdout">Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id <br/>    from<br/>        equipment_borrow_requests ebr1_0<br/>Hibernate: <br/>    select<br/>        ed1_0.id,<br/>        ed1_0.create_at,<br/>        ed1_0.description,<br/>        ed1_0.equipment_id,<br/>        ed1_0.purchase_date,<br/>        ed1_0.room_id,<br/>        ed1_0.serial_number,<br/>        ed1_0.status,<br/>        ed1_0.updated_at <br/>    from<br/>        equipment_details ed1_0<br/>Hibernate: <br/>    select<br/>        e1_0.id,<br/>        e1_0.broken_quantity,<br/>        e1_0.category,<br/>        e1_0.code,<br/>        e1_0.create_at,<br/>        e1_0.equipment_name,<br/>        e1_0.in_use_quantity,<br/>        e1_0.total_quantity,<br/>        e1_0.updated_at,<br/>        e1_0.usable_quantity,<br/>        e1_0.version <br/>    from<br/>        equipments e1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipments <br/>    where<br/>        id=? <br/>        and version=?<br/>Hibernate: <br/>    select<br/>        u1_0.id,<br/>        u1_0.create_at,<br/>        u1_0.email,<br/>        u1_0.password,<br/>        u1_0.role,<br/>        u1_0.updated_at,<br/>        u1_0.username <br/>    from<br/>        users u1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        users <br/>    where<br/>        id=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        users<br/>        (create_at, email, password, role, updated_at, username) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipments<br/>        (broken_quantity, category, code, create_at, equipment_name, in_use_quantity, total_quantity, updated_at, usable_quantity, version) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_details<br/>        (create_at, description, equipment_id, purchase_date, room_id, serial_number, status, updated_at) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id,<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_requests ebr1_0 <br/>    left join<br/>        equipment_borrow_request_details brd1_0 <br/>            on ebr1_0.uniqueid=brd1_0.borrow_request_id <br/>    where<br/>        ebr1_0.uniqueid=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_requests<br/>        (comment, create_at, expected_return_date, status, updated_at, user_id) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_request_details<br/>        (borrow_request_id, condition_before_borrow, equipment_id, quantity_borrowed) <br/>    values<br/>        (?, ?, ?, ?)<br/>2025-01-04T13:51:36.231+07:00 ERROR 2452 --- [SEM backend] [o-auto-1-exec-3] o.e.s.m.m.auth.jwt.AuthEntryPointJwt     : Unauthorized error: Full authentication is required to access this resource<br/></span>
+                                    </li>
+                                    <li class="text">
+                                        <span class="stderr">java.lang.AssertionError: 1 expectation failed.<br/>Expected status code <409> but was <401>.<br/>
+<br/>	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+<br/>	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+<br/>	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+<br/>	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+<br/>	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+<br/>	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+<br/>	at org.example.sem_backend.integrationtest.modules.EquipmentBorrowRequestIntegrationTest.testApproveBorrowRequest_NotEnoughEquipment(EquipmentBorrowRequestIntegrationTest.java:148)
 <br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+<br/></span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level test failed open">
+                                <span><em class="time">
+                                        <div class="time">151 ms</div>
+                                    </em><em class="status">failed</em>Should return 400 when request is in invalid state</span>
+                                <ul>
+                                    <li class="text">
+                                        <span class="stdout">Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id <br/>    from<br/>        equipment_borrow_requests ebr1_0<br/>Hibernate: <br/>    select<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_request_details brd1_0 <br/>    where<br/>        brd1_0.borrow_request_id=?<br/>Hibernate: <br/>    select<br/>        ed1_0.borrow_request_detail_id,<br/>        ed1_1.id,<br/>        ed1_1.create_at,<br/>        ed1_1.description,<br/>        ed1_1.equipment_id,<br/>        ed1_1.purchase_date,<br/>        ed1_1.room_id,<br/>        ed1_1.serial_number,<br/>        ed1_1.status,<br/>        ed1_1.updated_at <br/>    from<br/>        borrow_detail_equipment ed1_0 <br/>    join<br/>        equipment_details ed1_1 <br/>            on ed1_1.id=ed1_0.equipment_detail_id <br/>    where<br/>        ed1_0.borrow_request_detail_id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_borrow_request_details <br/>    where<br/>        unique_id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_borrow_requests <br/>    where<br/>        uniqueid=?<br/>Hibernate: <br/>    select<br/>        ed1_0.id,<br/>        ed1_0.create_at,<br/>        ed1_0.description,<br/>        ed1_0.equipment_id,<br/>        ed1_0.purchase_date,<br/>        ed1_0.room_id,<br/>        ed1_0.serial_number,<br/>        ed1_0.status,<br/>        ed1_0.updated_at <br/>    from<br/>        equipment_details ed1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipment_details <br/>    where<br/>        id=?<br/>Hibernate: <br/>    select<br/>        e1_0.id,<br/>        e1_0.broken_quantity,<br/>        e1_0.category,<br/>        e1_0.code,<br/>        e1_0.create_at,<br/>        e1_0.equipment_name,<br/>        e1_0.in_use_quantity,<br/>        e1_0.total_quantity,<br/>        e1_0.updated_at,<br/>        e1_0.usable_quantity,<br/>        e1_0.version <br/>    from<br/>        equipments e1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        equipments <br/>    where<br/>        id=? <br/>        and version=?<br/>Hibernate: <br/>    select<br/>        u1_0.id,<br/>        u1_0.create_at,<br/>        u1_0.email,<br/>        u1_0.password,<br/>        u1_0.role,<br/>        u1_0.updated_at,<br/>        u1_0.username <br/>    from<br/>        users u1_0<br/>Hibernate: <br/>    delete <br/>    from<br/>        users <br/>    where<br/>        id=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        users<br/>        (create_at, email, password, role, updated_at, username) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipments<br/>        (broken_quantity, category, code, create_at, equipment_name, in_use_quantity, total_quantity, updated_at, usable_quantity, version) <br/>    values<br/>        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id,<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_requests ebr1_0 <br/>    left join<br/>        equipment_borrow_request_details brd1_0 <br/>            on ebr1_0.uniqueid=brd1_0.borrow_request_id <br/>    where<br/>        ebr1_0.uniqueid=?<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_requests<br/>        (comment, create_at, expected_return_date, status, updated_at, user_id) <br/>    values<br/>        (?, ?, ?, ?, ?, ?)<br/>Hibernate: <br/>    insert <br/>    into<br/>        equipment_borrow_request_details<br/>        (borrow_request_id, condition_before_borrow, equipment_id, quantity_borrowed) <br/>    values<br/>        (?, ?, ?, ?)<br/>Hibernate: <br/>    select<br/>        ebr1_0.uniqueid,<br/>        ebr1_0.comment,<br/>        ebr1_0.create_at,<br/>        ebr1_0.expected_return_date,<br/>        ebr1_0.status,<br/>        ebr1_0.updated_at,<br/>        ebr1_0.user_id,<br/>        brd1_0.borrow_request_id,<br/>        brd1_0.unique_id,<br/>        brd1_0.condition_before_borrow,<br/>        brd1_0.equipment_id,<br/>        brd1_0.quantity_borrowed <br/>    from<br/>        equipment_borrow_requests ebr1_0 <br/>    left join<br/>        equipment_borrow_request_details brd1_0 <br/>            on ebr1_0.uniqueid=brd1_0.borrow_request_id <br/>    where<br/>        ebr1_0.uniqueid=?<br/>Hibernate: <br/>    select<br/>        ed1_0.borrow_request_detail_id,<br/>        ed1_1.id,<br/>        ed1_1.create_at,<br/>        ed1_1.description,<br/>        ed1_1.equipment_id,<br/>        ed1_1.purchase_date,<br/>        ed1_1.room_id,<br/>        ed1_1.serial_number,<br/>        ed1_1.status,<br/>        ed1_1.updated_at <br/>    from<br/>        borrow_detail_equipment ed1_0 <br/>    join<br/>        equipment_details ed1_1 <br/>            on ed1_1.id=ed1_0.equipment_detail_id <br/>    where<br/>        ed1_0.borrow_request_detail_id=?<br/>Hibernate: <br/>    update<br/>        equipment_borrow_requests <br/>    set<br/>        comment=?,<br/>        create_at=?,<br/>        expected_return_date=?,<br/>        status=?,<br/>        updated_at=?,<br/>        user_id=? <br/>    where<br/>        uniqueid=?<br/>2025-01-04T13:51:36.385+07:00 ERROR 2452 --- [SEM backend] [o-auto-1-exec-4] o.e.s.m.m.auth.jwt.AuthEntryPointJwt     : Unauthorized error: Full authentication is required to access this resource<br/></span>
+                                    </li>
+                                    <li class="text">
+                                        <span class="stderr">java.lang.AssertionError: 1 expectation failed.<br/>Expected status code <400> but was <401>.<br/>
+<br/>	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+<br/>	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+<br/>	at org.codehaus.groovy.reflection.CachedConstructor.invoke(CachedConstructor.java:73)
+<br/>	at org.codehaus.groovy.runtime.callsite.ConstructorSite$ConstructorSiteNoUnwrapNoCoerce.callConstructor(ConstructorSite.java:108)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callConstructor(AbstractCallSite.java:277)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure.validate(ResponseSpecificationImpl.groovy:512)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl$HamcrestAssertionClosure$validate$1.call(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.validateResponseIfRequired(ResponseSpecificationImpl.groovy:696)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.this$2$validateResponseIfRequired(ResponseSpecificationImpl.groovy)
+<br/>	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at org.codehaus.groovy.runtime.callsite.PlainObjectMetaMethodSite.doInvoke(PlainObjectMetaMethodSite.java:43)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrapNoCoerce.invoke(PogoMetaMethodSite.java:198)
+<br/>	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:62)
+<br/>	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:185)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:135)
+<br/>	at io.restassured.specification.ResponseSpecification$statusCode$0.callCurrent(Unknown Source)
+<br/>	at io.restassured.internal.ResponseSpecificationImpl.statusCode(ResponseSpecificationImpl.groovy:143)
+<br/>	at io.restassured.internal.ValidatableResponseOptionsImpl.statusCode(ValidatableResponseOptionsImpl.java:89)
+<br/>	at org.example.sem_backend.integrationtest.modules.EquipmentBorrowRequestIntegrationTest.testApproveBorrowRequest_InvalidState(EquipmentBorrowRequestIntegrationTest.java:172)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 <br/></span>
-                                            </li>
-                                        </ul>
                                     </li>
                                 </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">5 ms</div>
-                                    </em>Emitter Management Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Remove emitter when multiple emitters exist</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Add emitter for a new user</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Add multiple emitters for the same user</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Remove emitter for a user</span>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">570 ms</div>
-                            </em>EquipmentBorrowRequestServiceTest</span>
-                        <ul>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">443 ms</div>
-                                    </em><em class="status">passed</em>Process request should throw ResourceNotFoundException when user not found</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">6 ms</div>
-                                    </em><em class="status">passed</em>Should throw ResourceNotFoundException when no requests found</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is empty</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">9 ms</div>
-                                    </em><em class="status">passed</em>Should successfully return equipment when all requests are valid</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Validate request return false when equipment unavailable</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">5 ms</div>
-                                    </em><em class="status">passed</em>Approve request throw exception when request not found</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">3 ms</div>
-                                    </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is null</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Process request throw IllegalArgumentException when equipment null</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">74 ms</div>
-                                    </em><em class="status">passed</em>Process request should successfully when valid input</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">7 ms</div>
-                                    </em><em class="status">passed</em>Approve request success</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">3 ms</div>
-                                    </em><em class="status">passed</em>Validate request return false when overdue exist</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Should throw BadRequestException when some requests are not in BORROWED status</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Validate return true when request valid</span>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">172 ms</div>
-                            </em>RoomBorrowRequestServiceTest</span>
-                        <ul>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">142 ms</div>
-                                    </em>Get Requests Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">140 ms</div>
-                                            </em><em class="status">passed</em>Should successfully get user requests</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Should successfully get admin requests</span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em>Delete Requests Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Should successfully delete multiple requests</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Should throw exception when deleting non-existent requests</span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">7 ms</div>
-                                    </em>Update Request Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">4 ms</div>
-                                            </em><em class="status">passed</em>Should successfully update valid request within 24 hours</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">3 ms</div>
-                                            </em><em class="status">passed</em>Should throw exception when updating request after 24 hours</span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">9 ms</div>
-                                    </em>Validation Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">6 ms</div>
-                                            </em><em class="status">passed</em>Should throw exception for booking more than 2 weeks ahead</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">23:06:31.310 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Start time [2025-01-19T23:06:31.308895] for Room ID [1] is more than 2 weeks ahead<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Should throw exception for conflicting bookings</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">23:06:31.317 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Room ID [1] has conflicting bookings during [2024-12-30T00:06:31.316899] to [2024-12-30T01:06:31.316899]<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Should validate request with valid future booking time</span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">10 ms</div>
-                                    </em>Process Request Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">3 ms</div>
-                                            </em><em class="status">passed</em>Should throw ResourceNotFoundException when user not found</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">4 ms</div>
-                                            </em><em class="status">passed</em>Should successfully process valid room booking request</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">23:06:31.329 [main] INFO org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Successfully processed room booking - Room ID: 1, User: test@example.com, Time: 2024-12-30T00:06:31.328894700 to 2024-12-30T01:06:31.328894700<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">3 ms</div>
-                                            </em><em class="status">passed</em>Should throw ResourceNotFoundException when room not found</span>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">61 ms</div>
-                            </em>RoomStatusChangedListenerTest</span>
-                        <ul>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">51 ms</div>
-                                    </em><em class="status">passed</em>Should not publish event when source is RoomService but no users with future bookings</span>
-                                <ul>
-                                    <li class="text">
-                                        <span class="stdout">23:06:31.388 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>23:06:31.388 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">2 ms</div>
-                                    </em><em class="status">passed</em>Should log error when source is not RoomService</span>
-                                <ul>
-                                    <li class="text">
-                                        <span class="stdout">23:06:31.398 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event java.lang.Object@3453acd2<br/></span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Should handle null roomId gracefully when source is RoomService</span>
-                                <ul>
-                                    <li class="text">
-                                        <span class="stdout">23:06:31.404 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- roomId in event context is null<br/></span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Should publish event when source is RoomService and there are users with future bookings</span>
-                                <ul>
-                                    <li class="text">
-                                        <span class="stdout">23:06:31.409 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>23:06:31.409 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Notifying users: [1, 2, 3]<br/>23:06:31.409 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">1 ms</div>
-                            </em>UserRepositoryTest</span>
-                        <ul>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>Find by role success response</span>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">64 ms</div>
-                            </em>InAppNotificationChannelTest</span>
-                        <ul>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">62 ms</div>
-                                    </em>Abnormal Scenario Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">56 ms</div>
-                                            </em><em class="status">passed</em>Handle emitter service failure</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">Recipient ID: 1<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Throw exception when no recipients are specified</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Handle repository save failure</span>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">2 ms</div>
-                                            </em><em class="status">passed</em>Throw exception when empty recipients set is provided</span>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="level suite open">
-                                <span><em class="time">
-                                        <div class="time">2 ms</div>
-                                    </em>Normal Scenario Tests</span>
-                                <ul>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Successfully send notification to single recipient</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">Recipient ID: 1<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="level test">
-                                        <span><em class="time">
-                                                <div class="time">1 ms</div>
-                                            </em><em class="status">passed</em>Successfully send notification to multiple recipients</span>
-                                        <ul>
-                                            <li class="text">
-                                                <span class="stdout">Recipient ID: 1<br/>Recipient ID: 2<br/>Recipient ID: 3<br/></span>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">54 ms</div>
-                            </em>NotificationServiceTest</span>
-                        <ul>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">41 ms</div>
-                                    </em><em class="status">passed</em>sendMessage_shouldSendToValidUserIds()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>getUnreadNotifications_shouldReturnNotifications()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>markAsRead_shouldThrowExceptionWhenNotificationNotFound()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>sendMessage_shouldThrowExceptionForEmptyUserList()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>sendMessage_shouldHandleNullUserList()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>markAsRead_shouldUpdateNotification()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">6 ms</div>
-                                    </em><em class="status">passed</em>sendNotificationToAdminUser_shouldSendToAdmins()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">2 ms</div>
-                                    </em><em class="status">passed</em>handleEquipmentBorrowedEvent_shouldCreateAndSendNotification()</span>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="level top open">
-                        <span><em class="time">
-                                <div class="time">25 ms</div>
-                            </em>RoomServiceTest</span>
-                        <ul>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">23 ms</div>
-                                    </em><em class="status">passed</em>updateRoom_WhenRoomExists_UpdatesSuccessfully()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>updateRoom_WhenRoomDoesNotExist_ThrowsException()</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">1 ms</div>
-                                    </em><em class="status">passed</em>addRoom_WhenRoomNameExists_ThrowsException()</span>
                             </li>
                         </ul>
                     </li>
@@ -1075,7 +767,7 @@ jQuery.cookie = function(name, value, options) {
             </div>
         </div>
         <div id="footer">
-            <p>Generated by IntelliJ IDEA on 23:06, 29/12/2024</p>
+            <p>Generated by IntelliJ IDEA on 13:54, 04/01/2025</p>
         </div>
     </body>
 </html>

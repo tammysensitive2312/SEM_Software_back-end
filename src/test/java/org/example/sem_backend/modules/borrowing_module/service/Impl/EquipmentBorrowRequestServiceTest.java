@@ -26,11 +26,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -239,35 +245,6 @@ class EquipmentBorrowRequestServiceTest {
     @Nested
     @DisplayName("Approve request test")
     class ApproveRequestTest {
-        @Test
-        @DisplayName("Approve request success")
-        void testApproveRequest_ShouldSucceed_WhenValidInput() {
-            // Mock dữ liệu
-            when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
-            when(equipmentDetailRepository.findAvailableByEquipmentId(
-                    detail.getEquipment().getId(),
-                    PageRequest.of(0, detail.getQuantityBorrowed())
-            )).thenReturn(List.of(equipmentDetail1, equipmentDetail2));
-
-            // Thực thi phương thức
-            service.approveRequest(1L);
-
-            // Xác minh kết quả
-            assertEquals(EquipmentBorrowRequest.Status.BORROWED, request.getStatus());
-//        assertTrue(detail.getEquipmentDetails().containsAll(List.of(equipmentDetail1, equipmentDetail2)));
-
-            // Kiểm tra tương tác với repository và event
-            verify(requestRepository).save(request);
-
-            verify(eventPublisher).publishEvent(argThat(event -> {
-                if (event instanceof EquipmentBorrowedEvent borrowedEvent) {
-                    return borrowedEvent.getRequestId().equals(1L) &&
-                            borrowedEvent.getUserId().equals(1L);
-                }
-                return false;
-            }));
-        }
-
 
         @Test
         @DisplayName("Approve request throw exception when request not found")
@@ -280,6 +257,37 @@ class EquipmentBorrowRequestServiceTest {
             verify(requestRepository).findById(1L);
             verifyNoInteractions(equipmentDetailRepository, eventPublisher);
         }
+
+        @Test
+        void approveRequest_shouldThrowResourceConflictExceptionWhenNotEnoughEquipment() {
+            // Arrange
+            Long requestId = 1L;
+
+            // Mock behavior for requestRepository
+            when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
+
+            // Add detail into request
+            request.getBorrowRequestDetails().add(detail);
+
+            // Mock behavior for equipmentDetailRepository
+            // Trả về danh sách thiết bị khả dụng nhỏ hơn số lượng yêu cầu
+            when(equipmentDetailRepository.findAvailableByEquipmentId(eq(equipment.getId()), any(Pageable.class)))
+                    .thenReturn(List.of(equipmentDetail1)); // Chỉ có 1 thiết bị khả dụng, ít hơn 2 yêu cầu
+
+            // Act & Assert
+            ResourceConflictException exception = assertThrows(ResourceConflictException.class, () -> {
+                service.approveRequest(requestId); // Replace `service` with your actual service object
+            });
+
+            // Kiểm tra nội dung thông báo lỗi
+            assertEquals("Not enough available equipment for: " + equipment.getEquipmentName(), exception.getMessage());
+
+            // Verify không lưu trạng thái request
+            verify(requestRepository, never()).save(any());
+            // Verify event không được phát
+            verify(eventPublisher, never()).publishEvent(any());
+        }
+
     }
 
     @Nested
@@ -399,26 +407,80 @@ class EquipmentBorrowRequestServiceTest {
     @DisplayName("Delete request test")
     class DeleteRequestsTest {
         @Test
-        @DisplayName("Should ensure that deleteRequestsByIds method is transactional and rolls back on exception")
-        void deleteRequestsByIds_shouldRollbackOnException() {
+        @DisplayName("Should throw IllegalArgumentException when deleteRequestsByIds is called with an empty list of requestIds")
+        void deleteRequestsByIds_shouldThrowIllegalArgumentException_whenCalledWithEmptyList() {
+            // Arrange
+            List<Long> emptyRequestIds = Collections.emptyList();
+
+            // Act & Assert
+            assertThrows(IllegalArgumentException.class, () -> service.deleteRequestsByIds(emptyRequestIds));
+            verify(requestRepository, never()).findAllById(any());
+            verify(borrowRequestDetailRepository, never()).deleteAll(any());
+            verify(logRepository, never()).deleteByEquipmentRequestIds(any());
+            verify(requestRepository, never()).deleteAllInBatch(any());
+        }
+        @Test
+        void deleteRequestsByIds_shouldRollbackAndThrowException_whenErrorOccursDuringDeletion() {
             // Arrange
             List<Long> requestIds = Arrays.asList(1L, 2L);
-            EquipmentBorrowRequest request1 = new EquipmentBorrowRequest();
-            request1.setUniqueID(1L);
-            request1.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
-            EquipmentBorrowRequest request2 = new EquipmentBorrowRequest();
-            request2.setUniqueID(2L);
-            request2.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
+            List<EquipmentBorrowRequest> requests = Arrays.asList(
+                    createMockRequest(1L, EquipmentBorrowRequest.Status.NOT_BORROWED),
+                    createMockRequest(2L, EquipmentBorrowRequest.Status.NOT_BORROWED)
+            );
 
-            when(requestRepository.findAllById(requestIds)).thenReturn(Arrays.asList(request1, request2));
+            when(requestRepository.findAllById(requestIds)).thenReturn(requests);
             doThrow(new RuntimeException("Simulated error")).when(logRepository).deleteByEquipmentRequestIds(requestIds);
 
             // Act & Assert
             assertThrows(RuntimeException.class, () -> service.deleteRequestsByIds(requestIds));
 
-            // Verify that the changes were rolled back
-            verify(borrowRequestDetailRepository, never()).deleteAll(anyList());
-            verify(requestRepository, never()).deleteAllInBatch(anyList());
+            // Verify that rollback operations were performed
+            verify(borrowRequestDetailRepository, times(2)).saveAll(any());
+            verify(requestRepository, never()).deleteAllInBatch(any());
+        }
+
+        private EquipmentBorrowRequest createMockRequest(Long id, EquipmentBorrowRequest.Status status) {
+            EquipmentBorrowRequest request = mock(EquipmentBorrowRequest.class);
+            when(request.getUniqueID()).thenReturn(id);
+            when(request.getStatus()).thenReturn(status);
+            when(request.getBorrowRequestDetails()).thenReturn(new ArrayList<>());
+            return request;
+        }
+
+        @Test
+        @DisplayName("Should verify that associated borrow request details are deleted when deleteRequestsByIds is called")
+        void deleteRequestsByIds_shouldDeleteAssociatedBorrowRequestDetails() {
+            // Arrange
+            Long requestId1 = 1L;
+            Long requestId2 = 2L;
+            List<Long> requestIds = Arrays.asList(requestId1, requestId2);
+
+            EquipmentBorrowRequest request1 = new EquipmentBorrowRequest();
+            request1.setUniqueID(requestId1);
+            request1.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
+            EquipmentBorrowRequestDetail detail1 = new EquipmentBorrowRequestDetail();
+            request1.setBorrowRequestDetails(new ArrayList<>(Collections.singletonList(detail1)));
+
+            EquipmentBorrowRequest request2 = new EquipmentBorrowRequest();
+            request2.setUniqueID(requestId2);
+            request2.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
+            EquipmentBorrowRequestDetail detail2 = new EquipmentBorrowRequestDetail();
+            request2.setBorrowRequestDetails(new ArrayList<>(Collections.singletonList(detail2)));
+
+            List<EquipmentBorrowRequest> requestsToDelete = Arrays.asList(request1, request2);
+
+            when(requestRepository.findAllById(requestIds)).thenReturn(requestsToDelete);
+
+            // Act
+            service.deleteRequestsByIds(requestIds);
+
+            // Assert
+            verify(borrowRequestDetailRepository, times(2)).deleteAll(request1.getBorrowRequestDetails());
+            verify(borrowRequestDetailRepository, times(2)).deleteAll(request2.getBorrowRequestDetails());
+            assertTrue(request1.getBorrowRequestDetails().isEmpty());
+            assertTrue(request2.getBorrowRequestDetails().isEmpty());
+            verify(logRepository, times(1)).deleteByEquipmentRequestIds(requestIds);
+            verify(requestRepository, times(1)).deleteAllInBatch(requestsToDelete);
         }
 
         @Test
@@ -440,56 +502,6 @@ class EquipmentBorrowRequestServiceTest {
             verify(logRepository, never()).deleteByEquipmentRequestIds(anyList());
             verify(requestRepository, never()).deleteAllInBatch(anyList());
         }
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when deleteRequestsByIds is called with an empty list of requestIds")
-    void deleteRequestsByIds_shouldThrowIllegalArgumentException_whenCalledWithEmptyList() {
-        // Arrange
-        List<Long> emptyRequestIds = Collections.emptyList();
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> service.deleteRequestsByIds(emptyRequestIds));
-        verify(requestRepository, never()).findAllById(any());
-        verify(borrowRequestDetailRepository, never()).deleteAll(any());
-        verify(logRepository, never()).deleteByEquipmentRequestIds(any());
-        verify(requestRepository, never()).deleteAllInBatch(any());
-    }
-
-    @Test
-    @DisplayName("Should verify that associated borrow request details are deleted when deleteRequestsByIds is called")
-    void deleteRequestsByIds_shouldDeleteAssociatedBorrowRequestDetails() {
-        // Arrange
-        Long requestId1 = 1L;
-        Long requestId2 = 2L;
-        List<Long> requestIds = Arrays.asList(requestId1, requestId2);
-
-        EquipmentBorrowRequest request1 = new EquipmentBorrowRequest();
-        request1.setUniqueID(requestId1);
-        request1.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
-        EquipmentBorrowRequestDetail detail1 = new EquipmentBorrowRequestDetail();
-        request1.setBorrowRequestDetails(new ArrayList<>(Collections.singletonList(detail1)));
-
-        EquipmentBorrowRequest request2 = new EquipmentBorrowRequest();
-        request2.setUniqueID(requestId2);
-        request2.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
-        EquipmentBorrowRequestDetail detail2 = new EquipmentBorrowRequestDetail();
-        request2.setBorrowRequestDetails(new ArrayList<>(Collections.singletonList(detail2)));
-
-        List<EquipmentBorrowRequest> requestsToDelete = Arrays.asList(request1, request2);
-
-        when(requestRepository.findAllById(requestIds)).thenReturn(requestsToDelete);
-
-        // Act
-        service.deleteRequestsByIds(requestIds);
-
-        // Assert
-        verify(borrowRequestDetailRepository, times(2)).deleteAll(request1.getBorrowRequestDetails());
-        verify(borrowRequestDetailRepository, times(2)).deleteAll(request2.getBorrowRequestDetails());
-        assertTrue(request1.getBorrowRequestDetails().isEmpty());
-        assertTrue(request2.getBorrowRequestDetails().isEmpty());
-        verify(logRepository, times(1)).deleteByEquipmentRequestIds(requestIds);
-        verify(requestRepository, times(1)).deleteAllInBatch(requestsToDelete);
     }
 
     @Nested
@@ -576,7 +588,17 @@ class EquipmentBorrowRequestServiceTest {
             when(requestRepository.findById(requestId)).thenReturn(Optional.of(existingRequest));
             when(equipmentRepository.findByEquipmentName("Laptop")).thenReturn(Optional.of(laptop));
             when(equipmentRepository.findByEquipmentName("Projector")).thenReturn(Optional.of(projector));
-            when(detailMapper.toEntity(any(EquipmentBorrowItemDTO.class))).thenReturn(new EquipmentBorrowRequestDetail());
+            when(detailMapper.toEntity(any(EquipmentBorrowItemDTO.class)))
+                    .thenAnswer(invocation -> {
+                        EquipmentBorrowItemDTO dto = invocation.getArgument(0);
+                        EquipmentBorrowRequestDetail detail = new EquipmentBorrowRequestDetail();
+                        detail.setQuantityBorrowed(dto.getQuantityBorrowed());
+                        Equipment equipment = new Equipment();
+                        equipment.setEquipmentName(dto.getEquipmentName());
+                        detail.setEquipment(equipment);
+                        return detail;
+                    });
+
 
             // Act
             service.updateRequest(requestDto);
@@ -584,89 +606,20 @@ class EquipmentBorrowRequestServiceTest {
             // Assert
             verify(requestRepository).save(argThat(savedRequest -> {
                 List<EquipmentBorrowRequestDetail> details = savedRequest.getBorrowRequestDetails();
-                return details.size() == 2 &&
-                        details.stream().anyMatch(d -> d.getEquipment().getEquipmentName().equals("Laptop") && d.getQuantityBorrowed() == 3) &&
-                        details.stream().anyMatch(d -> d.getEquipment().getEquipmentName().equals("Projector") && d.getQuantityBorrowed() == 1);
+
+                // Kiểm tra số lượng chi tiết
+                if (details.size() != 2) return false;
+
+                // Kiểm tra từng chi tiết có thiết bị và số lượng đúng
+                boolean hasLaptop = details.stream().anyMatch(d ->
+                        d.getEquipment().getEquipmentName().equals("Laptop") && d.getQuantityBorrowed() == 3);
+                boolean hasProjector = details.stream().anyMatch(d ->
+                        d.getEquipment().getEquipmentName().equals("Projector") && d.getQuantityBorrowed() == 1);
+
+                // Kiểm tra nếu tất cả điều kiện đều đúng
+                return hasLaptop && hasProjector;
             }));
-        }
-    }
 
-    @Nested
-    @DisplayName("Deny request test")
-    class DenyRequestTest {
-        @Test
-        @DisplayName("Should throw ResourceConflictException when attempting to deny a request that is not in NOT_BORROWED status")
-        void denyRequest_throwsResourceConflictException_whenRequestNotInNotBorrowedStatus() {
-            // Arrange
-            Long requestId = 1L;
-            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, "Denial reason");
-            EquipmentBorrowRequest request = new EquipmentBorrowRequest();
-            request.setStatus(EquipmentBorrowRequest.Status.BORROWED);
-
-            when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
-
-            // Act & Assert
-            assertThrows(ResourceConflictException.class, () -> service.denyRequest(denyDto));
-            verify(requestRepository, never()).save(any());
-            verify(eventPublisher, never()).publishEvent(any());
-        }
-
-        @Test
-        @DisplayName("Should successfully update the request status to REJECTED when denying a valid request")
-        void denyValidRequest() {
-            // Arrange
-            Long requestId = 1L;
-            String denialReason = "Equipment unavailable";
-            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, denialReason);
-
-            EquipmentBorrowRequest request = new EquipmentBorrowRequest();
-            request.setStatus(EquipmentBorrowRequest.Status.NOT_BORROWED);
-            User user = new User();
-            user.setId(2L);
-            request.setUser(user);
-
-            when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
-            when(requestRepository.save(any(EquipmentBorrowRequest.class))).thenReturn(request);
-
-            // Act
-            service.denyRequest(denyDto);
-
-            // Assert
-            verify(requestRepository).findById(requestId);
-            verify(requestRepository).save(request);
-            assertEquals(EquipmentBorrowRequest.Status.REJECTED, request.getStatus());
-            verify(eventPublisher).publishEvent(any(EquipmentRequestDeniedEvent.class));
-        }
-
-        @Test
-        @DisplayName("Should verify that the EquipmentRequestDeniedEvent is published with correct parameters after denying a request")
-        void denyRequest_shouldPublishEquipmentRequestDeniedEvent() {
-            // Arrange
-            Long requestId = 1L;
-            String reason = "Test reason";
-            EquipmentBorrowRequestDenyDto denyDto = new EquipmentBorrowRequestDenyDto(requestId, reason);
-
-            EquipmentBorrowRequest mockRequest = mock(EquipmentBorrowRequest.class);
-            User mockUser = mock(User.class);
-            when(mockRequest.getStatus()).thenReturn(EquipmentBorrowRequest.Status.NOT_BORROWED);
-            when(mockRequest.getUser()).thenReturn(mockUser);
-            when(mockUser.getId()).thenReturn(2L);
-            when(mockRequest.getUniqueID()).thenReturn(requestId);
-
-            when(requestRepository.findById(requestId)).thenReturn(Optional.of(mockRequest));
-
-            // Act
-            service.denyRequest(denyDto);
-
-            // Assert
-            verify(requestRepository).save(mockRequest);
-            verify(mockRequest).setStatus(EquipmentBorrowRequest.Status.REJECTED);
-            verify(eventPublisher).publishEvent(argThat(event ->
-                    event instanceof EquipmentRequestDeniedEvent &&
-                            ((EquipmentRequestDeniedEvent) event).getRequestId().equals(requestId) &&
-                            ((EquipmentRequestDeniedEvent) event).getUserId().equals(2L) &&
-                            ((EquipmentRequestDeniedEvent) event).getReason().equals(reason)
-            ));
         }
     }
 

@@ -37,7 +37,10 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -282,31 +285,50 @@ public class EquipmentBorrowRequestService implements InterfaceRequestService<Eq
      * @throws ResourceNotFoundException if no EquipmentBorrowRequests are found for the given IDs
      * @throws IllegalStateException if any of the requests to be deleted is not in the NOT_BORROWED state
      */
-//    @Transactional
     @Override
     public void deleteRequestsByIds(List<Long> requestIds) {
         if (requestIds == null || requestIds.isEmpty()) {
             throw new IllegalArgumentException("Request IDs cannot be null or empty");
         }
 
-        List<EquipmentBorrowRequest> requestsToDelete = requestRepository.findAllById(requestIds);
+        // Lưu trạng thái ban đầu của dữ liệu để khôi phục nếu xảy ra lỗi
+        List<EquipmentBorrowRequest> originalRequests = requestRepository.findAllById(requestIds);
 
-        if (requestsToDelete.isEmpty()) {
+        if (originalRequests.isEmpty()) {
             throw new ResourceNotFoundException("No Equipment Borrow Requests found for the given IDs", "BORROWING_MODULE");
         }
 
-        for (EquipmentBorrowRequest request : requestsToDelete) {
+        Map<Long, List<EquipmentBorrowRequestDetail>> originalDetails = new HashMap<>();
+        for (EquipmentBorrowRequest request : originalRequests) {
             if (request.getStatus() != EquipmentBorrowRequest.Status.NOT_BORROWED) {
                 throw new IllegalStateException(String.format(
                         "Cannot delete request with ID [%d] because it is already processed.", request.getUniqueID()));
             }
-            borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
-            request.getBorrowRequestDetails().clear();
+            originalDetails.put(request.getUniqueID(), new ArrayList<>(request.getBorrowRequestDetails()));
         }
 
-        logRepository.deleteByEquipmentRequestIds(requestIds);
-        requestRepository.deleteAllInBatch(requestsToDelete);
+        try {
+            // Thực hiện xóa các chi tiết và yêu cầu
+            for (EquipmentBorrowRequest request : originalRequests) {
+                borrowRequestDetailRepository.deleteAll(request.getBorrowRequestDetails());
+                request.getBorrowRequestDetails().clear();
+            }
+
+            logRepository.deleteByEquipmentRequestIds(requestIds);
+            requestRepository.deleteAllInBatch(originalRequests);
+
+        } catch (Exception e) {
+            // Rollback: Khôi phục dữ liệu
+            for (EquipmentBorrowRequest request : originalRequests) {
+                List<EquipmentBorrowRequestDetail> backupDetails = originalDetails.get(request.getUniqueID());
+                request.getBorrowRequestDetails().addAll(backupDetails);
+                borrowRequestDetailRepository.saveAll(backupDetails);
+            }
+            // Ném lại ngoại lệ để thông báo lỗi
+            throw new RuntimeException("Error occurred during deletion, changes have been rolled back.", e);
+        }
     }
+
 
     public Page<EquipmentBorrowRequestSummaryDTO> getFilteredRequests(EquipmentBorrowRequestFilterDTO filterDTO, Pageable pageable) {
         Specification<EquipmentBorrowRequest> spec = Specification.where(null);

@@ -2,7 +2,7 @@
 <html xmlns:str="http://exslt.org/strings" xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Test Results &mdash; service in SEM_backend</title>
+        <title>Test Results &mdash; modules in SEM_backend</title>
         <style type="text/css">
           html {
             height: 100%
@@ -572,9 +572,9 @@ jQuery.cookie = function(name, value, options) {
     <body>
         <div id="container">
             <div id="header">
-                <div class="time" xmlns="">1.91 s</div>
+                <div class="time" xmlns="">2.06 s</div>
                 <h1>
-                    service in SEM_backend: <strong><span class="total" xmlns="http://www.w3.org/1999/xhtml">29 total, </span><span class="passed">29 passed</span></strong>
+                    modules in SEM_backend: <strong><span class="total" xmlns="http://www.w3.org/1999/xhtml">66 total, </span><span class="failed">1 failed, </span><span class="passed">65 passed</span></strong>
                 </h1>
                 <div id="treecontrol">
                     <ul>
@@ -591,91 +591,268 @@ jQuery.cookie = function(name, value, options) {
             </div>
             <div id="content">
                 <ul id="tree">
-                    <li xmlns="" class="level top open">
+                    <li xmlns="" class="level top failed open">
                         <span><em class="time">
-                                <div class="time">1.64 s</div>
-                            </em>EquipmentBorrowRequestServiceTest</span>
+                                <div class="time">830 ms</div>
+                            </em>SseEmitterServiceTest</span>
                         <ul>
-                            <li class="level test">
+                            <li class="level suite failed open">
                                 <span><em class="time">
-                                        <div class="time">1.49 s</div>
-                                    </em><em class="status">passed</em>Process request should throw ResourceNotFoundException when user not found</span>
+                                        <div class="time">824 ms</div>
+                                    </em>Notification Sending Tests</span>
                                 <ul>
-                                    <li class="text">
-                                        <span class="stderr">WARNING: A Java agent has been loaded dynamically (C:\Users\ACER\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)<br/>WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning<br/>WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information<br/>WARNING: Dynamic loading of agents will be disallowed by default in a future release<br/>Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended<br/></span>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">16 ms</div>
+                                            </em><em class="status">passed</em>Send notification to non-existent user</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">785 ms</div>
+                                            </em><em class="status">passed</em>Send notification to multiple emitters</span>
+                                        <ul>
+                                            <li class="text">
+                                                <span class="stderr">WARNING: A Java agent has been loaded dynamically (C:\Users\ACER\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)<br/>WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning<br/>WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information<br/>WARNING: Dynamic loading of agents will be disallowed by default in a future release<br/>Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended<br/></span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Send notification to a single emitter</span>
+                                    </li>
+                                    <li class="level test failed open">
+                                        <span><em class="time">
+                                                <div class="time">21 ms</div>
+                                            </em><em class="status">failed</em>Handle IO exception when sending notification</span>
+                                        <ul>
+                                            <li class="text">
+                                                <span class="stderr">org.opentest4j.AssertionFailedError: 
+<br/>	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+<br/>	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+<br/>	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:63)
+<br/>	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:36)
+<br/>	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:31)
+<br/>	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:231)
+<br/>	at org.example.sem_backend.modules.notification_module.service.SseEmitterServiceTest$NotificationSendingTests.testSendNotificationWithIOException(SseEmitterServiceTest.java:201)
+<br/>	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+<br/>	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+<br/></span>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </li>
-                            <li class="level test">
+                            <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">10 ms</div>
-                                    </em><em class="status">passed</em>Should throw ResourceNotFoundException when no requests found</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">5 ms</div>
-                                    </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is empty</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">10 ms</div>
-                                    </em><em class="status">passed</em>Should successfully return equipment when all requests are valid</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">7 ms</div>
-                                    </em><em class="status">passed</em>Validate request return false when equipment unavailable</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">5 ms</div>
-                                    </em><em class="status">passed</em>Approve request throw exception when request not found</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">3 ms</div>
-                                    </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is null</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">2 ms</div>
-                                    </em><em class="status">passed</em>Process request throw IllegalArgumentException when equipment null</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">89 ms</div>
-                                    </em><em class="status">passed</em>Process request should successfully when valid input</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">5 ms</div>
-                                    </em><em class="status">passed</em>Approve request success</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">4 ms</div>
-                                    </em><em class="status">passed</em>Validate request return false when overdue exist</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">3 ms</div>
-                                    </em><em class="status">passed</em>Should throw BadRequestException when some requests are not in BORROWED status</span>
-                            </li>
-                            <li class="level test">
-                                <span><em class="time">
-                                        <div class="time">3 ms</div>
-                                    </em><em class="status">passed</em>Validate return true when request valid</span>
+                                        <div class="time">6 ms</div>
+                                    </em>Emitter Management Tests</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">3 ms</div>
+                                            </em><em class="status">passed</em>Remove emitter when multiple emitters exist</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">1 ms</div>
+                                            </em><em class="status">passed</em>Add emitter for a new user</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">1 ms</div>
+                                            </em><em class="status">passed</em>Add multiple emitters for the same user</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">1 ms</div>
+                                            </em><em class="status">passed</em>Remove emitter for a user</span>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
                     <li class="level top open">
                         <span><em class="time">
-                                <div class="time">175 ms</div>
+                                <div class="time">794 ms</div>
+                            </em>EquipmentBorrowRequestServiceTest</span>
+                        <ul>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">613 ms</div>
+                                    </em>Deny request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">600 ms</div>
+                                            </em><em class="status">passed</em>Should verify that the EquipmentRequestDeniedEvent is published with correct parameters after denying a request</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">7 ms</div>
+                                            </em><em class="status">passed</em>Should successfully update the request status to REJECTED when denying a valid request</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">6 ms</div>
+                                            </em><em class="status">passed</em>Should throw ResourceConflictException when attempting to deny a request that is not in NOT_BORROWED status</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">18 ms</div>
+                                    </em>Update request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Should handle updating a request with no changes to equipment items</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Should throw IllegalStateException when attempting to update a request that is more than one day old</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">8 ms</div>
+                                            </em><em class="status">passed</em>Should verify that equipment quantities are properly updated in the database after request update</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">32 ms</div>
+                                    </em>Delete request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">4 ms</div>
+                                            </em><em class="status">passed</em>Should throw IllegalArgumentException when deleteRequestsByIds is called with an empty list of requestIds</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">10 ms</div>
+                                            </em><em class="status">passed</em>deleteRequestsByIds_shouldRollbackAndThrowException_whenErrorOccursDuringDeletion()</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">13 ms</div>
+                                            </em><em class="status">passed</em>Should throw IllegalStateException when attempting to delete a request that is not in NOT_BORROWED state</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Should verify that associated borrow request details are deleted when deleteRequestsByIds is called</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">22 ms</div>
+                                    </em>Return request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Should throw ResourceNotFoundException when no requests found</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">4 ms</div>
+                                            </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is empty</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">6 ms</div>
+                                            </em><em class="status">passed</em>Should successfully return equipment when all requests are valid</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">4 ms</div>
+                                            </em><em class="status">passed</em>Should throw IllegalArgumentException when request ids list is null</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">3 ms</div>
+                                            </em><em class="status">passed</em>Should throw BadRequestException when some requests are not in BORROWED status</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">14 ms</div>
+                                    </em>Approve request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Approve request throw exception when request not found</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">9 ms</div>
+                                            </em><em class="status">passed</em>approveRequest_shouldThrowResourceConflictExceptionWhenNotEnoughEquipment()</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">10 ms</div>
+                                    </em>Validate request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Validate request return false when equipment unavailable</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Validate request return false when overdue exist</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">3 ms</div>
+                                            </em><em class="status">passed</em>Validate return true when request valid</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">85 ms</div>
+                                    </em>Process request test</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">5 ms</div>
+                                            </em><em class="status">passed</em>Process request should throw ResourceNotFoundException when user not found</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Process request throw IllegalArgumentException when equipment null</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">78 ms</div>
+                                            </em><em class="status">passed</em>Process request should successfully when valid input</span>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level top open">
+                        <span><em class="time">
+                                <div class="time">187 ms</div>
                             </em>RoomBorrowRequestServiceTest</span>
                         <ul>
                             <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">141 ms</div>
+                                        <div class="time">140 ms</div>
                                     </em>Get Requests Tests</span>
                                 <ul>
                                     <li class="level test">
@@ -685,19 +862,19 @@ jQuery.cookie = function(name, value, options) {
                                     </li>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">3 ms</div>
+                                                <div class="time">2 ms</div>
                                             </em><em class="status">passed</em>Should successfully get admin requests</span>
                                     </li>
                                 </ul>
                             </li>
                             <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">6 ms</div>
+                                        <div class="time">4 ms</div>
                                     </em>Delete Requests Tests</span>
                                 <ul>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">4 ms</div>
+                                                <div class="time">2 ms</div>
                                             </em><em class="status">passed</em>Should successfully delete multiple requests</span>
                                     </li>
                                     <li class="level test">
@@ -709,12 +886,12 @@ jQuery.cookie = function(name, value, options) {
                             </li>
                             <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">8 ms</div>
+                                        <div class="time">16 ms</div>
                                     </em>Update Request Tests</span>
                                 <ul>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">6 ms</div>
+                                                <div class="time">14 ms</div>
                                             </em><em class="status">passed</em>Should successfully update valid request within 24 hours</span>
                                     </li>
                                     <li class="level test">
@@ -726,16 +903,16 @@ jQuery.cookie = function(name, value, options) {
                             </li>
                             <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">13 ms</div>
+                                        <div class="time">11 ms</div>
                                     </em>Validation Tests</span>
                                 <ul>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">9 ms</div>
+                                                <div class="time">7 ms</div>
                                             </em><em class="status">passed</em>Should throw exception for booking more than 2 weeks ahead</span>
                                         <ul>
                                             <li class="text">
-                                                <span class="stdout">22:56:20.523 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Start time [2025-01-19T22:56:20.520016800] for Room ID [1] is more than 2 weeks ahead<br/></span>
+                                                <span class="stdout">13:59:57.950 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Start time [2025-01-25T13:59:57.948950600] for Room ID [1] is more than 2 weeks ahead<br/></span>
                                             </li>
                                         </ul>
                                     </li>
@@ -745,7 +922,7 @@ jQuery.cookie = function(name, value, options) {
                                             </em><em class="status">passed</em>Should throw exception for conflicting bookings</span>
                                         <ul>
                                             <li class="text">
-                                                <span class="stdout">22:56:20.530 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Room ID [1] has conflicting bookings during [2024-12-29T23:56:20.529015600] to [2024-12-30T00:56:20.529015600]<br/></span>
+                                                <span class="stdout">13:59:57.957 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Failed to validate room borrowing request: Rejected booking - Room ID [1] has conflicting bookings during [2025-01-04T14:59:57.956946600] to [2025-01-04T15:59:57.956946600]<br/></span>
                                             </li>
                                         </ul>
                                     </li>
@@ -758,27 +935,32 @@ jQuery.cookie = function(name, value, options) {
                             </li>
                             <li class="level suite open">
                                 <span><em class="time">
-                                        <div class="time">7 ms</div>
+                                        <div class="time">16 ms</div>
                                     </em>Process Request Tests</span>
                                 <ul>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">2 ms</div>
+                                                <div class="time">5 ms</div>
                                             </em><em class="status">passed</em>Should throw ResourceNotFoundException when user not found</span>
                                     </li>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">3 ms</div>
+                                                <div class="time">5 ms</div>
                                             </em><em class="status">passed</em>Should successfully process valid room booking request</span>
                                         <ul>
                                             <li class="text">
-                                                <span class="stdout">22:56:20.541 [main] INFO org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Successfully processed room booking - Room ID: 1, User: test@example.com, Time: 2024-12-29T23:56:20.540527200 to 2024-12-30T00:56:20.540527200<br/></span>
+                                                <span class="stdout">13:59:57.974 [main] INFO org.example.sem_backend.modules.borrowing_module.service.Impl.RoomBorrowRequestService -- Successfully processed room booking - Room ID: 1, User: test@example.com, Time: 2025-01-04T14:59:57.971945500 to 2025-01-04T15:59:57.971945500<br/></span>
                                             </li>
                                         </ul>
                                     </li>
                                     <li class="level test">
                                         <span><em class="time">
-                                                <div class="time">2 ms</div>
+                                                <div class="time">3 ms</div>
+                                            </em><em class="status">passed</em>Should throw ResourceConflictException when room status is BROKEN</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">3 ms</div>
                                             </em><em class="status">passed</em>Should throw ResourceNotFoundException when room not found</span>
                                     </li>
                                 </ul>
@@ -787,26 +969,26 @@ jQuery.cookie = function(name, value, options) {
                     </li>
                     <li class="level top open">
                         <span><em class="time">
-                                <div class="time">98 ms</div>
+                                <div class="time">49 ms</div>
                             </em>RoomStatusChangedListenerTest</span>
                         <ul>
                             <li class="level test">
                                 <span><em class="time">
-                                        <div class="time">87 ms</div>
+                                        <div class="time">42 ms</div>
                                     </em><em class="status">passed</em>Should not publish event when source is RoomService but no users with future bookings</span>
                                 <ul>
                                     <li class="text">
-                                        <span class="stdout">22:56:20.629 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>22:56:20.630 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
+                                        <span class="stdout">13:59:58.025 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>13:59:58.026 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
                                     </li>
                                 </ul>
                             </li>
                             <li class="level test">
                                 <span><em class="time">
-                                        <div class="time">3 ms</div>
+                                        <div class="time">2 ms</div>
                                     </em><em class="status">passed</em>Should log error when source is not RoomService</span>
                                 <ul>
                                     <li class="text">
-                                        <span class="stdout">22:56:20.646 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event java.lang.Object@45e9b12d<br/></span>
+                                        <span class="stdout">13:59:58.034 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event java.lang.Object@69a024a0<br/></span>
                                     </li>
                                 </ul>
                             </li>
@@ -816,19 +998,166 @@ jQuery.cookie = function(name, value, options) {
                                     </em><em class="status">passed</em>Should handle null roomId gracefully when source is RoomService</span>
                                 <ul>
                                     <li class="text">
-                                        <span class="stdout">22:56:20.651 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- roomId in event context is null<br/></span>
+                                        <span class="stdout">13:59:58.038 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- roomId in event context is null<br/></span>
                                     </li>
                                 </ul>
                             </li>
                             <li class="level test">
                                 <span><em class="time">
-                                        <div class="time">5 ms</div>
+                                        <div class="time">2 ms</div>
                                     </em><em class="status">passed</em>Should publish event when source is RoomService and there are users with future bookings</span>
                                 <ul>
                                     <li class="text">
-                                        <span class="stdout">22:56:20.657 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>22:56:20.657 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Notifying users: [1, 2, 3]<br/>22:56:20.657 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
+                                        <span class="stdout">13:59:58.041 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- RoomStatusChangedListener: Handling room status change for roomId: 1<br/>13:59:58.041 [main] INFO org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Notifying users: [1, 2, 3]<br/>13:59:58.041 [main] ERROR org.example.sem_backend.modules.borrowing_module.service.listener.RoomStatusChangedListener -- Mismatch type event roomService<br/></span>
                                     </li>
                                 </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level top open">
+                        <span><em class="time">
+                                <div class="time">1 ms</div>
+                            </em>UserRepositoryTest</span>
+                        <ul>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">1 ms</div>
+                                    </em><em class="status">passed</em>Find by role success response</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level top open">
+                        <span><em class="time">
+                                <div class="time">85 ms</div>
+                            </em>InAppNotificationChannelTest</span>
+                        <ul>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">81 ms</div>
+                                    </em>Abnormal Scenario Tests</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">75 ms</div>
+                                            </em><em class="status">passed</em>Handle emitter service failure</span>
+                                        <ul>
+                                            <li class="text">
+                                                <span class="stdout">Recipient ID: 1<br/></span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Throw exception when no recipients are specified</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Handle repository save failure</span>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Throw exception when empty recipients set is provided</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="level suite open">
+                                <span><em class="time">
+                                        <div class="time">4 ms</div>
+                                    </em>Normal Scenario Tests</span>
+                                <ul>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Successfully send notification to single recipient</span>
+                                        <ul>
+                                            <li class="text">
+                                                <span class="stdout">Recipient ID: 1<br/></span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="level test">
+                                        <span><em class="time">
+                                                <div class="time">2 ms</div>
+                                            </em><em class="status">passed</em>Successfully send notification to multiple recipients</span>
+                                        <ul>
+                                            <li class="text">
+                                                <span class="stdout">Recipient ID: 1<br/>Recipient ID: 2<br/>Recipient ID: 3<br/></span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level top open">
+                        <span><em class="time">
+                                <div class="time">84 ms</div>
+                            </em>NotificationServiceTest</span>
+                        <ul>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">65 ms</div>
+                                    </em><em class="status">passed</em>sendMessage_shouldSendToValidUserIds()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">2 ms</div>
+                                    </em><em class="status">passed</em>getUnreadNotifications_shouldReturnNotifications()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">3 ms</div>
+                                    </em><em class="status">passed</em>markAsRead_shouldThrowExceptionWhenNotificationNotFound()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">2 ms</div>
+                                    </em><em class="status">passed</em>sendMessage_shouldThrowExceptionForEmptyUserList()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">2 ms</div>
+                                    </em><em class="status">passed</em>sendMessage_shouldHandleNullUserList()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">1 ms</div>
+                                    </em><em class="status">passed</em>markAsRead_shouldUpdateNotification()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">7 ms</div>
+                                    </em><em class="status">passed</em>sendNotificationToAdminUser_shouldSendToAdmins()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">2 ms</div>
+                                    </em><em class="status">passed</em>handleEquipmentBorrowedEvent_shouldCreateAndSendNotification()</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="level top open">
+                        <span><em class="time">
+                                <div class="time">31 ms</div>
+                            </em>RoomServiceTest</span>
+                        <ul>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">28 ms</div>
+                                    </em><em class="status">passed</em>updateRoom_WhenRoomExists_UpdatesSuccessfully()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">2 ms</div>
+                                    </em><em class="status">passed</em>updateRoom_WhenRoomDoesNotExist_ThrowsException()</span>
+                            </li>
+                            <li class="level test">
+                                <span><em class="time">
+                                        <div class="time">1 ms</div>
+                                    </em><em class="status">passed</em>addRoom_WhenRoomNameExists_ThrowsException()</span>
                             </li>
                         </ul>
                     </li>
@@ -836,7 +1165,7 @@ jQuery.cookie = function(name, value, options) {
             </div>
         </div>
         <div id="footer">
-            <p>Generated by IntelliJ IDEA on 22:58, 29/12/2024</p>
+            <p>Generated by IntelliJ IDEA on 14:00, 04/01/2025</p>
         </div>
     </body>
 </html>
