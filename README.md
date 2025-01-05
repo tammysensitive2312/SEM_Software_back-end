@@ -20,7 +20,12 @@ docker-compose up -d
 Sau khi môi trường đã được khởi động, truy cập vào container phát triển bằng lệnh:
 
 ```sh
-docker exec -it sembackend-devcontainer-1 /bin/bash
+make run-main
+```
+
+chạy backend:
+``` sh
+mvn spring-boot:run
 ```
 
 ## Bước 3: Chạy migration
