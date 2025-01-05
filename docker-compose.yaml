@@ -11,6 +11,7 @@ services:
       - .:/workspace:cached
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.m2:/home/developer/.m2:cached  # Thêm volume cho maven cache
+      - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_URL=jdbc:mysql://db:3306/sem_db
       - MYSQL_USER=root
@@ -18,6 +19,8 @@ services:
       - FLYWAY_URL=jdbc:mysql://db:3306/sem_db
       - FLYWAY_USER=root
       - FLYWAY_PASSWORD=sem_service
+    ports:
+      - "8080:8080"
     healthcheck:  # Thêm healthcheck
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
