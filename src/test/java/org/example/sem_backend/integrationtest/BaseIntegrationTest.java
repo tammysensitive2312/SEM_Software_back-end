@@ -3,8 +3,6 @@ package org.example.sem_backend.integrationtest;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
-import jakarta.servlet.http.HttpServletRequest;
 import org.example.sem_backend.main_service.middleware.auth.jwt.JwtUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -60,18 +58,18 @@ public class BaseIntegrationTest {
         RestAssured.baseURI = "http://localhost:" + port;
 
         // Generate JWT token
-        String jwtToken = jwtUtils.generateTokenFromUsernameAndEmail(TEST_EMAIL, TEST_USERNAME, TEST_USER_ID);
-
-        // Add default RequestSpecification with JWT cookie
-        RestAssured.requestSpecification = new RequestSpecBuilder()
-                .addHeader("Authorization", "Bearer " + jwtToken)
-                .setContentType(ContentType.JSON)
-                .build();
+//        String jwtToken = jwtUtils.generateTokenFromUsernameAndEmail(TEST_EMAIL, TEST_USERNAME, TEST_USER_ID);
+//
+//        // Add default RequestSpecification with JWT cookie
+//        RestAssured.requestSpecification = new RequestSpecBuilder()
+//                .addHeader("Authorization", "Bearer " + jwtToken)
+//                .setContentType(ContentType.JSON)
+//                .build();
     }
 
-    protected RequestSpecification givenAuthorized() {
+    protected void givenAuthorized() {
         String jwtToken = jwtUtils.generateTokenFromUsernameAndEmail(TEST_EMAIL, TEST_USERNAME, TEST_USER_ID);
-        return RestAssured.given()
+        RestAssured.given()
                 .header("Authorization", "Bearer " + jwtToken)
                 .contentType(ContentType.JSON);
     }

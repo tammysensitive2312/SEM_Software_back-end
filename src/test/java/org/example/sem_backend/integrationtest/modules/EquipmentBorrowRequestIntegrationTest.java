@@ -14,8 +14,6 @@ import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -111,11 +109,11 @@ public class EquipmentBorrowRequestIntegrationTest extends BaseIntegrationTest {
         List<Long> assignedIds = borrowDetail.getEquipmentDetails()
                 .stream()
                 .map(EquipmentDetail::getId)
-                .collect(Collectors.toList());
+                .toList();
 
         assertTrue(availableDetails.stream()
                 .map(EquipmentDetail::getId)
-                .collect(Collectors.toList())
+                .toList()
                 .containsAll(assignedIds));
     }
 
