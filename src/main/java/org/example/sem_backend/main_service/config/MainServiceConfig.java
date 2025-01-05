@@ -1,8 +1,12 @@
 package org.example.sem_backend.main_service.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ApplicationEventMulticaster;
+import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -20,14 +24,16 @@ import java.util.List;
 })
 public class MainServiceConfig implements WebMvcConfigurer {
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOrigins("http://localhost:3000")
-//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-//                .allowedHeaders("*")
-//                .allowCredentials(true);
-//    }
+    @Bean
+    public ApplicationEventMulticaster applicationEventMulticaster(
+            @Qualifier("applicationTaskExecutor") TaskExecutor applicationTaskExecutor) {
+
+        SimpleApplicationEventMulticaster multicaster =
+                new SimpleApplicationEventMulticaster();
+
+        multicaster.setTaskExecutor(applicationTaskExecutor);
+        return multicaster;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
