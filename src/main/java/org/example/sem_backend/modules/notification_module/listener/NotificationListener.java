@@ -1,5 +1,6 @@
 package org.example.sem_backend.modules.notification_module.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
 import org.example.sem_backend.common_module.common.event.EquipmentRequestDeniedEvent;
@@ -25,6 +26,7 @@ public class NotificationListener {
     // Map để theo dõi số lượng thông báo bị quá tải của từng người dùng
     private final Map<Long, Integer> overloadedNotifications = new HashMap<>();
     private static final int OVERLOAD_THRESHOLD = 5;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @EventListener
     public void handleEquipmentBorrowedEvent(EquipmentBorrowedEvent event) {
@@ -91,9 +93,8 @@ public class NotificationListener {
     private Long extractUserIdFromMessage(String message) {
         // Giả sử message có dạng JSON {"userId":123, "message":"..."}
         try {
-            // Parse JSON (dùng thư viện Jackson hoặc Gson)
-            String userIdStr = message.split(",")[0].split(":")[1].trim();
-            return Long.parseLong(userIdStr);
+            Map<String, Object> data = OBJECT_MAPPER.readValue(message, Map.class);
+            return Long.parseLong(data.get("userId").toString());
         } catch (Exception e) {
             log.error("Failed to extract userId from message: {}", message, e);
             return null;
