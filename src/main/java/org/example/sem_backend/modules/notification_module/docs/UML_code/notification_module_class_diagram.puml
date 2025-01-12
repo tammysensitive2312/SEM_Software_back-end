@@ -15,17 +15,9 @@ enum NotificationType {
 
 ' Class NotificationRequest
 class NotificationRequest {
-    -String recipient
     -String message
-    -List<NotificationType> types
-    +getRecipient() : String
-    +setRecipient(String)
-    +getSubject() : String
-    +setSubject(String)
     +getMessage() : String
     +setMessage(String)
-    +getTypes() : List<NotificationType>
-    +setTypes(List<NotificationType>)
 }
 
 ' Class Notification
@@ -35,6 +27,7 @@ class Notification {
     -String message
     -NotificationType type
     -LocalDateTime createdAt
+    -LocalDateTime readAt
     +getId() : Long
     +setId(Long)
     +getRecipient() : HashSet<Long>
@@ -47,6 +40,8 @@ class Notification {
     +setType(NotificationType)
     +getCreatedAt() : LocalDateTime
     +setCreatedAt(LocalDateTime)
+    +getReadAt() : LocalDateTime
+    +setReadAt(LocalDateTime)
 }
 
 class SseEmitterService {
@@ -76,22 +71,22 @@ class InAppNotificationChannel implements NotificationChannel {
 
 InAppNotificationChannel *-- SseEmitterService : has
 
-' NotificationService
-'@Service
 class NotificationService {
-    -Map<NotificationType, NotificationChannel> channels
+    -List<NotificationChannel> channels
     +sendNotification(NotificationRequest)
 }
 
-' AsyncNotificationService
-'@Service
-'class AsyncNotificationService {
-'    -NotificationService notificationService
-'    +sendAsyncNotification(NotificationRequest)
-'}
+class KafkaProducer {
+   -KafkaTemplate<String, String> kafkaTemplate
+   +send(String topic, String message)
+}
 
-' UserPreferences
-'@Entity
+class NotificationListener {
+    -NotificationService notificationService
+    +onHandleInternalEvent(ApplicationEvent event)
+    +onHandleKafkaEvent(ConsumerRecord<String, String> record)
+}
+
 class UserPreferences {
     -String userId
     -boolean emailNotifications
@@ -121,8 +116,9 @@ class NotificationController {
 }
 
 ' Relationships
-NotificationService "1" --> "*" NotificationChannel : uses
-'AsyncNotificationService "1" --> "1" NotificationService : uses
 NotificationController "1" --> "1" NotificationService : uses
+NotificationListener "1" --> "1" NotificationService : uses
+NotificationService "1" --> "*" NotificationChannel : uses
+KafkaProducer "1" *-- "1" NotificationService : composition
 NotificationService --> NotificationRepository : uses
 @enduml

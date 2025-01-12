@@ -13,5 +13,4 @@ import java.io.Serializable;
 @Getter
 public class NotificationRequest implements Serializable {
     String message;
-    boolean isRead;
 }
