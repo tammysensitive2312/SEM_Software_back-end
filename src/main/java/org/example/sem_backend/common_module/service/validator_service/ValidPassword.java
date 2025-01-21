@@ -1,4 +1,4 @@
-package org.example.sem_backend.common_module.service;
+package org.example.sem_backend.common_module.service.validator_service;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -6,7 +6,7 @@ import org.example.sem_backend.common_module.exception.NotificationRecipientExce
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
 import org.example.sem_backend.modules.notification_module.service.SseEmitterService;
-import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
+import org.example.sem_backend.modules.notification_module.service.strategy.NotificationChannel;
 import org.springframework.stereotype.Service;
 
 @Service
