@@ -6,7 +6,7 @@ import org.example.sem_backend.modules.notification_module.domain.entity.Notific
 import org.example.sem_backend.modules.notification_module.domain.enums.NotificationType;
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
-import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
+import org.example.sem_backend.modules.notification_module.service.strategy.NotificationChannel;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

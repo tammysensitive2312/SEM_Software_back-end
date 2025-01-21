@@ -1,0 +1,135 @@
+@startuml
+component SEM {
+
+package room-module {
+interface RoomService {}
+}
+
+package borrowing-module {
+interface RoomScheduleRepository {}
+
+class RoomBorrowRequestService {
+    - RoomScheduleRepository roomScheduleRepository
+    - RoomRepository roomRepository
+    - RoomScheduleProcessor scheduleProcessor
+}
+
+class RoomScheduleProcessor {
+    - RoomScheduleRepository roomScheduleRepository
+    + processRoomSchedules(): void
+    + processSchedulesForRoom(Long roomId, List<RoomSchedule> schedules): void
+    + groupSchedulesByRoomId(List<RoomSchedule> schedules): Map<Long, List<RoomSchedule>>
+}
+
+RoomBorrowRequestService -> RoomScheduleRepository
+RoomScheduleProcessor -> RoomScheduleRepository
+}
+'package notification-module {}
+package scheduling-module {
+    class TaskScheduler {
+        - schedulerRegistry: SchedulerRegistry
+        + scheduleTask(ScheduledTask task): void
+    }
+    interface ScheduledTask {
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+    class SchedulerRegistry {
+        - tasks: List<ScheduledTask>
+        + registerTask(ScheduledTask task): void
+        + executeTasks(): void
+    }
+
+    class RoomStatusChangeTask implements ScheduledTask {
+        - Long roomId
+        - String newStatus
+        - LocalDateTime executionTime
+        - RoomService roomService
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+        }
+
+    TaskScheduler o-- SchedulerRegistry
+    SchedulerRegistry "1" *-- "*" ScheduledTask
+}
+
+RoomBorrowRequestService --> RoomScheduleProcessor
+RoomScheduleProcessor --> TaskScheduler
+RoomScheduleProcessor --> RoomService
+RoomStatusChangeTask --> RoomService
+}
+@enduml
+
+@startuml
+package scheduling-module {
+    interface ScheduledTask {
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class TaskScheduler <<spring>> {
+        - ThreadPoolTaskScheduler threadPoolTaskScheduler
+        + schedule(Runnable task, Instant executionTime): void
+        + scheduleAtFixedRate(Runnable task, Instant startTime, long period): void
+    }
+
+    abstract class AbstractTask implements ScheduledTask {
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class RoomStatusChangeTask extends AbstractTask {
+        - Long roomId
+        - String newStatus
+        - RoomService roomService
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class NotificationTask extends AbstractTask {
+        - String message
+        - String recipientEmail
+        - NotificationService notificationService
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+}
+
+package room-module {
+    class RoomService {
+        + changeRoomStatus(RoomStatus status, Long roomId): void
+    }
+}
+
+package notification-module {
+    class NotificationService {
+        + sendNotification(String recipientEmail, String message): void
+    }
+}
+
+package borrowing-module {
+    class RoomScheduleProcessor {
+        - RoomScheduleRepository roomScheduleRepository
+        - TaskScheduler taskScheduler
+        - RoomService roomService
+        + processSchedule(RoomSchedule schedule): void
+        + processAllSchedules(List<RoomSchedule> schedules): void
+    }
+
+    class RoomBorrowRequestService {
+        - RoomScheduleProcessor roomScheduleProcessor
+        + processRequest(RoomBorrowRequestDTO requestDto): void
+    }
+
+    interface RoomScheduleRepository {
+        + findSchedulesBetween(LocalDateTime start, LocalDateTime end): List<RoomSchedule>
+    }
+}
+
+RoomScheduleProcessor --> TaskScheduler
+RoomScheduleProcessor --> RoomService
+RoomScheduleProcessor --> RoomScheduleRepository
+RoomBorrowRequestService --> RoomScheduleProcessor
+RoomStatusChangeTask --> RoomService
+NotificationTask --> NotificationService
+@enduml

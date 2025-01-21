@@ -24,6 +24,7 @@ package service {
 @enduml
 
 @startuml
+component BorrowingModule {
 package controller {
     class EquipmentBorrowRequestController
     class RoomBorrowRequestController
@@ -106,4 +107,5 @@ EquipmentBorrowRequestRepository ..> EquipmentBorrowRequest : depends on
 EquipmentBorrowRequestDetailRepository ..> EquipmentBorrowRequestDetail : depends on
 RoomBorrowRequestRepository ..> RoomBorrowRequest : depends on
 RoomScheduleRepository ..> RoomSchedule : depends on
+}
 @enduml
