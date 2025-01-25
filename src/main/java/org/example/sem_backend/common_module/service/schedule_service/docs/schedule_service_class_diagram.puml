@@ -1,67 +1,15 @@
 @startuml
 component SEM {
-
-package room-module {
-interface RoomService {}
-}
-
-package borrowing-module {
-interface RoomScheduleRepository {}
-
-class RoomBorrowRequestService {
-    - RoomScheduleRepository roomScheduleRepository
-    - RoomRepository roomRepository
-    - RoomScheduleProcessor scheduleProcessor
-}
-
-class RoomScheduleProcessor {
-    - RoomScheduleRepository roomScheduleRepository
-    + processRoomSchedules(): void
-    + processSchedulesForRoom(Long roomId, List<RoomSchedule> schedules): void
-    + groupSchedulesByRoomId(List<RoomSchedule> schedules): Map<Long, List<RoomSchedule>>
-}
-
-RoomBorrowRequestService -> RoomScheduleRepository
-RoomScheduleProcessor -> RoomScheduleRepository
-}
-'package notification-module {}
 package scheduling-module {
-    class TaskScheduler {
-        - schedulerRegistry: SchedulerRegistry
-        + scheduleTask(ScheduledTask task): void
-    }
-    interface ScheduledTask {
-        + execute(): void
-        + getExecutionTime(): LocalDateTime
-    }
-    class SchedulerRegistry {
-        - tasks: List<ScheduledTask>
-        + registerTask(ScheduledTask task): void
-        + executeTasks(): void
+    class ScheduledTaskManager {
+        - List<ScheduledTask> tasks
+        - TaskScheduler scheduler
+        - RoomScheduleProcessor roomScheduleProcessor
+        + registerTask(ScheduledTask task) : void
+        + executeTasks() : void
+        + scheduleTaskAtMidnight() : void
     }
 
-    class RoomStatusChangeTask implements ScheduledTask {
-        - Long roomId
-        - String newStatus
-        - LocalDateTime executionTime
-        - RoomService roomService
-        + execute(): void
-        + getExecutionTime(): LocalDateTime
-        }
-
-    TaskScheduler o-- SchedulerRegistry
-    SchedulerRegistry "1" *-- "*" ScheduledTask
-}
-
-RoomBorrowRequestService --> RoomScheduleProcessor
-RoomScheduleProcessor --> TaskScheduler
-RoomScheduleProcessor --> RoomService
-RoomStatusChangeTask --> RoomService
-}
-@enduml
-
-@startuml
-package scheduling-module {
     interface ScheduledTask {
         + execute(): void
         + getExecutionTime(): LocalDateTime
@@ -93,6 +41,9 @@ package scheduling-module {
         + execute(): void
         + getExecutionTime(): LocalDateTime
     }
+
+    ScheduledTaskManager "1" *-- "*" ScheduledTask
+    ScheduledTaskManager --> TaskScheduler
 }
 
 package room-module {
@@ -112,8 +63,9 @@ package borrowing-module {
         - RoomScheduleRepository roomScheduleRepository
         - TaskScheduler taskScheduler
         - RoomService roomService
-        + processSchedule(RoomSchedule schedule): void
-        + processAllSchedules(List<RoomSchedule> schedules): void
+        + processRoomSchedule(): void
+        + processSchedulesForRoom(Long roomId, List<RoomSchedule> schedules): void
+        - groupSchedulesByRoomId(List<RoomSchedule> schedules) : Map<Long, List<RoomSchedule>>
     }
 
     class RoomBorrowRequestService {
@@ -132,4 +84,6 @@ RoomScheduleProcessor --> RoomScheduleRepository
 RoomBorrowRequestService --> RoomScheduleProcessor
 RoomStatusChangeTask --> RoomService
 NotificationTask --> NotificationService
+ScheduledTaskManager --> RoomScheduleProcessor
+}
 @enduml
