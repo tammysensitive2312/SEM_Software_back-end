@@ -7,11 +7,12 @@ import org.example.sem_backend.modules.borrowing_module.repository.RoomScheduleR
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.service.RoomService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,8 +27,11 @@ public class RoomScheduleProcessor {
     private final TaskScheduler scheduler;
     private final RoomService roomService;
 
+    @Value("${room.schedule.min-gap-minutes}")
+    private int minGapMinutes;
 
-    public RoomScheduleProcessor(
+    public
+    RoomScheduleProcessor(
             RoomScheduleRepository roomScheduleRepository,
             @Qualifier("primaryTaskScheduler") TaskScheduler scheduler,
             RoomService roomService) {
@@ -37,28 +41,19 @@ public class RoomScheduleProcessor {
     }
 
     /**
-     * Lập lịch định kỳ để xử lý thay đổi trạng thái phòng vào 12am mỗi ngày.
-     */
-    @Scheduled(cron = "0 0 0 * * *")
-    public void scheduleDailyRoomStatusUpdatesAtMidnight() {
-        scheduler.schedule(
-                this::processRoomSchedules,
-                triggerContext -> {
-                    LocalDateTime nextExecution = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
-                    return nextExecution.atZone(java.time.ZoneId.systemDefault()).toInstant();
-                }
-        );
-    }
-
-    /**
      * Quét và lập lịch thay đổi trạng thái phòng dựa trên RoomSchedule.
      */
     public void processRoomSchedules() {
-        List<RoomSchedule> schedules = roomScheduleRepository.findAll();
-        Map<Long, List<RoomSchedule>> groupedSchedules = groupSchedulesByRoomId(schedules);
+        try {
+            List<RoomSchedule> schedules = roomScheduleRepository.findAll();
+            Map<Long, List<RoomSchedule>> groupedSchedules = groupSchedulesByRoomId(schedules);
 
-        groupedSchedules.forEach(this::processSchedulesForRoom);
+            groupedSchedules.forEach(this::processSchedulesForRoom);
+        } catch (Exception e) {
+            log.error("Failed to process room schedules: {}", e.getMessage());
+        }
     }
+
 
     /**
      * Nhóm các RoomSchedule theo Room ID.
@@ -78,49 +73,48 @@ public class RoomScheduleProcessor {
      */
     public void processSchedulesForRoom(Long roomId, List<RoomSchedule> schedules) {
         List<RoomSchedule> mutableSchedules = new ArrayList<>(schedules);
-        mutableSchedules.sort(
+        mutableSchedules.sort(Comparator.comparing(RoomSchedule::getStartTime));
 
-                Comparator.comparing(RoomSchedule::getStartTime));
-
-        for (int i = 0; i < schedules.size(); i++) {
-            RoomSchedule currentSchedule = schedules.get(i);
+        for (int i = 0; i < mutableSchedules.size(); i++) {
+            RoomSchedule currentSchedule = mutableSchedules.get(i);
             LocalDateTime endTime = currentSchedule.getEndTime();
 
             // Lập lịch trạng thái "IN_USE"
             scheduler.schedule(
-                    new RoomStatusChangeTask(currentSchedule.getStartTime(), log) {{
-                        setRoomId(roomId);
-                        setNewStatus(RoomStatus.IN_USE);
-                        setRoomService(roomService);
-                    }},
-                    currentSchedule.getStartTime().atZone(java.time.ZoneId.systemDefault()).toInstant()
+                    createRoomStatusChangeTask(roomId, RoomStatus.IN_USE, currentSchedule.getStartTime()),
+                    currentSchedule.getStartTime().atZone(ZoneId.systemDefault()).toInstant()
             );
 
-            // Xử lý trạng thái "AVAILABLE"
-            if (i + 1 < schedules.size()) {
-                RoomSchedule nextSchedule = schedules.get(i + 1);
-                long gapMinutes = java.time.Duration.between(endTime, nextSchedule.getStartTime()).toMinutes();
-
-                if (gapMinutes > 15) {
-                    scheduler.schedule(
-                            new RoomStatusChangeTask(endTime, log) {{
-                                setRoomId(roomId);
-                                setNewStatus(RoomStatus.AVAILABLE);
-                                setRoomService(roomService);
-                            }},
-                            endTime.atZone(java.time.ZoneId.systemDefault()).toInstant()
-                    );
+            // Lập lịch trạng thái "AVAILABLE"
+            if (i + 1 < mutableSchedules.size()) {
+                RoomSchedule nextSchedule = mutableSchedules.get(i + 1);
+                if (shouldScheduleTask(endTime, nextSchedule.getStartTime(), minGapMinutes)) {
+                    scheduleRoomAvailableTask(roomId, endTime);
                 }
             } else {
-                scheduler.schedule(
-                        new RoomStatusChangeTask(endTime, log) {{
-                            setRoomId(roomId);
-                            setNewStatus(RoomStatus.AVAILABLE);
-                            setRoomService(roomService);
-                        }},
-                        endTime.atZone(java.time.ZoneId.systemDefault()).toInstant()
-                );
+                scheduleRoomAvailableTask(roomId, endTime);
             }
         }
     }
+
+
+    private boolean shouldScheduleTask(LocalDateTime endTime, LocalDateTime nextStartTime, int minGapMinutes) {
+        return java.time.Duration.between(endTime, nextStartTime).toMinutes() > minGapMinutes;
+    }
+
+    private RoomStatusChangeTask createRoomStatusChangeTask(Long roomId, RoomStatus status, LocalDateTime executionTime) {
+        return new RoomStatusChangeTask(executionTime, log) {{
+            setRoomId(roomId);
+            setNewStatus(status);
+            setRoomService(roomService);
+        }};
+    }
+
+    private void scheduleRoomAvailableTask(Long roomId, LocalDateTime endTime) {
+        scheduler.schedule(
+                createRoomStatusChangeTask(roomId, RoomStatus.AVAILABLE, endTime),
+                endTime.atZone(ZoneId.systemDefault()).toInstant()
+        );
+    }
+
 }
