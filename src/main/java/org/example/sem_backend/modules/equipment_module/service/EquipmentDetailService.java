@@ -61,19 +61,49 @@ public class EquipmentDetailService implements IEquipmentDetailService {
     }
 
     @Override
+    @Transactional
     public void updateEquipmentDetail(Long id, EquipmentDetailRequest request) {
         EquipmentDetail equipmentDetail = equipmentDetailRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("EquipmentDetail not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-DETAIL-MODULE"));
-        Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with ID: " + request.getEquipmentId(), "EQUIPMENT-DETAIL-MODULE"));
+                .orElseThrow(() -> new ResourceNotFoundException("EquipmentDetail not found with ID: " + id, "EQUIPMENT-DETAIL-MODULE"));
+
+        Equipment equipment = equipmentDetail.getEquipment();
+        EquipmentDetailStatus previousStatus = equipmentDetail.getStatus();
+
+        Room room = request.getRoomId() != null
+                ? roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + request.getRoomId(), "EQUIPMENT-DETAIL-MODULE"))
+                : null;
+
         equipmentDetail.setDescription(request.getDescription());
         equipmentDetail.setPurchaseDate(request.getPurchaseDate());
         equipmentDetail.setStatus(request.getStatus());
         equipmentDetail.setRoom(room);
-        equipmentDetail.setEquipment(equipment);
+
+        // Adjust quantities based on status transition
+        adjustEquipmentQuantity(equipment, previousStatus, request.getStatus());
+
         equipmentDetailRepository.save(equipmentDetail);
+        equipmentRepository.save(equipment);
+    }
+
+    private void adjustEquipmentQuantity(Equipment equipment, EquipmentDetailStatus previousStatus, EquipmentDetailStatus newStatus) {
+        // Decrement count for previous status
+        if (previousStatus == EquipmentDetailStatus.USABLE) {
+            equipment.setUsableQuantity(equipment.getUsableQuantity() - 1);
+        } else if (previousStatus == EquipmentDetailStatus.BROKEN) {
+            equipment.setBrokenQuantity(equipment.getBrokenQuantity() - 1);
+        } else if (previousStatus == EquipmentDetailStatus.OCCUPIED) {
+            equipment.setInUseQuantity(equipment.getInUseQuantity() - 1);
+        }
+
+        // Increment count for new status
+        if (newStatus == EquipmentDetailStatus.USABLE) {
+            equipment.setUsableQuantity(equipment.getUsableQuantity() + 1);
+        } else if (newStatus == EquipmentDetailStatus.BROKEN) {
+            equipment.setBrokenQuantity(equipment.getBrokenQuantity() + 1);
+        } else if (newStatus == EquipmentDetailStatus.OCCUPIED) {
+            equipment.setInUseQuantity(equipment.getInUseQuantity() + 1);
+        }
     }
 
     /**
@@ -149,10 +179,12 @@ public class EquipmentDetailService implements IEquipmentDetailService {
             equipment.setUsableQuantity(equipment.getUsableQuantity() - 1);
         } else if (equipmentDetail.getStatus() == EquipmentDetailStatus.BROKEN) {
             equipment.setBrokenQuantity(equipment.getBrokenQuantity() - 1);
+        } else if (equipmentDetail.getStatus() == EquipmentDetailStatus.OCCUPIED) {
+            equipment.setInUseQuantity(equipment.getInUseQuantity() - 1);
         }
 
         // Kiểm tra tính hợp lệ
-        if (equipment.getTotalQuantity() < 0 || equipment.getUsableQuantity() < 0 || equipment.getBrokenQuantity() < 0) {
+        if (equipment.getTotalQuantity() < 0 || equipment.getUsableQuantity() < 0 || equipment.getBrokenQuantity() < 0 || equipment.getInUseQuantity() < 0) {
             throw new IllegalStateException("Equipment quantities cannot be negative");
         }
 
