@@ -27,7 +27,7 @@ public class RoomScheduleProcessor {
     private final TaskScheduler scheduler;
     private final RoomService roomService;
 
-    @Value("${room.schedule.min-gap-minutes}")
+    @Value("${schedule.task.min_gap}")
     private int minGapMinutes;
 
     public

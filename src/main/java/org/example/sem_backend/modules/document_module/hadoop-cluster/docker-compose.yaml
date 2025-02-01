@@ -1,0 +1,100 @@
+services:
+  namenode:
+    image: apache/hadoop:3.3.5
+    container_name: namenode
+    hostname: namenode
+    user: root
+    volumes:
+      - ./data/namenode:/opt/hadoop/data/nameNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/start-hdfs.sh:/start-hdfs.sh
+    ports:
+      - "9870:9870"  # Web UI của Namenode
+      - "9000:9000"  # RPC của Namenode
+    command: ["bash", "/start-hdfs.sh"]
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.2
+
+  datanode_1:
+    image: apache/hadoop:3.3.5
+    hostname: datanode-1
+    user: root
+    volumes:
+      - ./data/datanode1:/opt/hadoop/data/dataNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+    depends_on:
+      - namenode
+    command: ["bash", "/init-datanode.sh"]
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.3
+
+  datanode_2:
+    image: apache/hadoop:3.3.5
+    hostname: datanode-2
+    user: root
+    volumes:
+      - ./data/datanode2:/opt/hadoop/data/dataNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+    depends_on:
+      - namenode
+    command: ["bash", "/init-datanode.sh"]
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.4
+
+  resourcemanager:
+    image: apache/hadoop:3.3.5
+    hostname: resourcemanager
+    user: root
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - "8088:8088"  # Web UI của YARN
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - namenode
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.5
+
+  nodemanager_1:
+    image: apache/hadoop:3.3.5
+    hostname: nodemanager-1
+    user: root
+    command: ["yarn", "nodemanager"]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - resourcemanager
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.6
+
+  nodemanager_2:
+    image: apache/hadoop:3.3.5
+    hostname: nodemanager-2
+    user: root
+    command: ["yarn", "nodemanager"]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - resourcemanager
+    networks:
+      hadoop_network:
+        ipv4_address: 172.20.0.7
+
+networks:
+  hadoop_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  namenode_data:
+  datanode1_data:
+  datanode2_data:
