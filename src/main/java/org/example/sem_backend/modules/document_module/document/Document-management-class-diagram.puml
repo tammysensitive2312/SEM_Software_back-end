@@ -1,0 +1,20 @@
+@startuml conceptual
+component document_module {
+class DocumentManagementController
+
+interface DocumentScrapper {
+    +parseDocument()
+}
+
+abstract class FileScrapper implements DocumentScrapper {
+    +parseDocument()
+}
+
+class PdfScrapper extends FileScrapper {}
+class DocScrapper extends FileScrapper {}
+class PowerPointScrapper extends FileScrapper {}
+
+
+DocumentManagementController --> DocumentScrapper
+}
+@enduml

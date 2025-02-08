@@ -4,7 +4,7 @@
 <configuration>
     <property>
         <name>fs.defaultFS</name>
-        <value>hdfs://namenode:9000</value>
+        <value>hdfs://172.20.0.2:9000</value>
     </property>
 
     <property>

@@ -4,7 +4,19 @@
 <configuration>
     <property>
         <name>dfs.namenode.rpc-address</name>
-        <value>namenode:9000</value>
+        <value>172.20.0.2:9000</value>
+    </property>
+    <property>
+        <name>dfs.datanode.address</name>
+        <value>0.0.0.0:9866</value>
+    </property>
+    <property>
+        <name>dfs.datanode.http.address</name>
+        <value>0.0.0.0:9864</value>
+    </property>
+    <property>
+        <name>dfs.namenode.http-address</name>
+        <value>172.20.0.2:9870</value>
     </property>
     <property>
         <name>dfs.replication</name>
