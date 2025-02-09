@@ -1,4 +1,4 @@
-# Use case chức năng quản lý tài 
+# Use case chức năng quản lý tài liệu
 
 ## 1. Mô tả
 
@@ -20,3 +20,8 @@ thì app sẽ tự động tạo ra một đề thi ngẫu nhiên từ các tài
 - Nếu app không đưa ra được đề thi như ý của người dùng thì cần xóa sạch dữ liệu và tạo mới, nếu không tạo được
 sau một khoảng nhất định thì sẽ hiển thị lỗi 
 
+### Mô tả chi tiết 
+tìm kiếm theo nhiều tiêu chí khác nhau như tên tài liệu, tác giả, nội dung, ngày tạo, ngày cập nhật, loại tài liệu, ...
+
+
+```

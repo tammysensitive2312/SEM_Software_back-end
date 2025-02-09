@@ -7,6 +7,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.entity.EquipmentB
 import org.example.sem_backend.modules.borrowing_module.repository.EquipmentBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.service.RoomScheduleProcessor;
 import org.example.sem_backend.modules.notification_module.service.NotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,8 @@ public class ScheduledTaskManager {
     private final NotificationService notificationService;
     private final List<ScheduledTask> scheduledTask = new ArrayList<>();
 
-    String cronExpression = "${task.cron.expression}";
+    @Value("${task.cron.expression}")
+    String cronExpression;
 
     @PostConstruct
     public void scheduleTaskAtMidnight() {
