@@ -48,6 +48,22 @@ services:
       timeout: 5s
       retries: 3
 
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/var/lib/mongodb
+    environment:
+        - MONGO_ROOT_USERNAME=root
+        - MONGO_ROOT_PASSWORD=sem_service
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   kafka:
     image: 'bitnami/kafka:latest'
     ports:
@@ -73,3 +89,5 @@ networks:
 volumes:
   mysql-data:
     driver: local  # Chỉ định driver cho volume
+  mongodb-data:
+    driver: local

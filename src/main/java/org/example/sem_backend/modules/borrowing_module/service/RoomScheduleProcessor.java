@@ -1,6 +1,5 @@
 package org.example.sem_backend.modules.borrowing_module.service;
 
-import jakarta.persistence.LockModeType;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.common_module.service.schedule_service.RoomStatusChangeTask;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
@@ -9,7 +8,6 @@ import org.example.sem_backend.modules.room_module.enums.RoomStatus;
 import org.example.sem_backend.modules.room_module.service.RoomService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 

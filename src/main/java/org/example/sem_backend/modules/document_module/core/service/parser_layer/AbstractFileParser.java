@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core.service;
+package org.example.sem_backend.modules.document_module.core.service.parser_layer;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

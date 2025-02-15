@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core.service;
+package org.example.sem_backend.modules.document_module.core.service.parser_layer;
 
 import org.apache.tika.Tika;
 
@@ -18,7 +18,6 @@ public class DocumentParserFactory {
 //            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
 //                    new DocxDocumentParser(filePath);
 //            case "application/msword" -> new DocDocumentParser(filePath);
-//            case "text/plain" -> new TxtDocumentParser(filePath);
             default -> throw new UnsupportedOperationException(
                     "Unsupported document type: " + mimeType);
         };

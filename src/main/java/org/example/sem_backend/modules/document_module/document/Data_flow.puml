@@ -1,0 +1,27 @@
+@startuml
+actor User
+participant "App Server Interface" as AppServer
+participant "Core Parser" as CoreParser
+participant "MongoDB" as MongoDB
+participant "Kafka" as Kafka
+participant "Spark Streaming" as SparkStreaming
+participant "Elasticsearch" as Elasticsearch
+participant "Hadoop Datake" as Datake
+
+User -> AppServer: Upload Document
+AppServer -> CoreParser: Parse PDF (Text + Images)
+CoreParser -> CoreParser: Extract Metadata and Content
+CoreParser -> MongoDB: Save Metadata (Title, Author, Date, etc.)
+CoreParser -> Kafka: Send Data (Parsed Document + Metadata)
+Kafka -> SparkStreaming: Stream Data
+SparkStreaming -> Elasticsearch: Create Index (Text + Metadata)
+Elasticsearch -> Elasticsearch: Store Index for Search
+SparkStreaming -> Datake: Store Parsed Data in Hadoop Datake
+Datake -> Datake: Save Data (Full Document and Metadata)
+
+User -> AppServer: Search Document (Text / Metadata)
+AppServer -> Elasticsearch: Query Index (Text / Metadata)
+Elasticsearch -> AppServer: Return Search Results
+AppServer -> User: Display Search Results
+
+@enduml
