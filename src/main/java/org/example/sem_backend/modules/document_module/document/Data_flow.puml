@@ -9,15 +9,19 @@ participant "Elasticsearch" as Elasticsearch
 participant "Hadoop Datake" as Datake
 
 User -> AppServer: Upload Document
+AppServer -> Datake: Store Raw File in Hadoop Datake (HDFS)
+Datake -> Datake: Save File in HDFS
+
 AppServer -> CoreParser: Parse PDF (Text + Images)
 CoreParser -> CoreParser: Extract Metadata and Content
 CoreParser -> MongoDB: Save Metadata (Title, Author, Date, etc.)
 CoreParser -> Kafka: Send Data (Parsed Document + Metadata)
-Kafka -> SparkStreaming: Stream Data
+Kafka -> SparkStreaming: Stream Data (Parsed Data + Metadata)
+SparkStreaming -> SparkStreaming: Normalize Data (e.g., Translation to English)
 SparkStreaming -> Elasticsearch: Create Index (Text + Metadata)
 Elasticsearch -> Elasticsearch: Store Index for Search
-SparkStreaming -> Datake: Store Parsed Data in Hadoop Datake
-Datake -> Datake: Save Data (Full Document and Metadata)
+SparkStreaming -> Datake: Store Processed Data in Hadoop Datake (Parquet)
+Datake -> Datake: Save Data (Full Document and Processed Metadata)
 
 User -> AppServer: Search Document (Text / Metadata)
 AppServer -> Elasticsearch: Query Index (Text / Metadata)

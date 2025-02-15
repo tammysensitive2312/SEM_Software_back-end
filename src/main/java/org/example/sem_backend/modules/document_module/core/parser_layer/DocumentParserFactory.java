@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core.service.parser_layer;
+package org.example.sem_backend.modules.document_module.core.parser_layer;
 
 import org.apache.tika.Tika;
 

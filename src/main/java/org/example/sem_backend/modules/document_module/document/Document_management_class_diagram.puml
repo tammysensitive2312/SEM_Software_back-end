@@ -45,7 +45,17 @@ object dataNode1
 object dataNode2
 }
 object Elasticsearch
-object MongoDB
+component MongoDB {
+class DocumentMetadata {
+    +title : String
+    +author : String
+    +uploadDate : LocalDate
+    +summary : String
+    +hash : String
+    ...
+    }\
+
+}
 }
 
 application_layer --> parser_layer

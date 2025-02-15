@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core.service.parser_layer;
+package org.example.sem_backend.modules.document_module.core.parser_layer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -54,12 +54,12 @@ services:
     volumes:
       - mongodb-data:/var/lib/mongodb
     environment:
-        - MONGO_ROOT_USERNAME=root
-        - MONGO_ROOT_PASSWORD=sem_service
+      - MONGODB_INITDB_ROOT_USERNAME=root
+      - MONGODB_INITDB_ROOT_PASSWORD=sem_service
     ports:
       - "27017:27017"
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 3
