@@ -1,0 +1,30 @@
+@startuml
+actor Client
+
+Client -> RoomBorrowRequestService: processRequest(RoomBorrowRequestDTO)
+RoomBorrowRequestService -> RoomScheduleProcessor: scheduleRoomStatusChange(RoomSchedule)
+RoomScheduleProcessor -> TaskScheduler: scheduleTask(RoomStatusChangeTask("IN_USE", startTime))
+RoomScheduleProcessor -> TaskScheduler: scheduleTask(RoomStatusChangeTask("AVAILABLE", endTime))
+TaskScheduler -> SchedulerRegistry: registerTask(RoomStatusChangeTask)
+Client <-- RoomBorrowRequestService: Response
+
+== Scheduled Execution at 12am ==
+TaskScheduler -> RoomScheduleProcessor: processRoomSchedules()
+RoomScheduleProcessor -> RoomScheduleRepository: findAllRelevantSchedules()
+RoomScheduleRepository --> RoomScheduleProcessor: List<RoomSchedule>
+RoomScheduleProcessor -> RoomScheduleProcessor: groupSchedulesByRoomId()
+RoomScheduleProcessor -> RoomScheduleProcessor: processSchedulesForRoom(roomId, schedules)
+
+loop For each roomId
+    RoomScheduleProcessor -> TaskScheduler: scheduleTask(RoomStatusChangeTask("IN_USE", startTime))
+    RoomScheduleProcessor -> TaskScheduler: scheduleTask(RoomStatusChangeTask("AVAILABLE", endTime))
+    TaskScheduler -> SchedulerRegistry: registerTask(RoomStatusChangeTask)
+end
+
+== Task Execution ==
+alt Execution Time Reached
+    SchedulerRegistry -> TaskScheduler: executeTask(RoomStatusChangeTask)
+    TaskScheduler -> RoomStatusChangeTask: execute()
+    RoomStatusChangeTask -> RoomService: changeRoomStatus(roomId, newStatus)
+end
+@enduml

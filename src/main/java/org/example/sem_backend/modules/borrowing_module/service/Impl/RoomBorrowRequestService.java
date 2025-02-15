@@ -2,7 +2,6 @@ package org.example.sem_backend.modules.borrowing_module.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.example.sem_backend.common_module.exception.ResourceConflictException;
 import org.example.sem_backend.common_module.exception.ResourceNotFoundException;
 import org.example.sem_backend.modules.borrowing_module.domain.dto.room.GetRoomRequestDTO;
@@ -13,6 +12,7 @@ import org.example.sem_backend.modules.borrowing_module.domain.mapper.RoomBorrow
 import org.example.sem_backend.modules.borrowing_module.repository.RoomBorrowRequestRepository;
 import org.example.sem_backend.modules.borrowing_module.repository.TransactionsLogRepository;
 import org.example.sem_backend.modules.borrowing_module.service.InterfaceRequestService;
+import org.example.sem_backend.modules.borrowing_module.service.RoomScheduleProcessor;
 import org.example.sem_backend.modules.room_module.domain.entity.Room;
 import org.example.sem_backend.modules.borrowing_module.domain.entity.RoomSchedule;
 import org.example.sem_backend.modules.room_module.enums.RoomStatus;
@@ -40,6 +40,7 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
     private final RoomBorrowRequestMapper mapper;
     private final RoomScheduleRepository scheduleRepository;
     private final TransactionsLogRepository logRepository;
+    private final RoomScheduleProcessor roomScheduleProcessor;
 
     /**
      * This method handles the entire process of booking a room, including:
@@ -92,6 +93,8 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
         schedule.setRequest(request);
 
         scheduleRepository.save(schedule);
+
+        roomScheduleProcessor.processSchedulesForRoom(room.getUniqueId(), List.of(schedule));
 
         TransactionsLog transactionsLog = new TransactionsLog();
         transactionsLog.setRoomRequest(request);
@@ -244,8 +247,6 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      * @return A paginated list of room borrow requests for the user.
      */
     public Page<GetRoomRequestDTO> getUserRequests(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        LocalDate today = LocalDate.now();
-        LocalDate effectiveEndDate = endDate != null ? endDate : today;
 
         Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository
                 .findRequestsWithSchedules(userId, null, startDate, endDate, pageable);
@@ -266,8 +267,6 @@ public class RoomBorrowRequestService implements InterfaceRequestService<RoomBor
      * @return A paginated list of room borrow requests for administrative use.
      */
     public Page<GetRoomRequestDTO> getAdminRequests(String email, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        LocalDate today = LocalDate.now();
-        LocalDate effectiveEndDate = endDate != null ? endDate : today;
 
         Page<GetRoomRequestDTO> requestsPage = roomBorrowRequestRepository
                 .findRequestsWithSchedules(null, email, startDate, endDate, pageable);

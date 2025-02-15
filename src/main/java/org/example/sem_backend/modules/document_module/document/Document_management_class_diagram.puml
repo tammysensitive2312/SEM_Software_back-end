@@ -1,0 +1,56 @@
+@startuml
+
+package application_layer {
+class DocumentManagementService {
+    +uploadDocument() : void
+    +searchDocument() : void
+    +createExam() : void
+    }
+class DocumentManagementController {
+}
+}
+package parser_layer {
+interface DocumentParser {
+    +parseDocument()
+}
+
+abstract class AbstractFileParser implements DocumentParser {
+    +parseDocument() : void
+}
+
+class PdfFileParser extends AbstractFileParser {}
+class DocFileParser extends AbstractFileParser {}
+class PowerPointFileParser extends AbstractFileParser {}
+
+
+class DocumentParserFactory {
+    +getParser() : DocumentParser
+}
+}
+package data_access_layer {
+class MetadataDocumentRepository {
+    +saveMetadata() : void
+    +searchByKeyword() : void
+}
+object ElasticsearchQuery {
+    +fullTextSearch() : void
+    }
+
+
+}
+package storage_layer {
+component HadoopDatake {
+object nameNode
+object dataNode1
+object dataNode2
+}
+object Elasticsearch
+object MongoDB
+}
+
+application_layer --> parser_layer
+application_layer --> data_access_layer
+parser_layer --> storage_layer
+data_access_layer --> storage_layer
+
+@enduml

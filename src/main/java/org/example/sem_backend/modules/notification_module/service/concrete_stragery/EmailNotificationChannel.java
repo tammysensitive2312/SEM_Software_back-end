@@ -4,7 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
-import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
+import org.example.sem_backend.modules.notification_module.service.strategy.NotificationChannel;
 import org.example.sem_backend.modules.user_module.domain.entity.User;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.springframework.mail.javamail.JavaMailSender;

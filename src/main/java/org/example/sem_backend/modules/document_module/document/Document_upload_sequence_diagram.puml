@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+' Định nghĩa actors
+actor User as "Người Dùng"
+boundary Server as "SEM"
+
+' Upload tệp
+== Upload tệp ==
+User -> Server: Tải tệp lên
+Server -> Server: Parse tệp và lưu metadata
+Server -> Server: Lưu tệp vào hệ thống
+
+' Tìm kiếm tệp
+== Tìm kiếm tệp ==
+User -> Server: Tìm kiếm tệp theo (metadata, nội dung, tìm kiếm toàn văn)
+Server -> Server: Tìm kiếm tệp trong hệ thống
+Server -> User: Trả kết quả tìm kiếm
+
+' Tạo đề thi
+== Tạo đề thi ==
+User -> Server: Nhập các tiêu chí đề thi (môn học, cấp độ, số câu, ...)
+Server -> Server: Lấy nội dung dữ liệu trong hệ thống
+Server -> Server: Tạo đề thi từ nội dung tệp \n(sử dụng các mô hình học máy nâng cao hoặc dữ liệu có sẵn)
+Server -> User: Trả về đề thi
+
+@enduml

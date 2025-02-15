@@ -6,6 +6,7 @@ import javax.crypto.SecretKey;
 
 public class GenerateJwtSecret {
     public static void main(String[] args) {
+        /*
         // Tạo một SecretKey 512-bit cho thuật toán HS512
         SecretKey key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS512);
 
@@ -13,6 +14,10 @@ public class GenerateJwtSecret {
         String base64Secret = Encoders.BASE64.encode(key.getEncoded());
 
         System.out.println("Generated JWT Secret Key (Base64): " + base64Secret);
+         */
+
+        int cpuCores = Runtime.getRuntime().availableProcessors();
+        System.out.println("Available CPU cores: " + cpuCores);
     }
 }
 

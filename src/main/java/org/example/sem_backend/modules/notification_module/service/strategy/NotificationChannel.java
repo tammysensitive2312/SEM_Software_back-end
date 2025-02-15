@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.notification_module.service.stragery;
+package org.example.sem_backend.modules.notification_module.service.strategy;
 
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
 

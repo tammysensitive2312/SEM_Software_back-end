@@ -1,0 +1,89 @@
+@startuml
+component SEM {
+package scheduling-module {
+    class ScheduledTaskManager {
+        - List<ScheduledTask> tasks
+        - TaskScheduler scheduler
+        - RoomScheduleProcessor roomScheduleProcessor
+        + registerTask(ScheduledTask task) : void
+        + executeTasks() : void
+        + scheduleTaskAtMidnight() : void
+    }
+
+    interface ScheduledTask {
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class TaskScheduler <<spring>> {
+        - ThreadPoolTaskScheduler threadPoolTaskScheduler
+        + schedule(Runnable task, Instant executionTime): void
+        + scheduleAtFixedRate(Runnable task, Instant startTime, long period): void
+    }
+
+    abstract class AbstractTask implements ScheduledTask {
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class RoomStatusChangeTask extends AbstractTask {
+        - Long roomId
+        - String newStatus
+        - RoomService roomService
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    class NotificationTask extends AbstractTask {
+        - String message
+        - String recipientEmail
+        - NotificationService notificationService
+        + execute(): void
+        + getExecutionTime(): LocalDateTime
+    }
+
+    ScheduledTaskManager "1" *-- "*" ScheduledTask
+    ScheduledTaskManager --> TaskScheduler
+}
+
+package room-module {
+    class RoomService {
+        + changeRoomStatus(RoomStatus status, Long roomId): void
+    }
+}
+
+package notification-module {
+    class NotificationService {
+        + sendNotification(String recipientEmail, String message): void
+    }
+}
+
+package borrowing-module {
+    class RoomScheduleProcessor {
+        - RoomScheduleRepository roomScheduleRepository
+        - TaskScheduler taskScheduler
+        - RoomService roomService
+        + processRoomSchedule(): void
+        + processSchedulesForRoom(Long roomId, List<RoomSchedule> schedules): void
+        - groupSchedulesByRoomId(List<RoomSchedule> schedules) : Map<Long, List<RoomSchedule>>
+    }
+
+    class RoomBorrowRequestService {
+        - RoomScheduleProcessor roomScheduleProcessor
+        + processRequest(RoomBorrowRequestDTO requestDto): void
+    }
+
+    interface RoomScheduleRepository {
+        + findSchedulesBetween(LocalDateTime start, LocalDateTime end): List<RoomSchedule>
+    }
+}
+
+RoomScheduleProcessor --> TaskScheduler
+RoomScheduleProcessor --> RoomService
+RoomScheduleProcessor --> RoomScheduleRepository
+RoomBorrowRequestService --> RoomScheduleProcessor
+RoomStatusChangeTask --> RoomService
+NotificationTask --> NotificationService
+ScheduledTaskManager --> RoomScheduleProcessor
+}
+@enduml
