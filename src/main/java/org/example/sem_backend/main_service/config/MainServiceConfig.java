@@ -1,28 +1,48 @@
 package org.example.sem_backend.main_service.config;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.conf.Configuration;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.http.MediaType;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
-@Configuration
+@org.springframework.context.annotation.Configuration
 @ComponentScan(basePackages = {
         "org.example.sem_backend.modules.equipment_module",
         "org.example.sem_backend.common_module",
         "org.example.sem_backend.modules.room_module"
 })
+@EnableAsync
+@EnableScheduling
 public class MainServiceConfig implements WebMvcConfigurer {
+    @Value("${hadoop.hdfs.url}")
+    private String hdfsUrl;
+    @Value("${hadoop.home.dir}")
+    private String hadoopHomeDir;
 
     // Cấu hình ApplicationEventMulticaster sử dụng TaskExecutor
     @Bean
@@ -48,37 +68,27 @@ public class MainServiceConfig implements WebMvcConfigurer {
         return source;
     }
 
-    // Tạo ThreadPoolTaskExecutor
     @Bean(name = "taskExecutorPool")
     public ThreadPoolTaskExecutor taskExecutorPool() {
-        int totalCpuCores = Runtime.getRuntime().availableProcessors();
-        int allocatedCores = (int) Math.ceil((totalCpuCores * 2.0) / 3); // Sử dụng 2/3 CPU cores
-        int ioRatio = 4; // Tác vụ I/O chiếm 4 lần thời gian xử lý
+        int availableCores = Runtime.getRuntime().availableProcessors();
+        int ioRatio = 4; // Tỷ lệ I/O
 
-        // Chia tài nguyên giữa TaskExecutor và TaskScheduler
-        int executorCores = allocatedCores / 2; // Một nửa dành cho TaskExecutor
-        int threadPoolSize = executorCores * (1 + ioRatio);
+        // Công thức: Số thread = số core * (1 + ioRatio)
+        int threadPoolSize = availableCores * (1 + ioRatio);
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(threadPoolSize / 2);
+        executor.setCorePoolSize(availableCores); // Core pool = số core
         executor.setMaxPoolSize(threadPoolSize);
-        executor.setQueueCapacity(200);
+        executor.setQueueCapacity(100); // Giảm queue để tránh tích tụ task
         executor.setThreadNamePrefix("TaskExecutorPool-");
         executor.initialize();
         return executor;
     }
 
-    // Tạo ThreadPoolTaskScheduler
     @Bean(name = "primaryTaskScheduler")
     public ThreadPoolTaskScheduler taskSchedulerPool() {
-        int totalCpuCores = Runtime.getRuntime().availableProcessors();
-        int allocatedCores = (int) Math.ceil((totalCpuCores * 2.0) / 3); // Sử dụng 2/3 CPU cores
-
-        // Chia tài nguyên giữa TaskExecutor và TaskScheduler
-        int schedulerCores = allocatedCores / 2; // Một nửa dành cho TaskScheduler
-
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(schedulerCores); // Tài nguyên dành riêng cho TaskScheduler
+        scheduler.setPoolSize(Runtime.getRuntime().availableProcessors()); // Pool size = số core
         scheduler.setThreadNamePrefix("TaskSchedulerPool-");
         scheduler.initialize();
         return scheduler;
@@ -94,5 +104,67 @@ public class MainServiceConfig implements WebMvcConfigurer {
     @Bean
     public ThreadPoolTaskScheduler taskScheduler(@Qualifier("primaryTaskScheduler") ThreadPoolTaskScheduler taskSchedulerPool) {
         return taskSchedulerPool;
+    }
+
+    @Bean
+    public FileSystem hdfsFileSystem() throws IOException {
+        Configuration conf = new Configuration();
+
+        conf.set("fs.defaultFS", hdfsUrl);
+        conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+        conf.set("hadoop.home.dir", hadoopHomeDir);
+
+        // Cấu hình timeout và retry
+        conf.setInt("ipc.client.connect.max.retries", 3);
+        conf.setLong("ipc.client.connect.timeout", 10000);
+        conf.setLong("dfs.client.socket-timeout", 60000);
+
+        // Cấu hình buffer và performance
+        conf.setInt("io.file.buffer.size", 4096);
+        conf.setBoolean("dfs.support.append", true);
+
+        return FileSystem.get(conf);
+    }
+
+    @Bean(name = "hdfsExecutor")
+    public Executor hdfsTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(25);
+        executor.setThreadNamePrefix("HDFS-Task-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new SimpleAsyncUncaughtExceptionHandler();
+    }
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer.favorParameter(true)
+                .parameterName("mediaType")
+                .ignoreAcceptHeader(false)
+                .useRegisteredExtensionsOnly(false)
+                .defaultContentType(MediaType.APPLICATION_JSON);
+    }
+
+    @Bean
+    public RetryTemplate retryTemplate() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+
+        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
+        backOffPolicy.setBackOffPeriod(2000);
+
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(3);
+
+        retryTemplate.setBackOffPolicy(backOffPolicy);
+        retryTemplate.setRetryPolicy(retryPolicy);
+
+        return retryTemplate;
     }
 }

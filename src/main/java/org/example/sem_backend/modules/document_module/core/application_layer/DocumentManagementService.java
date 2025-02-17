@@ -1,63 +1,36 @@
 package org.example.sem_backend.modules.document_module.core.application_layer;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.sem_backend.modules.document_module.core.parser_layer.DocumentParser;
 import org.example.sem_backend.modules.document_module.core.parser_layer.DocumentParserFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 @Slf4j
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class DocumentManagementService {
+    private final HdfsFileService hdfsFileService;
 
-    @Value("${upload.default.directory}")
-    private String defaultDirectory;
-
-    public List<String> uploadDocuments(List<MultipartFile> files) throws IOException {
-        List<String> uploadedFiles = new ArrayList<>();
-
+    public List<String> uploadDocuments(List<MultipartFile> files) {
+        List<String> paths = new ArrayList<>();
         for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                String filePath = uploadSingleDocument(file);
-                uploadedFiles.add(filePath);
-            }
+            String path = uploadSingleDocument(file);
+            paths.add(path);
         }
-
-        return uploadedFiles;
+        return paths;
     }
 
-    private String uploadSingleDocument(MultipartFile file) throws IOException {
-        String absolutePath = new File("").getAbsolutePath();
-        Path uploadPath = Paths.get(absolutePath + defaultDirectory);
-
-        Files.createDirectories(uploadPath);
-
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
-
-        Path targetLocation = uploadPath.resolve(uniqueFileName);
-        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-        processDocument(targetLocation.toString());
-
-        log.info("File saved to: " + targetLocation);
-        return targetLocation.toString();
+    private String uploadSingleDocument(MultipartFile file) {
+        String filePath = String.valueOf(hdfsFileService.uploadFileAsync(file));
+        return filePath;
     }
 
     public void processDocument(String path) {

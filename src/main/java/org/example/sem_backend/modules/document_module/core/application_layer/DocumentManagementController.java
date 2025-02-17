@@ -2,12 +2,11 @@ package org.example.sem_backend.modules.document_module.core.application_layer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.sem_backend.modules.document_module.core.UploadProgressDTO;
+import org.example.sem_backend.modules.document_module.core.UploadProgressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -18,6 +17,7 @@ import java.util.List;
 @Slf4j
 public class DocumentManagementController {
     private final DocumentManagementService documentManagementService;
+    private final UploadProgressService progressService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadDocuments(@RequestParam("files") List<MultipartFile> files) {
@@ -34,5 +34,15 @@ public class DocumentManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Upload failed: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/progress/{fileId}")
+    public ResponseEntity<UploadProgressDTO> getProgress(
+            @PathVariable String fileId) {
+        UploadProgressDTO progress = progressService.getProgress(fileId);
+        if (progress != null) {
+            return ResponseEntity.ok(progress);
+        }
+        return ResponseEntity.notFound().build();
     }
 }

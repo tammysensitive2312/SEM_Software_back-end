@@ -1,8 +1,11 @@
 # Build stage
-FROM maven:3.8.3-slim AS builder
+FROM maven:3.9.9-ibm-semeru-23-jammy AS builder
+
+# Tạo thư mục .m2 và set quyền trong builder stage
+RUN mkdir -p /root/.m2/repository
 
 # Cài đặt flyway plugin trong builder stage
-RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
+#RUN mvn dependency:get -Dartifact=org.flywaydb:flyway-maven-plugin:8.5.13
 
 # Development stage
 FROM eclipse-temurin:21-jre-jammy
@@ -23,19 +26,22 @@ RUN apt-get update && \
 # Tạo non-root user
 RUN useradd -ms /bin/bash developer
 
-# Tạo và set quyền cho workspace
+# Tạo các thư mục cần thiết và set quyền
 RUN mkdir -p /workspace && \
-    chown -R developer:developer /workspace
+    mkdir -p /home/developer/.m2/repository && \
+    chown -R developer:developer /workspace && \
+    chown -R developer:developer /home/developer/.m2
 
-# Copy maven dependencies từ builder stage
+# Copy maven dependencies từ builder stage và set quyền
 COPY --from=builder /root/.m2 /home/developer/.m2
+RUN chown -R developer:developer /home/developer/.m2
 
 # Set workspace
 WORKDIR /workspace
 
 # Set environment variables
 ENV SHELL=/bin/bash \
-    JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+    JAVA_OPTS="-XX:+UseContainerSupport -XX:ActiveProcessorCount=2 -XX:MaxRAMPercentage=75.0"
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
