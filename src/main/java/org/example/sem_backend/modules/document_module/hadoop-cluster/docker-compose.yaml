@@ -17,10 +17,12 @@ services:
     command: ["bash", "/start-hdfs.sh"]
     networks:
       hadoop_network:
+        aliases:
+          - namenode
 
   datanode_1:
     image: apache/hadoop:3.3.5
-#    hostname: localhost
+    hostname: datanode1
     user: root
     volumes:
       - ./data/datanode1:/opt/hadoop/data/dataNode
@@ -37,10 +39,14 @@ services:
       - "9866:9866"
     networks:
       hadoop_network:
+        aliases:
+          - datanode1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   datanode_2:
     image: apache/hadoop:3.3.5
-#    hostname: localhost
+    hostname: datanode2
     user: root
     volumes:
       - ./data/datanode2:/opt/hadoop/data/dataNode
@@ -53,10 +59,14 @@ services:
       - HADOOP_HOME=/opt/hadoop
       - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
     ports:
-      - "9865:9865"
-      - "9867:9867"
+      - "9865:9864"  # Map đến cổng khác trên host để tránh xung đột
+      - "9867:9866"  # Map đến cổng khác trên host để tránh xung đột
     networks:
       hadoop_network:
+        aliases:
+          - datanode2
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   resourcemanager:
     image: apache/hadoop:3.3.5
@@ -71,6 +81,8 @@ services:
       - namenode
     networks:
       hadoop_network:
+        aliases:
+          - resourcemanager
 
   nodemanager_1:
     image: apache/hadoop:3.3.5
@@ -83,6 +95,8 @@ services:
       - resourcemanager
     networks:
       hadoop_network:
+        aliases:
+          - nodemanager-1
 
   nodemanager_2:
     image: apache/hadoop:3.3.5
@@ -95,10 +109,12 @@ services:
       - resourcemanager
     networks:
       hadoop_network:
+        aliases:
+          - nodemanager-2
 
 networks:
   hadoop_network:
-      driver: bridge
+    driver: bridge
 
 volumes:
   namenode_data:

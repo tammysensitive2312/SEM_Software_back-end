@@ -16,10 +16,27 @@
     </property>
     <property>
         <name>dfs.datanode.data.dir</name>
-        <value>/opt/hadoop/data/dataNode</value>
+        <value>[DISK]/opt/hadoop/data/dataNode</value>
     </property>
     <property>
         <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
         <value>false</value>
+    </property>
+    <!-- Quan trọng: Thay đổi cách datanode báo cáo địa chỉ của nó -->
+    <property>
+        <name>dfs.client.use.datanode.hostname</name>
+        <value>false</value>
+    </property>
+    <property>
+        <name>dfs.datanode.use.datanode.hostname</name>
+        <value>false</value>
+    </property>
+    <property>
+        <name>dfs.datanode.address</name>
+        <value>0.0.0.0:9866</value>
+    </property>
+    <property>
+        <name>dfs.datanode.http.address</name>
+        <value>0.0.0.0:9864</value>
     </property>
 </configuration>

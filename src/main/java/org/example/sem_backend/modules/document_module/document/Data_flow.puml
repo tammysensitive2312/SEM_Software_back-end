@@ -1,31 +1,33 @@
+
+
+
 @startuml
 actor User
 participant "App Server Interface" as AppServer
-participant "Core Parser" as CoreParser
 participant "MongoDB" as MongoDB
 participant "Kafka" as Kafka
 participant "Spark Streaming" as SparkStreaming
 participant "Elasticsearch" as Elasticsearch
 participant "Hadoop Datake" as Datake
+participant "Spark SQL" as SparkSQL
 
 User -> AppServer: Upload Document
-AppServer -> Datake: Store Raw File in Hadoop Datake (HDFS)
-Datake -> Datake: Save File in HDFS
-
-AppServer -> CoreParser: Parse PDF (Text + Images)
-CoreParser -> CoreParser: Extract Metadata and Content
-CoreParser -> MongoDB: Save Metadata (Title, Author, Date, etc.)
-CoreParser -> Kafka: Send Data (Parsed Document + Metadata)
-Kafka -> SparkStreaming: Stream Data (Parsed Data + Metadata)
+== Bronze Layer Data pipeline ==
+AppServer -> Kafka : Stream Files Data to raw_files topic
+AppServer -> Kafka : Stream Extracted Data to parsed_data topic
+Kafka -> Datake: Subscribe topics & Store Raw Data in Hadoop Datake
+== Silver Layer Data pipeline ==
+Kafka -> SparkStreaming: Stream Extracted Data
 SparkStreaming -> SparkStreaming: Normalize Data (e.g., Translation to English)
-SparkStreaming -> Elasticsearch: Create Index (Text + Metadata)
-Elasticsearch -> Elasticsearch: Store Index for Search
-SparkStreaming -> Datake: Store Processed Data in Hadoop Datake (Parquet)
+SparkStreaming -> Elasticsearch: Create&Store Index for search (Text)
+SparkStreaming -> MongoDB: Save Metadata (Title, Author, Date, etc.)
+SparkStreaming -> Datake: Stream Processed Data to Hadoop Datake (Parquet)
 Datake -> Datake: Save Data (Full Document and Processed Metadata)
-
-User -> AppServer: Search Document (Text / Metadata)
-AppServer -> Elasticsearch: Query Index (Text / Metadata)
-Elasticsearch -> AppServer: Return Search Results
-AppServer -> User: Display Search Results
-
+== Gold Layer Data pipeline ==
+par Data aggregation
+    SparkSQL -> Datake: Read Data from Hadoop Datake Silver Layer
+    SparkSQL -> MongoDB: Query Metadata raw_files
+    SparkSQL -> SparkSQL : Aggregate Data
+end
+SparkSQL -> Datake: Save Aggregated Data
 @enduml

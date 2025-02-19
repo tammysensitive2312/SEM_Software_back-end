@@ -113,11 +113,17 @@ public class MainServiceConfig implements WebMvcConfigurer {
         conf.set("fs.defaultFS", hdfsUrl);
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
         conf.set("hadoop.home.dir", hadoopHomeDir);
+        conf.set("dfs.namenode.http-address", "localhost:9870");
 
-        // Cấu hình timeout và retry
-        conf.setInt("ipc.client.connect.max.retries", 3);
-        conf.setLong("ipc.client.connect.timeout", 10000);
-        conf.setLong("dfs.client.socket-timeout", 60000);
+        // Tăng timeout và retry
+        conf.setInt("ipc.client.connect.max.retries", 5);
+        conf.setLong("ipc.client.connect.timeout", 30000);
+        conf.setLong("dfs.client.socket-timeout", 120000);
+
+        conf.set("dfs.client.datanode.address.remap",
+                "172.20.0.4:9866=localhost:9866,172.20.0.5:9866=localhost:9867");
+
+        conf.setBoolean("dfs.client.use.datanode.hostname", false);
 
         // Cấu hình buffer và performance
         conf.setInt("io.file.buffer.size", 4096);
