@@ -5,9 +5,8 @@
 Người dùng có thể sử dụng tính năng này để tra cứu tìm kiếm tài liệu nội bộ của tổ chức, 
 bên cạnh đó còn có thể sử dụng app để đưa ra các yêu cầu về tài liệu cần tìm kiếm.
 App có thể dựa vào dữ liệu thu thập được từ người dùng và dữ liệu từ các website để đưa ra các gợi ý tài liệu phù hợp.
-Và một chức năng nhỏ, nếu người dùng yêu cầu app tạo ra cho mình một đề thi 
-thì app sẽ tự động tạo ra một đề thi ngẫu nhiên từ các tài liệu có sẵn.
-
+Và một chức năng nhỏ, nếu người dùng yêu cầu xây dựng một lột trình học tập, ví dụ "muốn trở thành một data engineer"
+app có thể đề xuất các lộ trình học kèm theo tài liệu liên quan đến lĩnh vực đó.
 ## 2. Các bước thực hiện
 
 - Bước 1: Người dùng truy cập vào app
@@ -22,6 +21,3 @@ sau một khoảng nhất định thì sẽ hiển thị lỗi
 
 ### Mô tả chi tiết 
 tìm kiếm theo nhiều tiêu chí khác nhau như tên tài liệu, tác giả, nội dung, ngày tạo, ngày cập nhật, loại tài liệu, ...
-
-
-```
