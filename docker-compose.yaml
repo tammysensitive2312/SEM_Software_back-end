@@ -96,10 +96,13 @@ services:
         limits:
           cpus: '1'
           memory: 2G
+    networks:
+        - hadoop_network
 
 networks:
   default:
     driver: bridge  # Thêm network configuration
+  hadoop_network:
 
 volumes:
   mysql-data:
