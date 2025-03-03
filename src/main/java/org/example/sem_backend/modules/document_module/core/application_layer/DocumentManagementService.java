@@ -17,7 +17,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class DocumentManagementService {
-    private final HdfsFileService hdfsFileService;
+    private final LocalFileService localFileService;
 
     public List<String> uploadDocuments(List<MultipartFile> files) {
         List<String> paths = new ArrayList<>();
@@ -25,11 +25,15 @@ public class DocumentManagementService {
             String path = uploadSingleDocument(file);
             paths.add(path);
         }
+
+        for (String path : paths) {
+            processDocument(path);
+        }
         return paths;
     }
 
     private String uploadSingleDocument(MultipartFile file) {
-        String filePath = String.valueOf(hdfsFileService.uploadFileAsync(file));
+        String filePath = String.valueOf(localFileService.uploadFileAsync(file));
         return filePath;
     }
 

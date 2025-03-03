@@ -1,11 +1,8 @@
 package org.example.sem_backend.main_service.config;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.conf.Configuration;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -25,10 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @org.springframework.context.annotation.Configuration
 @ComponentScan(basePackages = {
@@ -39,10 +33,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 @EnableScheduling
 public class MainServiceConfig implements WebMvcConfigurer {
-    @Value("${hadoop.hdfs.url}")
-    private String hdfsUrl;
-    @Value("${hadoop.home.dir}")
-    private String hadoopHomeDir;
+//    @Value("${hadoop.hdfs.url}")
+//    private String hdfsUrl;
+//    @Value("${hadoop.home.dir}")
+//    private String hadoopHomeDir;
 
     // Cấu hình ApplicationEventMulticaster sử dụng TaskExecutor
     @Bean
@@ -104,44 +98,6 @@ public class MainServiceConfig implements WebMvcConfigurer {
     @Bean
     public ThreadPoolTaskScheduler taskScheduler(@Qualifier("primaryTaskScheduler") ThreadPoolTaskScheduler taskSchedulerPool) {
         return taskSchedulerPool;
-    }
-
-    @Bean
-    public FileSystem hdfsFileSystem() throws IOException {
-        Configuration conf = new Configuration();
-
-        conf.set("fs.defaultFS", hdfsUrl);
-        conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
-        conf.set("hadoop.home.dir", hadoopHomeDir);
-        conf.set("dfs.namenode.http-address", "localhost:9870");
-
-        // Tăng timeout và retry
-        conf.setInt("ipc.client.connect.max.retries", 5);
-        conf.setLong("ipc.client.connect.timeout", 30000);
-        conf.setLong("dfs.client.socket-timeout", 120000);
-
-        conf.set("dfs.client.datanode.address.remap",
-                "172.20.0.4:9866=localhost:9866,172.20.0.5:9866=localhost:9867");
-
-        conf.setBoolean("dfs.client.use.datanode.hostname", false);
-
-        // Cấu hình buffer và performance
-        conf.setInt("io.file.buffer.size", 4096);
-        conf.setBoolean("dfs.support.append", true);
-
-        return FileSystem.get(conf);
-    }
-
-    @Bean(name = "hdfsExecutor")
-    public Executor hdfsTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        executor.setThreadNamePrefix("HDFS-Task-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
     }
 
     @Bean
