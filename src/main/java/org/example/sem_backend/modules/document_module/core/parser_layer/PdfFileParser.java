@@ -13,7 +13,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.pdf.PDFParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -30,8 +29,6 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class PdfFileParser extends AbstractFileParser {
-    @Value("${upload.default.directory}")
-    private String defaultDirectory;
 
     public PdfFileParser(String filePath) {
         super(filePath);
@@ -43,9 +40,8 @@ public class PdfFileParser extends AbstractFileParser {
         File source = new File(path);
         if (source.isFile() && source.getName().endsWith(".pdf")) {
             try {
-                // Tạo tên thư mục từ tên file PDF
-                String fileName = source.getName().replaceFirst("[.][^.]+$", "");
-                String outputDir = source.getParent() + File.separator + fileName;
+                String outputDir = getOutputDir(source);
+                log.info("Extracting PDF file to directory: {}", outputDir);
 
                 // Tạo thư mục nếu chưa tồn tại
                 Files.createDirectories(Paths.get(outputDir));

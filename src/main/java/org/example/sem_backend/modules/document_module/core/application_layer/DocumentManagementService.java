@@ -9,9 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -20,28 +21,31 @@ public class DocumentManagementService {
     private final LocalFileService localFileService;
 
     public List<String> uploadDocuments(List<MultipartFile> files) {
-        List<String> paths = new ArrayList<>();
-        for (MultipartFile file : files) {
-            String path = uploadSingleDocument(file);
-            paths.add(path);
-        }
+        List<CompletableFuture<String>> futures = files.stream()
+                .map(file -> localFileService.uploadFileAsync(file)
+                        .whenComplete((path, ex) -> {
+                            if (ex == null) {
+                                try {
+                                    processDocument(path);
+                                } catch (Exception processEx) {
+                                    log.error("Error processing document: {}", path, processEx);
+                                }
+                            }
+                        }))
+                .collect(Collectors.toList());
 
-        for (String path : paths) {
-            processDocument(path);
-        }
-        return paths;
-    }
-
-    private String uploadSingleDocument(MultipartFile file) {
-        String filePath = String.valueOf(localFileService.uploadFileAsync(file));
-        return filePath;
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
 
     public void processDocument(String path) {
         File source = new File(path);
         if (source.isDirectory()) {
+            log.info("Processing directory: {}", source.getName());
             processDirectory(source);
         } else {
+            log.info("Processing file: {}", source.getName());
             processSingleFile(source);
         }
     }
@@ -56,6 +60,7 @@ public class DocumentManagementService {
 
     private void processSingleFile(File file) {
         try {
+            log.info("Processing file path: {}", file.getPath());
             DocumentParser parser = DocumentParserFactory.getParser(file.getPath());
             parser.parseDocument(file.getPath());
         } catch (UnsupportedOperationException e) {

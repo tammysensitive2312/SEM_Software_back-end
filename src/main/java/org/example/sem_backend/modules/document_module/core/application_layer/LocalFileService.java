@@ -2,8 +2,8 @@ package org.example.sem_backend.modules.document_module.core.application_layer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.sem_backend.modules.document_module.core.ProgressTrackingInputStream;
-import org.example.sem_backend.modules.document_module.core.UploadProgressService;
+import org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper.ProgressTrackingInputStream;
+import org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper.UploadProgressService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
@@ -23,6 +23,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+/**
+ *
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

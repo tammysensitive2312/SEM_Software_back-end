@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core;
+package org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper;
 
 import java.io.IOException;
 import java.io.InputStream;

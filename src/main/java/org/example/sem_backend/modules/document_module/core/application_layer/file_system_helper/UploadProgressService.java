@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core;
+package org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

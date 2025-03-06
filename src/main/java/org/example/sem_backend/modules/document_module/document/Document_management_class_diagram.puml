@@ -1,13 +1,23 @@
 @startuml
 
-package application_layer {
-class DocumentManagementService {
-    +uploadDocument() : void
-    +searchDocument() : void
-    +createExam() : void
+package use_case_layer {
+
+class LocalFileService {
+    - String storageDirectory
+    + CompletableFuture<String> uploadFileAsync(MultipartFile file)
+    - String uploadFileWithProgress(MultipartFile file, String localPath, String fileId)
+    - String sanitizeFileName(String filename)
+    - String generateLocalPath(MultipartFile file)
     }
-class DocumentManagementController {
-}
+
+class DocumentManagementService {
+    - LocalFileService fileSystem
+    +uploadDocument() : String
+    +searchDocument() : void
+    -parseDocument() : void
+    }
+
+'LocalFileService <.. DocumentManagementService
 }
 package parser_layer {
 interface DocumentParser {
@@ -38,29 +48,29 @@ object ElasticsearchQuery {
 
 
 }
-package storage_layer {
-component HadoopDatake {
-object nameNode
-object dataNode1
-object dataNode2
+package data_model_layer {
+class Document {
++ String fileId
++ String filePath
++ String name
++ LocalDateTime createdAt
++ JSON metadata
 }
-object Elasticsearch
-component MongoDB {
-class DocumentMetadata {
-    +title : String
-    +author : String
-    +uploadDate : LocalDate
-    +summary : String
-    +hash : String
-    ...
-    }\
+class DocumentVersion {
+- String id
+- String revisionId
+- LocalDateTime updatedAt
+- Long size
 
-}
+- Long documentId
 }
 
-application_layer --> parser_layer
-application_layer --> data_access_layer
-parser_layer --> storage_layer
-data_access_layer --> storage_layer
+DocumentVersion "n" *-- "1" Document
+}
+
+use_case_layer --> parser_layer
+use_case_layer --> data_access_layer
+parser_layer --> data_model_layer
+data_access_layer --> data_model_layer
 
 @enduml

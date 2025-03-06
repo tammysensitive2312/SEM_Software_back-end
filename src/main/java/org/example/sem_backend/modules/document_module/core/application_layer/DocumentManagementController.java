@@ -2,8 +2,8 @@ package org.example.sem_backend.modules.document_module.core.application_layer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.sem_backend.modules.document_module.core.UploadProgressDTO;
-import org.example.sem_backend.modules.document_module.core.UploadProgressService;
+import org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper.UploadProgressDTO;
+import org.example.sem_backend.modules.document_module.core.application_layer.file_system_helper.UploadProgressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -34,6 +35,13 @@ public abstract class AbstractFileParser implements DocumentParser {
     }
 
     private static void extractImages(File file, String outputDir) throws IOException {
+    }
+
+    protected String getOutputDir(File source) {
+        String fileName = source.getName().replaceFirst("[.][^.]+$", "");
+        File parent = source.getParentFile();
+        File grandParent = parent.getParentFile();
+        return grandParent.getPath() + "\\extracted_data" + File.separator + fileName;
     }
 
     protected static String calculatePHash(BufferedImage image) {
