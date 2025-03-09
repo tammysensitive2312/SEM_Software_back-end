@@ -2,75 +2,160 @@
 
 package use_case_layer {
 
+component Service {
 class LocalFileService {
     - String storageDirectory
-    + CompletableFuture<String> uploadFileAsync(MultipartFile file)
+    + CompletableFuture<String> uploadFileAsync(MultipartFile file, String fileId)
     - String uploadFileWithProgress(MultipartFile file, String localPath, String fileId)
-    - String sanitizeFileName(String filename)
-    - String generateLocalPath(MultipartFile file)
+}
+
+class ProcessTrackingService {
+    - Map<String, ProcessTrackingDTO> progressMap
+    + void initProcess(String fileId, String fileName, long size)
+    + void updateUploadProgress(String fileId, long bytesUploaded)
+    + void startParsing(String fileId)
+    + void completeParsing(String fileId)
+    + ProcessTrackingDTO getProgress(String fileId)
+}
+
+class GoogleDriveService {
+    - String APPLICATION_NAME
+    - JsonFactory JSON_FACTORY
+    - String CREDENTIALS_FILE_PATH
+
+    - Drive getDriveService()
+    + List<Revision> getRevisions(String fileId)
+    + byte[] downloadFile(String fileId)
+    + byte[] downloadRevision(String fileId)
+    + String extractFileIdFromUrl(String url)
     }
 
 class DocumentManagementService {
-    - LocalFileService fileSystem
-    +uploadDocument() : String
-    +searchDocument() : void
-    -parseDocument() : void
-    }
-
-'LocalFileService <.. DocumentManagementService
+    - LocalFileService localFileService
+    - DocumentParserFactory parserFactory
+    - DocumentAccessRepository docRepository
+    + List<String> uploadDocuments(List<MultipartFile> files)
+    - void processDocument(String path, String fileId)
 }
+
+ProcessTrackingService --> DocumentManagementService
+LocalFileService --> DocumentManagementService
+GoogleDriveService --> DocumentManagementService
+}
+}
+
+package DTO {
+class ProcessTrackingDTO {
+    - String fileId
+    - String fileName
+    - long totalBytes
+    - long uploadedBytes
+    - int uploadProgress
+    - ProcessStatus parsingStatus
+    - LocalDateTime startTime
+    - String error
+}
+}
+
 package parser_layer {
 interface DocumentParser {
-    +parseDocument()
+    + parseDocument(String path) : DocumentMetadata
 }
 
-abstract class AbstractFileParser implements DocumentParser {
-    +parseDocument() : void
+class PdfFileParser {
+    + parseDocument(String path) : DocumentMetadata
+    - extractTextContent()
+    - extractMetadata()
 }
 
-class PdfFileParser extends AbstractFileParser {}
-class DocFileParser extends AbstractFileParser {}
-class PowerPointFileParser extends AbstractFileParser {}
-
+class DocxFileParser {
+    + parseDocument(String path) : DocumentMetadata
+    - extractTextContent()
+    - extractMetadata()
+}
 
 class DocumentParserFactory {
     +getParser() : DocumentParser
 }
+
+DocumentParser <|.. PdfFileParser
+DocumentParser <|.. DocxFileParser
+DocumentParserFactory --> DocumentParser
 }
+
 package data_access_layer {
-class MetadataDocumentRepository {
-    +saveMetadata() : void
-    +searchByKeyword() : void
+interface MetadataRepository {
+    + saveMetadata(String fileId, DocumentMetadata metadata)
+    + getMetadata(String fileId) : DocumentMetadata
 }
-object ElasticsearchQuery {
-    +fullTextSearch() : void
-    }
-
-
+interface DocumentRepository {
 }
+
+interface DocumentVersionRepository {
+}
+
+class DocumentAccessRepository {
+    - DocumentRepository docRepo
+    - DocumentVersionRepository versionRepo
+    - MetadataRepository metadataRepo
+    + saveDocumentWithMetadata(Document doc, DocumentMetadata metadata)
+}
+
+DocumentAccessRepository o-- DocumentRepository
+DocumentAccessRepository o-- DocumentVersionRepository
+DocumentAccessRepository o-- MetadataRepository
+}
+
 package data_model_layer {
 class Document {
-+ String fileId
-+ String filePath
-+ String name
-+ LocalDateTime createdAt
-+ JSON metadata
+    - String fileId
+    - String filePath
+    - String fileName
+    - long size
+    - LocalDateTime uploadedAt
+    - List<DocumentVersion> versions
 }
+
+class DocumentMetadata {
+    - String fileId
+    - String title
+    - String contentHash
+    - String author
+    - List<String> keywords
+    - Map<String, Object> technicalDetails
+    - LocalDateTime contentCreated
+}
+
 class DocumentVersion {
-- String id
-- String revisionId
-- LocalDateTime updatedAt
-- Long size
-
-- Long documentId
+    - String versionId
+    - String revisionNote
+    - DocumentMetadata snapshot
 }
 
-DocumentVersion "n" *-- "1" Document
+Document --> "0..*" DocumentVersion
+Document --> "1" DocumentMetadata
 }
 
-use_case_layer --> parser_layer
-use_case_layer --> data_access_layer
-parser_layer --> data_model_layer
-data_access_layer --> data_model_layer
+' Connections
+DocumentManagementService --> ProcessTrackingService
+DocumentManagementService --> DocumentParser
+DocumentManagementService --> DocumentAccessRepository
+DocumentParser --> DocumentMetadata
+ProcessTrackingService --> ProcessTrackingDTO
+MetadataRepository --> DocumentMetadata
+DocumentRepository --> Document
+DocumentVersionRepository --> DocumentVersion
 
+@enduml
+
+@startuml
+User -> DocumentManagementService: uploadDocuments(files)
+DocumentManagementService -> ProcessTrackingService: initProcess()
+DocumentManagementService -> LocalFileService: uploadFileAsync()
+LocalFileService -> ProcessTrackingService: updateUploadProgress()
+DocumentManagementService -> DocumentParser: parseDocument()
+DocumentParser -> DocumentMetadata: extract metadata
+DocumentManagementService -> DocumentAccessRepository: saveDocumentWithMetadata()
+DocumentAccessRepository -> MetadataRepository: saveMetadata()
+ProcessTrackingService -> ProcessTrackingService: completeParsing()
 @enduml

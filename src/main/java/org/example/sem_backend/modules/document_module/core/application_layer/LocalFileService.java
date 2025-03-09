@@ -19,7 +19,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -37,8 +36,7 @@ public class LocalFileService {
     @Value("${upload.default.directory}")
     private String storageDirectory;
 
-    public CompletableFuture<String> uploadFileAsync(MultipartFile file) {
-        String fileId = UUID.randomUUID().toString();
+    public CompletableFuture<String> uploadFileAsync(MultipartFile file, String fileId) {
         String localPath = generateLocalPath(file);
         log.info("Uploading file {} to local path {}", fileId, localPath);
 

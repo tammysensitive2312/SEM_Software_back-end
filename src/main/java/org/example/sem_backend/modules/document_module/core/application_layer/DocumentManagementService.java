@@ -2,6 +2,7 @@ package org.example.sem_backend.modules.document_module.core.application_layer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.example.sem_backend.modules.document_module.core.parser_layer.DocumentParser;
 import org.example.sem_backend.modules.document_module.core.parser_layer.DocumentParserFactory;
 import org.springframework.stereotype.Service;
@@ -9,8 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -22,16 +25,19 @@ public class DocumentManagementService {
 
     public List<String> uploadDocuments(List<MultipartFile> files) {
         List<CompletableFuture<String>> futures = files.stream()
-                .map(file -> localFileService.uploadFileAsync(file)
-                        .whenComplete((path, ex) -> {
-                            if (ex == null) {
-                                try {
-                                    processDocument(path);
-                                } catch (Exception processEx) {
-                                    log.error("Error processing document: {}", path, processEx);
+                .map(file -> {
+                    String fileId = UUID.randomUUID().toString();
+                    return localFileService.uploadFileAsync(file, fileId)
+                            .whenComplete((path, ex) -> {
+                                if (ex == null) {
+                                    try {
+                                        processDocument(path);
+                                    } catch (Exception processEx) {
+                                        log.error("Error processing document: {}", path, processEx);
+                                    }
                                 }
-                            }
-                        }))
+                            });
+                        })
                 .collect(Collectors.toList());
 
         return futures.stream()

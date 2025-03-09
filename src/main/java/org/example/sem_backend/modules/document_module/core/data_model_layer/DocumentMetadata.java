@@ -1,4 +1,4 @@
-package org.example.sem_backend.modules.document_module.core.storage_layer;
+package org.example.sem_backend.modules.document_module.core.data_model_layer;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
