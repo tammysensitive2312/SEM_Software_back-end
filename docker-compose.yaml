@@ -58,21 +58,21 @@ services:
           cpus: '1'
           memory: 2G
 
-  mongodb:
-    image: mongodb/mongodb-community-server:latest
-    restart: unless-stopped
-    volumes:
-      - mongodb-data:/var/lib/mongodb
-    environment:
-      - MONGODB_INITDB_ROOT_USERNAME=root
-      - MONGODB_INITDB_ROOT_PASSWORD=sem_service
-    ports:
-      - "27017:27017"
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+#  mongodb:
+#    image: mongodb/mongodb-community-server:latest
+#    restart: unless-stopped
+#    volumes:
+#      - mongodb-data:/var/lib/mongodb
+#    environment:
+#      - MONGODB_INITDB_ROOT_USERNAME=root
+#      - MONGODB_INITDB_ROOT_PASSWORD=sem_service
+#    ports:
+#      - "27017:27017"
+#    healthcheck:
+#      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
 
   kafka:
     image: 'bitnami/kafka:latest'
