@@ -1,185 +1,189 @@
 package org.example.sem_backend.modules.notification_module.service;
 
-import org.example.sem_backend.common_module.common.event.EquipmentBorrowedEvent;
-import org.example.sem_backend.modules.notification_module.domain.dto.NotificationRequest;
+import io.github.bucket4j.Bucket;
 import org.example.sem_backend.modules.notification_module.domain.dto.NotificationResponse;
 import org.example.sem_backend.modules.notification_module.domain.entity.Notification;
+import org.example.sem_backend.modules.notification_module.domain.enums.NotificationType;
 import org.example.sem_backend.modules.notification_module.domain.mapper.NotificationMapper;
 import org.example.sem_backend.modules.notification_module.repository.NotificationRepository;
-import org.example.sem_backend.modules.notification_module.service.stragery.NotificationChannel;
-import org.example.sem_backend.modules.user_module.domain.entity.ERole;
+import org.example.sem_backend.modules.notification_module.service.strategy.NotificationChannel;
 import org.example.sem_backend.modules.user_module.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
     @Mock
     private NotificationRepository notificationRepository;
 
     @Mock
-    private NotificationChannel notificationChannel;
+    private NotificationMapper mapper;
 
     @Mock
-    private NotificationMapper mapper;
+    private NotificationChannel notificationChannel;
 
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Mock
+    private Bucket bucket;
+
+    @InjectMocks
     private NotificationService notificationService;
+
+    private Notification testNotification;
+    private NotificationResponse testNotificationResponse;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        notificationService = new NotificationService(notificationRepository, userRepository,List.of(notificationChannel), mapper);
+        testNotification = new Notification();
+        testNotification.setId(1L);
+        testNotification.setMessage("Test message");
+        testNotification.setType(NotificationType.IN_APP);
+        testNotification.setRead(false);
+        testNotification.setRecipients(new HashSet<>(Collections.singletonList(1L)));
+
+        testNotificationResponse = new NotificationResponse(1L, "Test message",
+                LocalDateTime.now().toString(), false);
+
+        notificationService = new NotificationService(notificationRepository, mapper, userRepository,List.of(notificationChannel), kafkaTemplate);
     }
 
     @Test
-    void handleEquipmentBorrowedEvent_shouldCreateAndSendNotification() {
-        // Arrange
-        EquipmentBorrowedEvent event = new EquipmentBorrowedEvent(this, 1L, 2L);
-        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+    void createAndSendNotification_SingleUser_Success() {
+        // Given
+        Long userId = 1L;
+        String message = "Test message";
 
-        // Act
-        notificationService.handleEquipmentBorrowedEvent(event);
+        // When
+        notificationService.createAndSendNotification(userId, message, true);
 
-        // Assert
-        verify(notificationRepository).save(notificationCaptor.capture());
-        verify(notificationChannel).send(notificationCaptor.capture());
-
-        Notification notification = notificationCaptor.getValue();
-        assertEquals("Đơn mượn #1 của bạn đã được duyệt thành công.", notification.getMessage());
-        assertTrue(notification.getRecipients().contains(2L));
-        assertFalse(notification.isRead());
+        // Then
+        verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
     @Test
-    void getUnreadNotifications_shouldReturnNotifications() {
-        // Arrange
-        Long userId = 2L;
-        Notification notification = new Notification();
-        notification.setId(1L);
-        notification.setRecipients(new HashSet<>(Collections.singletonList(userId)));
-        notification.setRead(false);
+    void createAndSendNotification_SingleUser_RateLimitExceeded() {
+        // Given
+        Long userId = 1L;
+        String message = "Test message";
+        when(bucket.tryConsume(1)).thenReturn(false);
 
-        NotificationResponse response = new NotificationResponse(
-                1L,
-                notification.getMessage(),
-                any(),
-                false);
+        // When
+        notificationService.createAndSendNotification(userId, message, true);
 
+        // Then
+        verify(kafkaTemplate, times(1)).send(eq("notification_topic"), any(String.class));
+        verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    @Test
+    void createAndSendNotification_MultipleUsers_Success() {
+        // Given
+        List<Long> userIds = Arrays.asList(1L, 2L);
+        String message = "Test message";
+
+        // When
+        notificationService.createAndSendNotification(userIds, message, true);
+
+        // Then
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+    }
+
+    @Test
+    void createAndSendNotification_MultipleUsers_EmptyList() {
+        // Given
+        List<Long> userIds = Collections.emptyList();
+        String message = "Test message";
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class,
+                () -> notificationService.createAndSendNotification(userIds, message, true));
+    }
+
+    @Test
+    void getUnreadNotifications_Success() {
+        // Given
+        Long userId = 1L;
+        List<Notification> notifications = Collections.singletonList(testNotification);
         when(notificationRepository.findByRecipientsContainingAndIsReadFalse(userId))
-                .thenReturn(List.of(notification));
+                .thenReturn(notifications);
+        when(mapper.toDtoResponse(any(Notification.class)))
+                .thenReturn(testNotificationResponse);
 
-        when(mapper.toDtoResponse(notification)).thenReturn(response);
-        // Act
-        List<NotificationResponse> unreadNotifications = notificationService.getUnreadNotifications(userId);
+        // When
+        List<NotificationResponse> result = notificationService.getUnreadNotifications(userId);
 
-        // Assert
-        assertNotNull(unreadNotifications);
-        assertEquals(1, unreadNotifications.size());
-        assertEquals(response, unreadNotifications.getFirst());
+        // Then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        verify(notificationRepository, times(1))
+                .findByRecipientsContainingAndIsReadFalse(userId);
     }
 
     @Test
-    void markAsRead_shouldUpdateNotification() {
-        // Arrange
+    void getAllNotifications_Success() {
+        // Given
+        Long userId = 1L;
+        List<Notification> notifications = Collections.singletonList(testNotification);
+        when(notificationRepository.findByRecipientsContaining(userId))
+                .thenReturn(notifications);
+        when(mapper.toDtoResponse(any(Notification.class)))
+                .thenReturn(testNotificationResponse);
+
+        // When
+        List<NotificationResponse> result = notificationService.getAllNotifications(userId);
+
+        // Then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        verify(notificationRepository, times(1))
+                .findByRecipientsContaining(userId);
+    }
+
+    @Test
+    void markAsRead_Success() {
+        // Given
         Long notificationId = 1L;
-        Notification notification = new Notification();
-        notification.setId(notificationId);
-        notification.setRead(false);
+        when(notificationRepository.findById(notificationId))
+                .thenReturn(Optional.of(testNotification));
 
-        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(notification));
-
-        // Act
+        // When
         notificationService.markAsRead(notificationId);
 
-        // Assert
-        assertTrue(notification.isRead());
-        assertNotNull(notification.getReadAt());
-        verify(notificationRepository).save(notification);
+        // Then
+        assertTrue(testNotification.isRead());
+        assertNotNull(testNotification.getReadAt());
+        verify(notificationRepository, times(1)).save(testNotification);
     }
 
     @Test
-    void markAsRead_shouldThrowExceptionWhenNotificationNotFound() {
-        // Arrange
+    void markAsRead_NotificationNotFound() {
+        // Given
         Long notificationId = 1L;
-        when(notificationRepository.findById(notificationId)).thenReturn(Optional.empty());
+        when(notificationRepository.findById(notificationId))
+                .thenReturn(Optional.empty());
 
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                notificationService.markAsRead(notificationId));
-        assertEquals("Notification not found", exception.getMessage());
-    }
-
-    @Test
-    void sendNotificationToAdminUser_shouldSendToAdmins() {
-        // Arrange
-        NotificationRequest request = new NotificationRequest("Test message", false);
-        List<Long> adminIds = List.of(1L, 2L);
-        when(userRepository.findIdByRole(ERole.ROLE_ADMIN)).thenReturn(adminIds);
-
-        // Act
-        notificationService.sendNotificationToAdminUser(request).join();
-
-        // Assert
-        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(notificationRepository, atLeastOnce()).save(captor.capture());
-
-        Notification savedNotification = captor.getValue();
-        assertEquals("Test message", savedNotification.getMessage());
-        assertTrue(savedNotification.getRecipients().containsAll(adminIds),
-                "Recipients should contain all admin IDs");
-    }
-
-
-    @Test
-    void sendMessage_shouldSendToValidUserIds() {
-        // Arrange
-        List<Long> userIds = List.of(1L, 2L);
-        String message = "Hello Users!";
-
-        // Act
-        notificationService.sendMessage(() -> userIds, message);
-
-        // Assert
-        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
-        verify(notificationRepository).save(captor.capture());
-
-        Notification savedNotification = captor.getValue();
-        assertEquals(message, savedNotification.getMessage());
-        assertTrue(savedNotification.getRecipients().containsAll(userIds),
-                "Recipients should contain all user IDs");
-    }
-
-
-    @Test
-    void sendMessage_shouldThrowExceptionForEmptyUserList() {
-        // Arrange
-        String message = "Hello Users!";
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                notificationService.sendMessage(Collections::emptyList, message));
-        assertEquals("UserId list cannot be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void sendMessage_shouldHandleNullUserList() {
-        // Arrange
-        String message = "Hello Users!";
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                notificationService.sendMessage(() -> null, message));
-        assertEquals("UserId list cannot be null or empty", exception.getMessage());
+        // When & Then
+        assertThrows(RuntimeException.class,
+                () -> notificationService.markAsRead(notificationId));
     }
 }

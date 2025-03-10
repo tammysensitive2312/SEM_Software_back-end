@@ -31,6 +31,11 @@ services:
         condition: service_healthy  # Đảm bảo MySQL đã sẵn sàng
       kafka:
         condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
 
   db:
     image: mysql:8.0
@@ -47,6 +52,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+#  mongodb:
+#    image: mongodb/mongodb-community-server:latest
+#    restart: unless-stopped
+#    volumes:
+#      - mongodb-data:/var/lib/mongodb
+#    environment:
+#      - MONGODB_INITDB_ROOT_USERNAME=root
+#      - MONGODB_INITDB_ROOT_PASSWORD=sem_service
+#    ports:
+#      - "27017:27017"
+#    healthcheck:
+#      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
 
   kafka:
     image: 'bitnami/kafka:latest'
@@ -57,6 +83,7 @@ services:
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
     healthcheck:  # Thêm healthcheck cho Kafka
@@ -64,11 +91,21 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    networks:
+        - hadoop_network
 
 networks:
   default:
     driver: bridge  # Thêm network configuration
+  hadoop_network:
 
 volumes:
   mysql-data:
     driver: local  # Chỉ định driver cho volume
+  mongodb-data:
+    driver: local

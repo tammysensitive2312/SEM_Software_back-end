@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -36,4 +37,17 @@ public interface EquipmentBorrowRequestRepository extends JpaRepository<Equipmen
     Page<EquipmentBorrowRequest> findByUser_UsernameContainingIgnoreCase(String username, Pageable pageable);
 
     void deleteAllInBatch(Iterable<EquipmentBorrowRequest> entities);
+
+    @Query("SELECT r.user.id FROM EquipmentBorrowRequest r " +
+            "WHERE r.expectedReturnDate < :date " +
+            "AND r.status = :status")
+    @QueryHints({
+            @QueryHint(name="org.hibernate.readOnly", value = "true"),
+            @QueryHint(name="org.hibernate.fetchSize", value = "50"),
+            @QueryHint(name ="org.hibernate.cacheable", value = "true"),
+            @QueryHint(name ="jakarta.persistence.cache.retrieveMode", value = "USE"),
+            @QueryHint(name ="jakarta.persistence.cache.storeMode", value = "USE")
+    })
+    @Nullable
+    List<Long> findUserIdsByExpectedReturnDateBeforeAndStatusIn(LocalDate date, EquipmentBorrowRequest.Status status);
 }

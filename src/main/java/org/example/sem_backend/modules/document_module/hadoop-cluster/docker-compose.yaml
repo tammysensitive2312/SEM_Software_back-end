@@ -1,0 +1,125 @@
+services:
+  namenode:
+    image: apache/hadoop:3.3.5
+    container_name: namenode
+    hostname: namenode
+    user: root
+    volumes:
+      - ./data/namenode:/opt/hadoop/data/nameNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/start-hdfs.sh:/start-hdfs.sh
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    command: ["bash", "/start-hdfs.sh"]
+    networks:
+      hadoop_network:
+        aliases:
+          - namenode
+
+  datanode_1:
+    image: apache/hadoop:3.3.5
+    hostname: datanode1
+    user: root
+    volumes:
+      - ./data/datanode1:/opt/hadoop/data/dataNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+    depends_on:
+      - namenode
+    command: ["bash", "/init-datanode.sh"]
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    ports:
+      - "9864:9864"
+      - "9866:9866"
+    networks:
+      hadoop_network:
+        aliases:
+          - datanode1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  datanode_2:
+    image: apache/hadoop:3.3.5
+    hostname: datanode2
+    user: root
+    volumes:
+      - ./data/datanode2:/opt/hadoop/data/dataNode
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+    depends_on:
+      - namenode
+    command: ["bash", "/init-datanode.sh"]
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    ports:
+      - "9865:9864"  # Map đến cổng khác trên host để tránh xung đột
+      - "9867:9866"  # Map đến cổng khác trên host để tránh xung đột
+    networks:
+      hadoop_network:
+        aliases:
+          - datanode2
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  resourcemanager:
+    image: apache/hadoop:3.3.5
+    hostname: resourcemanager
+    user: root
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - "8088:8088"  # Web UI của YARN
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - namenode
+    networks:
+      hadoop_network:
+        aliases:
+          - resourcemanager
+
+  nodemanager_1:
+    image: apache/hadoop:3.3.5
+    hostname: nodemanager-1
+    user: root
+    command: ["yarn", "nodemanager"]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - resourcemanager
+    networks:
+      hadoop_network:
+        aliases:
+          - nodemanager-1
+
+  nodemanager_2:
+    image: apache/hadoop:3.3.5
+    hostname: nodemanager-2
+    user: root
+    command: ["yarn", "nodemanager"]
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+    depends_on:
+      - resourcemanager
+    networks:
+      hadoop_network:
+        aliases:
+          - nodemanager-2
+
+networks:
+  hadoop_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.9/24
+
+volumes:
+  namenode_data:
+  datanode1_data:
+  datanode2_data:

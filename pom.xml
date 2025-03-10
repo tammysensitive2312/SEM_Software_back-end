@@ -32,6 +32,53 @@
     </properties>
     <dependencies>
 
+        <!-- https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core -->
+        <dependency>
+            <groupId>com.github.vladimir-bukhtoyarov</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.0.1</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-data-mongodb</artifactId>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-common</artifactId>-->
+<!--            <version>3.4.1</version> &lt;!&ndash; Sử dụng phiên bản Hadoop phù hợp &ndash;&gt;-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-hdfs</artifactId>-->
+<!--            <version>3.4.1</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-hdfs-client</artifactId>-->
+<!--            <version>3.4.1</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.slf4j</groupId>-->
+<!--                    <artifactId>slf4j-log4j12</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -230,7 +277,23 @@
             <version>5.0.9.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>3.1.0</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.4</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

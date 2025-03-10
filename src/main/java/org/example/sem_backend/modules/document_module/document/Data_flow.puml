@@ -1,0 +1,33 @@
+
+
+
+@startuml
+actor User
+participant "App Server Interface" as AppServer
+participant "MongoDB" as MongoDB
+participant "Kafka" as Kafka
+participant "Spark Streaming" as SparkStreaming
+participant "Elasticsearch" as Elasticsearch
+participant "Hadoop Datake" as Datake
+participant "Spark SQL" as SparkSQL
+
+User -> AppServer: Upload Document
+== Bronze Layer Data pipeline ==
+AppServer -> Kafka : Stream Files Data to raw_files topic
+AppServer -> Kafka : Stream Extracted Data to parsed_data topic
+Kafka -> Datake: Subscribe topics & Store Raw Data in Hadoop Datake
+== Silver Layer Data pipeline ==
+Kafka -> SparkStreaming: Stream Extracted Data
+SparkStreaming -> SparkStreaming: Normalize Data (e.g., Translation to English)
+SparkStreaming -> Elasticsearch: Create&Store Index for search (Text)
+SparkStreaming -> MongoDB: Save Metadata (Title, Author, Date, etc.)
+SparkStreaming -> Datake: Stream Processed Data to Hadoop Datake (Parquet)
+Datake -> Datake: Save Data (Full Document and Processed Metadata)
+== Gold Layer Data pipeline ==
+par Data aggregation
+    SparkSQL -> Datake: Read Data from Hadoop Datake Silver Layer
+    SparkSQL -> MongoDB: Query Metadata raw_files
+    SparkSQL -> SparkSQL : Aggregate Data
+end
+SparkSQL -> Datake: Save Aggregated Data
+@enduml
